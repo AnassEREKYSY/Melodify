@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  sql:
+    image: mcr.microsoft.com/azure-sql-edge
+    environment: 
+      ACCEPT_EULA: "1"
+      SA_PASSWORD: "Password@1"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-data:/var/opt/mssql
+
+volumes:
+  sql-data:
