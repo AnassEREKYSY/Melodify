@@ -8,9 +8,8 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/spotify-auth")]
-    public class SpotifyAuthController: ControllerBase
+    public class SpotifyAuthController : ControllerBase
     {
-
         private readonly IConfiguration _configuration;
         private readonly UserManager<AppUser> _userManager;
 
@@ -19,6 +18,7 @@ namespace API.Controllers
             _configuration = configuration;
             _userManager = userManager;
         }
+
         [HttpGet("login")]
         public IActionResult Login()
         {
@@ -41,28 +41,69 @@ public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] s
 
     using var httpClient = new HttpClient();
 
-    // Request tokens from Spotify
-    var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token");
-    request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+    var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token")
     {
-        { "grant_type", "authorization_code" },
-        { "code", code },
-        { "redirect_uri", redirectUri },
-        { "client_id", clientId },
-        { "client_secret", clientSecret }
-    });
+        Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            { "grant_type", "authorization_code" },
+            { "code", code },
+            { "redirect_uri", redirectUri },
+            { "client_id", clientId },
+            { "client_secret", clientSecret }
+        })
+    };
 
-    var response = await httpClient.SendAsync(request);
-    response.EnsureSuccessStatusCode();
-    var responseBody = await response.Content.ReadAsStringAsync();
-    var tokenData = JsonSerializer.Deserialize<SpotifyTokenResponse>(responseBody);
+    HttpResponseMessage tokenResponse;
+    try
+    {
+        tokenResponse = await httpClient.SendAsync(tokenRequest);
+        var responseContent = await tokenResponse.Content.ReadAsStringAsync();
+        Console.WriteLine($"Token Response: {responseContent}");
+        tokenResponse.EnsureSuccessStatusCode();
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Failed to exchange token: {ex.Message}");
+    }
 
-    // Use the access token to fetch user information from Spotify
+    var tokenResponseBody = await tokenResponse.Content.ReadAsStringAsync();
+    var tokenData = JsonSerializer.Deserialize<SpotifyTokenResponse>(tokenResponseBody);
+
+    // Fetch user profile from Spotify
     httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tokenData.AccessToken);
-    var userProfileResponse = await httpClient.GetAsync("https://api.spotify.com/v1/me");
-    userProfileResponse.EnsureSuccessStatusCode();
+    HttpResponseMessage userProfileResponse;
+    try
+    {
+        userProfileResponse = await httpClient.GetAsync("https://api.spotify.com/v1/me");
+        userProfileResponse.EnsureSuccessStatusCode();
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Failed to fetch user profile: {ex.Message}");
+    }
+
     var userProfileBody = await userProfileResponse.Content.ReadAsStringAsync();
-    var userProfile = JsonSerializer.Deserialize<SpotifyUserProfileResponse>(userProfileBody);
+    Console.WriteLine($"User Profile Response: {userProfileBody}");
+
+    // Attempt deserialization
+    SpotifyUserProfileResponse userProfile;
+    try
+    {
+        userProfile = JsonSerializer.Deserialize<SpotifyUserProfileResponse>(userProfileBody);
+        Console.WriteLine($"User Profile after Deserialization: {JsonSerializer.Serialize(userProfile)}");
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Error deserializing user profile: {ex.Message}");
+    }
+
+    // Check if the profile has valid email
+    if (userProfile == null || string.IsNullOrEmpty(userProfile.Email))
+    {
+        return BadRequest("Failed to retrieve valid user profile information.");
+    }
+
+    Console.WriteLine($"User Email: {userProfile.Email}");  // Ensure this logs the correct email
 
     // Check if the user exists in the database
     var user = await _userManager.FindByEmailAsync(userProfile.Email);
@@ -71,18 +112,18 @@ public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] s
         // Create a new user
         user = new AppUser
         {
-            UserName = userProfile.DisplayName,
+            UserName = userProfile.Email, // Use email as username if no display name
             Email = userProfile.Email,
             SpotifyAccessToken = tokenData.AccessToken,
             SpotifyRefreshToken = tokenData.RefreshToken,
-            DisplayName = userProfile.DisplayName,
+            DisplayName = userProfile.DisplayName ?? userProfile.Email,
             ProfileImageUrl = userProfile.Images?.FirstOrDefault()?.Url ?? string.Empty
         };
 
-        var result = await _userManager.CreateAsync(user);
-        if (!result.Succeeded)
+        var createResult = await _userManager.CreateAsync(user);
+        if (!createResult.Succeeded)
         {
-            return StatusCode(500, "Failed to create user.");
+            return StatusCode(500, $"Failed to create user: {string.Join(", ", createResult.Errors.Select(e => e.Description))}");
         }
     }
     else
@@ -90,14 +131,25 @@ public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] s
         // Update existing user's tokens
         user.SpotifyAccessToken = tokenData.AccessToken;
         user.SpotifyRefreshToken = tokenData.RefreshToken;
+
         var updateResult = await _userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
         {
-            return StatusCode(500, "Failed to update user.");
+            return StatusCode(500, $"Failed to update user tokens: {string.Join(", ", updateResult.Errors.Select(e => e.Description))}");
         }
     }
 
-    return Ok(new { message = "User authenticated successfully.", user });
+    return Ok(new
+    {
+        message = "User authenticated successfully.",
+        user = new
+        {
+            user.Email,
+            user.DisplayName,
+            user.ProfileImageUrl,
+            user.SpotifyAccessToken
+        }
+    });
 }
 
     }
