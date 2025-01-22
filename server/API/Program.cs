@@ -2,34 +2,69 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Core.Entities;
 using Infrastructure.Data;
+using Infrastructure.IServices;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using DotNetEnv; // For loading .env
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load environment variables from .env file
+DotNetEnv.Env.Load();
+
+// Adjust Logging Configuration
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+
+// Resolve environment variables for logging
+var logLevelDefault = Environment.GetEnvironmentVariable("LOG_LEVEL_DEFAULT") ?? "Information";
+var logLevelMicrosoftAspNetCore = Environment.GetEnvironmentVariable("LOG_LEVEL_MICROSOFT_ASPNETCORE") ?? "Warning";
+
+// Configure logging levels dynamically
+builder.Logging.AddFilter("Default", Enum.Parse<LogLevel>(logLevelDefault, true));
+builder.Logging.AddFilter("Microsoft.AspNetCore", Enum.Parse<LogLevel>(logLevelMicrosoftAspNetCore, true));
+
+// Set up CORS policy
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
-        builder => builder
+        policyBuilder => policyBuilder
             .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
 
+// Configure DbContext with connection string from .env
+var defaultConnection = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
+if (string.IsNullOrEmpty(defaultConnection))
+{
+    throw new InvalidOperationException("Connection string not found in environment variables.");
+}
+
 builder.Services.AddDbContext<StoreContext>(opt =>
 {
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    opt.UseSqlServer(defaultConnection);
 });
 
-
+// Configure Identity
 builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<StoreContext>()
     .AddDefaultTokenProviders();
 
-
 // Add JWT Authentication
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+
+if (string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience) || string.IsNullOrEmpty(jwtSecretKey))
+{
+    throw new InvalidOperationException("JWT configuration values are missing in environment variables.");
+}
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -43,47 +78,46 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"], // from appsettings.json
-        ValidAudience = builder.Configuration["Jwt:Audience"], // from appsettings.json
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"])) // from appsettings.json
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
     };
 });
+
+// Configure JSON serialization
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 });
-// Add services to the container.
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Add application services
+builder.Services.AddScoped<ISpotifyAuthService, SpotifyAuthService>();
+builder.Services.AddHttpClient();
+
+// Configure Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-
-
 app.UseHttpsRedirection();
-
 app.UseCors("AllowAllOrigins");
-
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
+await SeedRolesAndAdmin(app.Services);
 app.Run();
 
-
+// Seed roles and admin user
 static async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
 {
     using var scope = serviceProvider.CreateScope();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
-    // Seed Roles - Check if role already exists before adding
     var roles = new[] { "Admin", "User" };
     foreach (var role in roles)
     {
@@ -94,9 +128,8 @@ static async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
         }
     }
 
-    // Seed Admin User - Check if admin user already exists before creating
-    var adminEmail = "admin@test.com";
-    var adminPassword = "Pa$$w0rd";
+    var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL") ?? "admin@test.com";
+    var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? "Pa$$w0rd";
 
     var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
     if (existingAdmin == null)
