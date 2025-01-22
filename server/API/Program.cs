@@ -24,6 +24,14 @@ builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 var logLevelDefault = Environment.GetEnvironmentVariable("LOG_LEVEL_DEFAULT") ?? "Information";
 var logLevelMicrosoftAspNetCore = Environment.GetEnvironmentVariable("LOG_LEVEL_MICROSOFT_ASPNETCORE") ?? "Warning";
 
+var spotifyClientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
+var spotifyClientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
+var spotifyRedirectUri = Environment.GetEnvironmentVariable("SPOTIFY_REDIRECT_URI");
+
+Console.WriteLine($"Spotify Client ID: {spotifyClientId}");
+Console.WriteLine($"Spotify Client Secret: {spotifyClientSecret}");
+Console.WriteLine($"Spotify Redirect URI: {spotifyRedirectUri}");
+
 // Configure logging levels dynamically
 builder.Logging.AddFilter("Default", Enum.Parse<LogLevel>(logLevelDefault, true));
 builder.Logging.AddFilter("Microsoft.AspNetCore", Enum.Parse<LogLevel>(logLevelMicrosoftAspNetCore, true));

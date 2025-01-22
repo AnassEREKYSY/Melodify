@@ -33,38 +33,78 @@ namespace Infrastructure.Services
 
         public async Task<SpotifyTokenResponse> ExchangeCodeForTokenAsync(string code)
         {
-            var clientId = _configuration["Spotify:ClientId"];
-            var clientSecret = _configuration["Spotify:ClientSecret"];
-            var redirectUri = _configuration["Spotify:RedirectUri"];
+            var clientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
+            var clientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
+            var redirectUri = Environment.GetEnvironmentVariable("SPOTIFY_REDIRECT_URI");
+
+            var tokenRequestContent = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                { "grant_type", "authorization_code" },
+                { "code", code },
+                { "redirect_uri", redirectUri },
+                { "client_id", clientId },
+                { "client_secret", clientSecret }
+            });
 
             var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token")
             {
-                Content = new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    { "grant_type", "authorization_code" },
-                    { "code", code },
-                    { "redirect_uri", redirectUri },
-                    { "client_id", clientId },
-                    { "client_secret", clientSecret }
-                })
+                Content = tokenRequestContent
             };
 
-            var tokenResponse = await _httpClient.SendAsync(tokenRequest);
-            tokenResponse.EnsureSuccessStatusCode();
+            try
+            {
+                var tokenResponse = await _httpClient.SendAsync(tokenRequest);
+                tokenResponse.EnsureSuccessStatusCode();
 
-            var tokenResponseBody = await tokenResponse.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<SpotifyTokenResponse>(tokenResponseBody);
+                var tokenResponseBody = await tokenResponse.Content.ReadAsStringAsync();
+                Console.WriteLine($"Token Response Body: {tokenResponseBody}");
+
+                return JsonSerializer.Deserialize<SpotifyTokenResponse>(tokenResponseBody);
+            }
+            catch (HttpRequestException httpEx)
+            {
+                Console.WriteLine($"HttpRequestException: {httpEx.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<SpotifyUserProfileResponse> GetUserProfileAsync(string accessToken)
         {
             _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-            var userProfileResponse = await _httpClient.GetAsync("https://api.spotify.com/v1/me");
-            userProfileResponse.EnsureSuccessStatusCode();
+            try
+            {
+                var userProfileResponse = await _httpClient.GetAsync("https://api.spotify.com/v1/me");
+                userProfileResponse.EnsureSuccessStatusCode();
 
-            var userProfileBody = await userProfileResponse.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<SpotifyUserProfileResponse>(userProfileBody);
+                var userProfileBody = await userProfileResponse.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(userProfileBody))
+                {
+                    throw new Exception("User profile response body is empty.");
+                }
+
+                // Log the user profile response body
+                Console.WriteLine($"User Profile Response Body: {userProfileBody}");
+
+                return JsonSerializer.Deserialize<SpotifyUserProfileResponse>(userProfileBody);
+            }
+            catch (HttpRequestException httpEx)
+            {
+                // Log detailed error if the request fails
+                Console.WriteLine($"HttpRequestException: {httpEx.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                // Log any other exceptions
+                Console.WriteLine($"Exception: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<AppUser> AuthenticateUserAsync(SpotifyUserProfileResponse userProfile, SpotifyTokenResponse tokenData)

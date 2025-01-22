@@ -27,9 +27,15 @@ namespace API.Controllers
         {
             try
             {
+                // Log incoming query parameters
+                Console.WriteLine($"Callback received with code: {code}, state: {state}");
+
                 var tokenData = await _spotifyAuthService.ExchangeCodeForTokenAsync(code);
                 var userProfile = await _spotifyAuthService.GetUserProfileAsync(tokenData.AccessToken);
                 var user = await _spotifyAuthService.AuthenticateUserAsync(userProfile, tokenData);
+
+                // Log the user data
+                Console.WriteLine($"User authenticated: {user.Email}");
 
                 return Ok(new
                 {
@@ -45,8 +51,11 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
+                // Log the error and provide more details
+                Console.WriteLine($"Exception in Callback: {ex.Message}\n{ex.StackTrace}");
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
     }
 }
