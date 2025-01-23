@@ -5,26 +5,19 @@ using Core.Entities;
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/spotify-auth")]
-    public class FavoritesSongsController : ControllerBase
+    [Route("api/favorites-songs")]
+    public class FavoritesSongsController(IFavoritesSongService favoritesSongService) : ControllerBase
     {
-        private readonly IFavoritesSongService _favoritesSongService;
+        private readonly IFavoritesSongService _favoritesSongService = favoritesSongService;
 
-        public FavoritesSongsController(IFavoritesSongService favoritesSongService)
-        {
-            _favoritesSongService = favoritesSongService;
-        }
-
-        // GET: api/spotify-auth/favorites
-        [HttpGet("favorites")]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllFavorites()
         {
             var favorites = await _favoritesSongService.GetAllFavoritesAsync();
             return Ok(favorites);
         }
 
-        // GET: api/spotify-auth/favorites/{userId}
-        [HttpGet("favorites/{userId}")]
+        [HttpGet("by-user/{userId}")]
         public async Task<IActionResult> GetFavoritesByUserId(string userId)
         {
             var favorites = await _favoritesSongService.GetFavoritesByUserIdAsync(userId);
@@ -35,8 +28,7 @@ namespace API.Controllers
             return Ok(favorites);
         }
 
-        // GET: api/spotify-auth/favorites/{id}
-        [HttpGet("favorites/{id}")]
+        [HttpGet("one/{id}")]
         public async Task<IActionResult> GetFavoriteById(int id)
         {
             var favorite = await _favoritesSongService.GetFavoriteByIdAsync(id);
@@ -47,8 +39,7 @@ namespace API.Controllers
             return Ok(favorite);
         }
 
-        // POST: api/spotify-auth/favorites
-        [HttpPost("favorites")]
+        [HttpPost("create")]
         public async Task<IActionResult> AddToFavorites([FromBody] FavoritesSong favorite)
         {
             if (favorite == null)
@@ -67,8 +58,7 @@ namespace API.Controllers
             }
         }
 
-        // DELETE: api/spotify-auth/favorites/{id}
-        [HttpDelete("favorites/{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> RemoveFromFavorites(int id)
         {
             var isRemoved = await _favoritesSongService.RemoveFromFavoritesAsync(id);
@@ -79,8 +69,7 @@ namespace API.Controllers
             return NoContent();
         }
 
-        // DELETE: api/spotify-auth/favorites/remove-by-song/{userId}/{songId}
-        [HttpDelete("favorites/remove-by-song/{userId}/{songId}")]
+        [HttpDelete("remove-by-song/{userId}/{songId}")]
         public async Task<IActionResult> RemoveFromFavoritesBySongId(string userId, int songId)
         {
             var isRemoved = await _favoritesSongService.RemoveFromFavoritesBySongIdAsync(userId, songId);

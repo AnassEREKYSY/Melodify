@@ -6,25 +6,18 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("api/song-histories")]
-    public class SongsHistoriesController : ControllerBase
+    public class SongsHistoriesController(ISongHistoryService songHistoryService) : ControllerBase
     {
-        private readonly ISongHistoryService _songHistoryService;
+        private readonly ISongHistoryService _songHistoryService = songHistoryService;
 
-        public SongsHistoriesController(ISongHistoryService songHistoryService)
-        {
-            _songHistoryService = songHistoryService;
-        }
-
-        // GET: api/song-histories
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllHistory()
         {
             var histories = await _songHistoryService.GetAllHistoryAsync();
             return Ok(histories);
         }
 
-        // GET: api/song-histories/user/{userId}
-        [HttpGet("user/{userId}")]
+        [HttpGet("by-user/{userId}")]
         public async Task<IActionResult> GetHistoryByUserId(string userId)
         {
             var userHistories = await _songHistoryService.GetHistoryByUserIdAsync(userId);
@@ -34,8 +27,7 @@ namespace API.Controllers
             return Ok(userHistories);
         }
 
-        // GET: api/song-histories/{id}
-        [HttpGet("{id}")]
+        [HttpGet("one/{id}")]
         public async Task<IActionResult> GetHistoryById(int id)
         {
             var history = await _songHistoryService.GetHistoryByIdAsync(id);
@@ -45,8 +37,7 @@ namespace API.Controllers
             return Ok(history);
         }
 
-        // POST: api/song-histories
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> RecordHistory([FromBody] SongHistory newHistory)
         {
             if (newHistory == null)
@@ -56,8 +47,7 @@ namespace API.Controllers
             return CreatedAtAction(nameof(GetHistoryById), new { id = recordedHistory.Id }, recordedHistory);
         }
 
-        // DELETE: api/song-histories/{id}
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteHistory(int id)
         {
             var success = await _songHistoryService.DeleteHistoryAsync(id);

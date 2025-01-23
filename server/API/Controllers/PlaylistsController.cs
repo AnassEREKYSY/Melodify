@@ -1,11 +1,12 @@
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Core.Entities;
+using Core.Dtos;
 
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/spotify-auth")]
+    [Route("api/playlists")]
     public class PlaylistsController : ControllerBase
     {
         private readonly IPlaylistService _playlistService;
@@ -15,108 +16,43 @@ namespace API.Controllers
             _playlistService = playlistService;
         }
 
-        // GET: api/spotify-auth/playlists
-        [HttpGet("playlists")]
-        public async Task<IActionResult> GetAllPlaylists()
-        {
-            var playlists = await _playlistService.GetAllPlaylistsAsync();
-            return Ok(playlists);
-        }
-
-        // GET: api/spotify-auth/playlists/{userId}
-        [HttpGet("playlists/{userId}")]
+        [HttpGet("by-user/{userId}")]
         public async Task<IActionResult> GetPlaylistsByUserId(string userId)
         {
             var playlists = await _playlistService.GetPlaylistsByUserIdAsync(userId);
-            if (playlists == null || !playlists.Any())
-            {
-                return NotFound($"No playlists found for user with ID: {userId}");
-            }
             return Ok(playlists);
         }
 
-        // GET: api/spotify-auth/playlists/{id}
-        [HttpGet("playlists/{id}")]
-        public async Task<IActionResult> GetPlaylistById(int id)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreatePlaylist([FromBody] PlaylistCreateDto playlistCreateDto)
         {
-            var playlist = await _playlistService.GetPlaylistByIdAsync(id);
-            if (playlist == null)
-            {
-                return NotFound($"Playlist with ID {id} not found");
-            }
-            return Ok(playlist);
+            var playlist = await _playlistService.CreatePlaylistAsync(playlistCreateDto.UserId, playlistCreateDto.Name, playlistCreateDto.Description);
+            return CreatedAtAction(nameof(GetPlaylistsByUserId), new { userId = playlistCreateDto.UserId }, playlist);
         }
 
-        // POST: api/spotify-auth/playlists
-        [HttpPost("playlists")]
-        public async Task<IActionResult> CreatePlaylist([FromBody] Playlist playlist)
+        [HttpPost("add-song/{playlistId}")]
+        public async Task<IActionResult> AddSongToPlaylist(string playlistId, [FromBody] SongDto songDto)
         {
-            if (playlist == null)
-            {
-                return BadRequest("Invalid playlist data");
-            }
-
-            var createdPlaylist = await _playlistService.CreatePlaylistAsync(playlist);
-            return CreatedAtAction(nameof(GetPlaylistById), new { id = createdPlaylist.Id }, createdPlaylist);
+            var success = await _playlistService.AddSongToPlaylistAsync(songDto.UserId, playlistId, songDto.SongId);
+            if (success) return Ok();
+            return NotFound($"Playlist with ID {playlistId} or song with ID {songDto.SongId} not found.");
         }
 
-        // PUT: api/spotify-auth/playlists/{id}
-        [HttpPut("playlists/{id}")]
-        public async Task<IActionResult> UpdatePlaylist(int id, [FromBody] Playlist updatedPlaylist)
+        [HttpDelete("remove-song/{playlistId}/{songId}")]
+        public async Task<IActionResult> RemoveSongFromPlaylist(string playlistId, int songId)
         {
-            if (updatedPlaylist == null)
-            {
-                return BadRequest("Invalid playlist data");
-            }
+            var userId = User.Identity.Name; 
+            var result = await _playlistService.RemoveSongFromPlaylistAsync(userId, playlistId, songId);
 
-            var existingPlaylist = await _playlistService.UpdatePlaylistAsync(id, updatedPlaylist);
-            if (existingPlaylist == null)
+            if (result)
             {
-                return NotFound($"Playlist with ID {id} not found");
+                return Ok("Song removed from playlist");
             }
-
-            return Ok(existingPlaylist);
+            else
+            {
+                return BadRequest("Failed to remove song from playlist");
+            }
         }
 
-        // DELETE: api/spotify-auth/playlists/{id}
-        [HttpDelete("playlists/{id}")]
-        public async Task<IActionResult> DeletePlaylist(int id)
-        {
-            var isDeleted = await _playlistService.DeletePlaylistAsync(id);
-            if (!isDeleted)
-            {
-                return NotFound($"Playlist with ID {id} not found");
-            }
-            return NoContent();
-        }
-
-        // POST: api/spotify-auth/playlists/{playlistId}/add-song
-        [HttpPost("playlists/{playlistId}/add-song")]
-        public async Task<IActionResult> AddSongToPlaylist(int playlistId, [FromBody] Song song)
-        {
-            if (song == null)
-            {
-                return BadRequest("Invalid song data");
-            }
-
-            var isAdded = await _playlistService.AddSongToPlaylistAsync(playlistId, song);
-            if (!isAdded)
-            {
-                return NotFound($"Playlist with ID {playlistId} not found");
-            }
-            return Ok();
-        }
-
-        // DELETE: api/spotify-auth/playlists/{playlistId}/remove-song/{songId}
-        [HttpDelete("playlists/{playlistId}/remove-song/{songId}")]
-        public async Task<IActionResult> RemoveSongFromPlaylist(int playlistId, int songId)
-        {
-            var isRemoved = await _playlistService.RemoveSongFromPlaylistAsync(playlistId, songId);
-            if (!isRemoved)
-            {
-                return NotFound($"Playlist with ID {playlistId} or song with ID {songId} not found");
-            }
-            return NoContent();
-        }
     }
 }

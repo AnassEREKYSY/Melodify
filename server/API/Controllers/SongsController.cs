@@ -1,3 +1,4 @@
+using Core.Dtos;
 using Core.Entities;
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
@@ -15,58 +16,35 @@ namespace API.Controllers
             _songService = songService;
         }
 
-        // GET: api/songs
-        [HttpGet]
-        public async Task<IActionResult> GetAllSongs()
+        [HttpGet("favorites/{userId}")]
+        public async Task<IActionResult> GetFavoriteSongs(string userId)
         {
-            var songs = await _songService.GetAllSongsAsync();
+            var songs = await _songService.GetFavoriteSongsAsync(userId);
             return Ok(songs);
         }
 
-        // GET: api/songs/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetSongById(int id)
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchSongs([FromQuery] string query)
         {
-            var song = await _songService.GetSongByIdAsync(id);
-            if (song == null)
-                return NotFound($"Song with ID {id} was not found.");
-            return Ok(song);
+            var songs = await _songService.SearchSongsAsync(query);
+            return Ok(songs);
         }
 
-        // POST: api/songs
-        [HttpPost]
-        public async Task<IActionResult> CreateSong([FromBody] Song newSong)
+        [HttpPost("add-to-favorites")]
+        public async Task<IActionResult> AddToFavorites([FromBody] SongDto songDto)
         {
-            if (newSong == null)
-                return BadRequest("Song data is required.");
-
-            var createdSong = await _songService.CreateSongAsync(newSong);
-            return CreatedAtAction(nameof(GetSongById), new { id = createdSong.Id }, createdSong);
+            var success = await _songService.AddSongToFavoritesAsync(songDto.UserId, songDto.SongId);
+            if (success) return Ok();
+            return NotFound("Song not found.");
         }
 
-        // PUT: api/songs/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSong(int id, [FromBody] Song updatedSong)
+        [HttpDelete("remove-from-favorites")]
+        public async Task<IActionResult> RemoveFromFavorites([FromBody] SongDto songDto)
         {
-            if (updatedSong == null)
-                return BadRequest("Updated song data is required.");
-
-            var result = await _songService.UpdateSongAsync(id, updatedSong);
-            if (result == null)
-                return NotFound($"Song with ID {id} was not found.");
-
-            return Ok(result);
-        }
-
-        // DELETE: api/songs/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSong(int id)
-        {
-            var success = await _songService.DeleteSongAsync(id);
-            if (!success)
-                return NotFound($"Song with ID {id} was not found.");
-
-            return NoContent();
+            var success = await _songService.RemoveSongFromFavoritesAsync(songDto.UserId, songDto.SongId);
+            if (success) return NoContent();
+            return NotFound("Song not found.");
         }
     }
+
 }

@@ -142,5 +142,9 @@ namespace Infrastructure.Services
 
             return user;
         }
+        
+        public async Task<List<AppUser>> GetAllUsers(){
+            return await Task.FromResult(_userManager.Users.ToList());
+        }
     }
 }

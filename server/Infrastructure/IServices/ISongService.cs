@@ -3,11 +3,10 @@ namespace Infrastructure.IServices
 {
     public interface ISongService
     {
-        Task<IEnumerable<Song>> GetAllSongsAsync();
-        Task<Song?> GetSongByIdAsync(int id);
-        Task<Song> CreateSongAsync(Song song);
-        Task<Song?> UpdateSongAsync(int id, Song updatedSong);
-        Task<bool> DeleteSongAsync(int id);
+        Task<List<Song>> GetFavoriteSongsAsync(string userId);
+        Task<List<Song>> SearchSongsAsync(string query);
+        Task<bool> AddSongToFavoritesAsync(string userId, int songId);
+        Task<bool> RemoveSongFromFavoritesAsync(string userId, int songId);
     }
 
 }

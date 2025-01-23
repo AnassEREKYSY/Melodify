@@ -4,52 +4,37 @@ namespace Infrastructure.Services
 {
     public class SongService : ISongService
     {
-        private readonly List<Song> _songs;
+        private readonly ISpotifyApiService _spotifyApiService;
 
-        public SongService()
+        public SongService(ISpotifyApiService spotifyApiService)
         {
-            _songs = [];
+            _spotifyApiService = spotifyApiService;
         }
 
-        public async Task<IEnumerable<Song>> GetAllSongsAsync()
+        public async Task<List<Song>> GetFavoriteSongsAsync(string userId)
         {
-            return await Task.FromResult(_songs);
+            // Call Spotify API to get favorite songs of the user
+            return await _spotifyApiService.GetUserFavoriteSongsAsync(userId);
         }
 
-        public async Task<Song?> GetSongByIdAsync(int id)
+        public async Task<List<Song>> SearchSongsAsync(string query)
         {
-            var song = _songs.FirstOrDefault(s => s.Id == id);
-            return await Task.FromResult(song);
+            // Call Spotify API to search for songs based on the query
+            return await _spotifyApiService.SearchSongsAsync(query);
         }
 
-        public async Task<Song> CreateSongAsync(Song song)
+        public async Task<bool> AddSongToFavoritesAsync(string userId, int songId)
         {
-            song.Id = _songs.Count != 0 ? _songs.Max(s => s.Id) + 1 : 1;
-            _songs.Add(song);
-            return await Task.FromResult(song);
+            // Add song to user's favorites on Spotify
+            return await _spotifyApiService.AddSongToFavoritesAsync(userId, songId);
         }
 
-        public async Task<Song?> UpdateSongAsync(int id, Song updatedSong)
+        public async Task<bool> RemoveSongFromFavoritesAsync(string userId, int songId)
         {
-            var existingSong = _songs.FirstOrDefault(s => s.Id == id);
-            if (existingSong == null) return null;
-
-            existingSong.Title = updatedSong.Title;
-            existingSong.Artist = updatedSong.Artist;
-            existingSong.Album = updatedSong.Album;
-            existingSong.Duration = updatedSong.Duration;
-
-            return await Task.FromResult(existingSong);
-        }
-
-        public async Task<bool> DeleteSongAsync(int id)
-        {
-            var song = _songs.FirstOrDefault(s => s.Id == id);
-            if (song == null) return await Task.FromResult(false);
-
-            _songs.Remove(song);
-            return await Task.FromResult(true);
+            // Remove song from user's favorites on Spotify
+            return await _spotifyApiService.RemoveSongFromFavoritesAsync(userId, songId);
         }
     }
+
 
 }
