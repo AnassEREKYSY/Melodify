@@ -11,6 +11,7 @@ namespace Core.Entities
         public string SpotifyRefreshToken { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string ProfileImageUrl { get; set; } = string.Empty;
+        public string SpotifyID { get; set; } = string.Empty;
         public ICollection<Playlist> Playlists { get; set; } = new List<Playlist>();
         public ICollection<FavoritesSong> FavoriteSongs { get; set; } = new List<FavoritesSong>();
         public ICollection<SongHistory> SongHistory { get; set; } = new List<SongHistory>();

@@ -42,6 +42,7 @@ namespace API.Controllers
                     message = "User authenticated successfully.",
                     user = new
                     {
+                        user.SpotifyID,
                         user.Email,
                         user.DisplayName,
                         user.ProfileImageUrl,

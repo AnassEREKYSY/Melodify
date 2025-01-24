@@ -3,6 +3,7 @@ using Core.Entities;
 using Infrastructure.IServices;
 using Infrastructure.Response;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Services
@@ -114,6 +115,7 @@ namespace Infrastructure.Services
             {
                 user = new AppUser
                 {
+                    SpotifyID= userProfile.Id,
                     UserName = userProfile.Email,
                     Email = userProfile.Email,
                     SpotifyAccessToken = tokenData.AccessToken,
@@ -145,6 +147,13 @@ namespace Infrastructure.Services
         
         public async Task<List<AppUser>> GetAllUsers(){
             return await Task.FromResult(_userManager.Users.ToList());
+        }
+
+        public async Task<string> GetUserToken(string userId)
+        {
+            var user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.SpotifyID == userId) ?? throw new Exception("User not found");
+            return user.SpotifyAccessToken;
         }
     }
 }
