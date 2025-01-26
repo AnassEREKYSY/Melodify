@@ -1,6 +1,8 @@
 using Core.Entities;
+using Infrastructure.Data;
 using Infrastructure.IServices;
 using Infrastructure.Response;
+using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
@@ -11,19 +13,21 @@ namespace Infrastructure.Services
     public class PlaylistService : IPlaylistService
     {
         private readonly HttpClient _httpClient;
-        private readonly ISpotifyAuthService _spotifyAuthService;
+        private readonly IUserService _userService;
+        private readonly StoreContext _context;
 
-        // Constructor to inject HttpClient
-        public PlaylistService(HttpClient httpClient, ISpotifyAuthService spotifyAuthService)
+        public PlaylistService(HttpClient httpClient, IUserService userService, StoreContext context)
         {
             _httpClient = httpClient;
-            _spotifyAuthService = spotifyAuthService;
+            _userService = userService;
+            _context = context;
         }
-        public async Task<List<Playlist>> GetPlaylistsByUserIdAsync(string userId)
+
+        public async Task<List<Playlist>> GetSpotifyPlaylistsByUserIdAsync(string userId)
         {
             try
             {
-                var userToken = await _spotifyAuthService.GetUserToken(userId);
+                var userToken = await _userService.GetUserTokenForSpotify(userId);
 
                 if (string.IsNullOrEmpty(userToken))
                 {
@@ -72,6 +76,46 @@ namespace Infrastructure.Services
             }
         }
 
+        public async Task<List<Playlist>> GetPlaylistsByUserIdAsync(string userId)
+        {
+            try
+            {
+                var userToken = await _userService.GetUserToken(userId);
+
+                if (string.IsNullOrEmpty(userToken))
+                {
+                    throw new Exception("User access token is missing or invalid.");
+                }
+
+                var returnedPlaylists = await _context.Playlists
+                    .Where(b => b.UserId == userId)
+                    .ToListAsync();
+
+                if (returnedPlaylists == null || returnedPlaylists.Count == 0)
+                {
+                    return null;
+                }
+
+                var playlists = returnedPlaylists
+                    .Select(p => new Playlist
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        ExternalUrl = p.ExternalUrl ?? string.Empty,
+                        ImageUrls = p.ImageUrls.ToList() ?? new List<string>(),
+                        OwnerDisplayName = p.OwnerDisplayName ?? string.Empty, 
+                        OwnerUri = p.OwnerUri ?? string.Empty, 
+                        Public = p.Public,
+                        SnapshotId = p.SnapshotId 
+                    }).ToList();
+                return playlists;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while retrieving playlists: {ex.Message}", ex);
+            }
+        }
 
         public async Task<Playlist> CreatePlaylistAsync(string userId, string name, string description)
         {
@@ -129,5 +173,47 @@ namespace Infrastructure.Services
 
             return response.IsSuccessStatusCode;
         }
+
+        public async Task CheckPlaylistsAsync(string userId, List<SpotifyPlaylistItem> spotifyPlaylists)
+        {
+            var existingPlaylists = await _context.Playlists
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+
+            if (existingPlaylists == null || existingPlaylists.Count == 0)
+            {
+                await InsertPlaylistsAsync(userId, spotifyPlaylists);
+            }
+            else
+            {
+                var existingPlaylistIds = existingPlaylists.Select(p => p.Id).ToList();
+
+                var newPlaylists = spotifyPlaylists
+                    .Where(p => !existingPlaylistIds.Contains(p.Id))
+                    .ToList();
+
+                if (newPlaylists.Count != 0)
+                {
+                    await InsertPlaylistsAsync(userId, newPlaylists);
+                }
+            }
+        }
+        public async Task InsertPlaylistsAsync(string userId, List<SpotifyPlaylistItem> spotifyPlaylists)
+        {
+            var playlistsToInsert = spotifyPlaylists.Select(p => new Playlist
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                ExternalUrl = p.ExternalUrls?.Spotify,  
+                UserId = userId, 
+                Public = p.Public,
+                SnapshotId = p.SnapshotId
+            }).ToList();
+
+            await _context.Playlists.AddRangeAsync(playlistsToInsert);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

@@ -9,10 +9,13 @@ namespace API.Controllers
     public class SpotifyAuthController : ControllerBase
     {
         private readonly ISpotifyAuthService _spotifyAuthService;
+        private readonly IUserService _userService;
 
-        public SpotifyAuthController(ISpotifyAuthService spotifyAuthService)
+
+        public SpotifyAuthController(ISpotifyAuthService spotifyAuthService, IUserService userService)
         {
             _spotifyAuthService = spotifyAuthService;
+            _userService = userService;
         }
 
         [HttpGet("login")]
@@ -71,7 +74,7 @@ namespace API.Controllers
                 Console.WriteLine($"Callback received with code: {code}, state: {state}");
 
                 var tokenData = await _spotifyAuthService.ExchangeCodeForTokenAsync(code);
-                var userProfile = await _spotifyAuthService.GetUserProfileAsync(tokenData.AccessToken);
+                var userProfile = await _userService.GetUserProfileAsync(tokenData.AccessToken);
                 var user = await _spotifyAuthService.AuthenticateUserAsync(userProfile, tokenData);
 
                 // Log the user data

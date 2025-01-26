@@ -16,7 +16,14 @@ namespace API.Controllers
             _playlistService = playlistService;
         }
 
-        [HttpGet("by-user/{userId}")]
+        [HttpGet("spotify-by-user/{userId}")]
+        public async Task<IActionResult> GetPlaylistsSpotifyByUserId(string userId)
+        {
+            var playlists = await _playlistService.GetSpotifyPlaylistsByUserIdAsync(userId);
+            return Ok(playlists);
+        }
+
+        [HttpGet("local-by-user/{userId}")]
         public async Task<IActionResult> GetPlaylistsByUserId(string userId)
         {
             var playlists = await _playlistService.GetPlaylistsByUserIdAsync(userId);
@@ -27,7 +34,7 @@ namespace API.Controllers
         public async Task<IActionResult> CreatePlaylist([FromBody] PlaylistCreateDto playlistCreateDto)
         {
             var playlist = await _playlistService.CreatePlaylistAsync(playlistCreateDto.UserId, playlistCreateDto.Name, playlistCreateDto.Description);
-            return CreatedAtAction(nameof(GetPlaylistsByUserId), new { userId = playlistCreateDto.UserId }, playlist);
+            return CreatedAtAction(nameof(GetPlaylistsSpotifyByUserId), new { userId = playlistCreateDto.UserId }, playlist);
         }
 
         [HttpPost("add-song/{playlistId}")]
