@@ -1,3 +1,6 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using Core.Entities;
 using Infrastructure.IServices;
@@ -5,6 +8,7 @@ using Infrastructure.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Services
 {
@@ -15,11 +19,14 @@ namespace Infrastructure.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly HttpClient _httpClient;
 
-        public SpotifyAuthService(IConfiguration configuration, UserManager<AppUser> userManager, HttpClient httpClient)
+        private readonly SignInManager<AppUser> _signInManager;
+
+        public SpotifyAuthService(IConfiguration configuration, UserManager<AppUser> userManager, HttpClient httpClient ,  SignInManager<AppUser> signInManager)
         {
             _configuration = configuration;
             _userManager = userManager;
             _httpClient = httpClient;
+            _signInManager= signInManager;
         }
 
         public string GetLoginUrl()
@@ -111,11 +118,12 @@ namespace Infrastructure.Services
         public async Task<AppUser> AuthenticateUserAsync(SpotifyUserProfileResponse userProfile, SpotifyTokenResponse tokenData)
         {
             var user = await _userManager.FindByEmailAsync(userProfile.Email);
+            
             if (user == null)
             {
                 user = new AppUser
                 {
-                    SpotifyID= userProfile.Id,
+                    SpotifyID = userProfile.Id,
                     UserName = userProfile.Email,
                     Email = userProfile.Email,
                     SpotifyAccessToken = tokenData.AccessToken,
@@ -124,26 +132,42 @@ namespace Infrastructure.Services
                     ProfileImageUrl = userProfile.Images?.FirstOrDefault()?.Url ?? string.Empty
                 };
 
+                // Generate JWT token
+                var jwtToken = GenerateJwtToken(user);
+                user.UserAccessToken = jwtToken;
+
+                // Attempt to create the user
                 var createResult = await _userManager.CreateAsync(user);
                 if (!createResult.Succeeded)
                 {
-                    throw new Exception($"Failed to create user: {string.Join(", ", createResult.Errors.Select(e => e.Description))}");
+                    var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                    throw new Exception($"Failed to create user: {errors}");
                 }
+
+                await _userManager.AddToRoleAsync(user, "User");
             }
             else
             {
+                // Update the user's Spotify tokens and generate a new JWT
                 user.SpotifyAccessToken = tokenData.AccessToken;
                 user.SpotifyRefreshToken = tokenData.RefreshToken;
+                
+                var jwtToken = GenerateJwtToken(user);
+                user.UserAccessToken = jwtToken;
 
                 var updateResult = await _userManager.UpdateAsync(user);
                 if (!updateResult.Succeeded)
                 {
-                    throw new Exception($"Failed to update user tokens: {string.Join(", ", updateResult.Errors.Select(e => e.Description))}");
+                    var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
+                    throw new Exception($"Failed to update user tokens: {errors}");
                 }
             }
 
+            // Return the user with the generated JWT token
             return user;
         }
+
+
         
         public async Task<List<AppUser>> GetAllUsers(){
             return await Task.FromResult(_userManager.Users.ToList());
@@ -155,5 +179,36 @@ namespace Infrastructure.Services
                 .FirstOrDefaultAsync(u => u.SpotifyID == userId) ?? throw new Exception("User not found");
             return user.SpotifyAccessToken;
         }
+
+        public async Task<AppUser> GetOneUser(string userId)
+        {
+             var user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found");
+            return user;
+        }
+    
+        private string GenerateJwtToken(AppUser user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+            };
+
+            var key = new SymmetricSecurityKey(Convert.FromBase64String(_configuration["Jwt:SecretKey"]));  // Base64 decode the secret key
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
     }
 }

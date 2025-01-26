@@ -8,6 +8,7 @@ namespace Core.Entities
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string SpotifyAccessToken { get; set; } = string.Empty;
+        public string UserAccessToken { get; set; } = string.Empty;
         public string SpotifyRefreshToken { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string ProfileImageUrl { get; set; } = string.Empty;

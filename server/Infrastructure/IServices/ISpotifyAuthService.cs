@@ -10,6 +10,7 @@ namespace Infrastructure.IServices
         Task<SpotifyUserProfileResponse> GetUserProfileAsync(string accessToken);
         Task<AppUser> AuthenticateUserAsync(SpotifyUserProfileResponse userProfile, SpotifyTokenResponse tokenData);
         Task<List<AppUser>> GetAllUsers();
+        Task<AppUser> GetOneUser(string userId);
         Task<string> GetUserToken(string userId);
     }
 }

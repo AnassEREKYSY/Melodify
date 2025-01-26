@@ -1,5 +1,6 @@
 using Core.Entities;
 using Infrastructure.IServices;
+using Infrastructure.Response;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
@@ -18,12 +19,11 @@ namespace Infrastructure.Services
             _httpClient = httpClient;
             _spotifyAuthService = spotifyAuthService;
         }
-
         public async Task<List<Playlist>> GetPlaylistsByUserIdAsync(string userId)
         {
             try
             {
-                var userToken = await _spotifyAuthService.GetUserToken(userId); 
+                var userToken = await _spotifyAuthService.GetUserToken(userId);
 
                 if (string.IsNullOrEmpty(userToken))
                 {
@@ -33,7 +33,7 @@ namespace Infrastructure.Services
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
 
                 var response = await _httpClient.GetAsync($"https://api.spotify.com/v1/users/{userId}/playlists");
-                Console.WriteLine($"Playlist Response: {response}");
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
@@ -41,9 +41,30 @@ namespace Infrastructure.Services
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
-                var playlists = JsonSerializer.Deserialize<List<Playlist>>(content);
 
-                return playlists;
+                var playlistResponse = JsonSerializer.Deserialize<SpotifyPlaylistResponse>(content);
+
+                if (playlistResponse == null || playlistResponse.Items == null || playlistResponse.Items.Count == 0)
+                {
+                    throw new Exception("Received empty or invalid playlist data from Spotify.");
+                }
+
+                var playlists = playlistResponse.Items
+                    .Where(dto => dto != null)
+                    .Select(dto => new Playlist
+                    {
+                        Id = dto.Id,
+                        Name = dto.Name,
+                        Description = dto.Description,
+                        ExternalUrl = dto.ExternalUrls?.Spotify ?? string.Empty,
+                        ImageUrls = dto.Images?.Select(image => image.Url).ToList() ?? new List<string>(),
+                        OwnerDisplayName = dto.Owner?.DisplayName ?? string.Empty, 
+                        OwnerUri = dto.Owner?.Uri ?? string.Empty, 
+                        Public = dto.Public,
+                        SnapshotId = dto.SnapshotId 
+                    }).ToList();
+
+                return playlists ?? new List<Playlist>();
             }
             catch (Exception ex)
             {
