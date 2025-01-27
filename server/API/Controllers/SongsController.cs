@@ -16,35 +16,41 @@ namespace API.Controllers
             _songService = songService;
         }
 
-        [HttpGet("favorites/{userId}")]
-        public async Task<IActionResult> GetFavoriteSongs(string userId)
+        [HttpGet("spotify-songs/{spotifyid}")]
+        public async Task<IActionResult> GetFavoriteSongs(string spotifyid)
         {
-            var songs = await _songService.GetFavoriteSongsAsync(userId);
+            var songs = await _songService.GetSpotifySavedSongsByUserIdAsync(spotifyid);
             return Ok(songs);
         }
+        // [HttpGet("favorites/{userId}")]
+        // public async Task<IActionResult> GetFavoriteSongs(string userId)
+        // {
+        //     var songs = await _songService.GetFavoriteSongsAsync(userId);
+        //     return Ok(songs);
+        // }
 
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchSongs([FromQuery] string query)
-        {
-            var songs = await _songService.SearchSongsAsync(query);
-            return Ok(songs);
-        }
+        // [HttpGet("search")]
+        // public async Task<IActionResult> SearchSongs([FromQuery] string query)
+        // {
+        //     var songs = await _songService.SearchSongsAsync(query);
+        //     return Ok(songs);
+        // }
 
-        [HttpPost("add-to-favorites")]
-        public async Task<IActionResult> AddToFavorites([FromBody] SongDto songDto)
-        {
-            var success = await _songService.AddSongToFavoritesAsync(songDto.UserId, songDto.SongId);
-            if (success) return Ok();
-            return NotFound("Song not found.");
-        }
+        // [HttpPost("add-to-favorites")]
+        // public async Task<IActionResult> AddToFavorites([FromBody] SongDto songDto)
+        // {
+        //     var success = await _songService.AddSongToFavoritesAsync(songDto.UserId, songDto.SongId);
+        //     if (success) return Ok();
+        //     return NotFound("Song not found.");
+        // }
 
-        [HttpDelete("remove-from-favorites")]
-        public async Task<IActionResult> RemoveFromFavorites([FromBody] SongDto songDto)
-        {
-            var success = await _songService.RemoveSongFromFavoritesAsync(songDto.UserId, songDto.SongId);
-            if (success) return NoContent();
-            return NotFound("Song not found.");
-        }
+        // [HttpDelete("remove-from-favorites")]
+        // public async Task<IActionResult> RemoveFromFavorites([FromBody] SongDto songDto)
+        // {
+        //     var success = await _songService.RemoveSongFromFavoritesAsync(songDto.UserId, songDto.SongId);
+        //     if (success) return NoContent();
+        //     return NotFound("Song not found.");
+        // }
     }
 
 }

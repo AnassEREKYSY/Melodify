@@ -25,6 +25,13 @@ namespace API.Controllers
             return Redirect(authUrl);
         }
 
+        [HttpGet("get-url-login")]
+        public IActionResult GetUrlLogin()
+        {
+            var authUrl = _spotifyAuthService.GetLoginUrl();
+            return Ok(authUrl);
+        }
+
         // [HttpGet("get-connected-user")]
         // public async Task<IActionResult> GetConnectedUserAsync()
         // {

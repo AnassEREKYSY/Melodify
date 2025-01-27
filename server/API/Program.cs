@@ -15,18 +15,21 @@ var builder = WebApplication.CreateBuilder(args);
 // Load environment variables from .env file
 DotNetEnv.Env.Load();
 
+// Add environment variables to the Configuration system
+builder.Configuration.AddEnvironmentVariables();
+
 // Adjust Logging Configuration
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 
 // Resolve environment variables for logging
-var logLevelDefault = Environment.GetEnvironmentVariable("LOG_LEVEL_DEFAULT") ?? "Information";
-var logLevelMicrosoftAspNetCore = Environment.GetEnvironmentVariable("LOG_LEVEL_MICROSOFT_ASPNETCORE") ?? "Warning";
+var logLevelDefault = builder.Configuration["LOG_LEVEL_DEFAULT"] ?? "Information";
+var logLevelMicrosoftAspNetCore = builder.Configuration["LOG_LEVEL_MICROSOFT_ASPNETCORE"] ?? "Warning";
 
-var spotifyClientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
-var spotifyClientSecret = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
-var spotifyRedirectUri = Environment.GetEnvironmentVariable("SPOTIFY_REDIRECT_URI");
+var spotifyClientId = builder.Configuration["SPOTIFY_CLIENT_ID"] ?? Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
+var spotifyClientSecret = builder.Configuration["SPOTIFY_CLIENT_SECRET"] ?? Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
+var spotifyRedirectUri = builder.Configuration["SPOTIFY_REDIRECT_URI"] ?? Environment.GetEnvironmentVariable("SPOTIFY_REDIRECT_URI");
 
 Console.WriteLine($"Spotify Client ID: {spotifyClientId}");
 Console.WriteLine($"Spotify Client Secret: {spotifyClientSecret}");
@@ -47,7 +50,7 @@ builder.Services.AddCors(options =>
 });
 
 // Configure DbContext with connection string from .env
-var defaultConnection = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
+var defaultConnection = builder.Configuration["DEFAULT_CONNECTION"] ?? Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
 if (string.IsNullOrEmpty(defaultConnection))
 {
     throw new InvalidOperationException("Connection string not found in environment variables.");
@@ -64,9 +67,9 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 // Add JWT Authentication
-var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
-var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+var jwtIssuer = builder.Configuration["JWT_ISSUER"] ?? Environment.GetEnvironmentVariable("JWT_ISSUER");
+var jwtAudience = builder.Configuration["JWT_AUDIENCE"] ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+var jwtSecretKey = builder.Configuration["JWT_SECRET_KEY"] ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 
 if (string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience) || string.IsNullOrEmpty(jwtSecretKey))
 {
@@ -104,7 +107,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddScoped<ISpotifyAuthService, SpotifyAuthService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 builder.Services.AddScoped<IUserService, UserService>();
-// builder.Services.AddScoped<ISongService, SongService>();
+builder.Services.AddScoped<ISongService, SongService>();
+
 builder.Services.AddHttpClient();
 
 // Configure Swagger
@@ -119,11 +123,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-await SeedRolesAndAdmin(app.Services);
+// Pass Configuration to SeedRolesAndAdmin method
+await SeedRolesAndAdmin(app.Services, builder.Configuration);
 app.Run();
 
 // Seed roles and admin user
-static async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
+static async Task SeedRolesAndAdmin(IServiceProvider serviceProvider, IConfiguration configuration)
 {
     using var scope = serviceProvider.CreateScope();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -139,8 +144,8 @@ static async Task SeedRolesAndAdmin(IServiceProvider serviceProvider)
         }
     }
 
-    var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL") ?? "admin@test.com";
-    var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? "Pa$$w0rd";
+    var adminEmail = configuration["ADMIN_EMAIL"] ?? "admin@test.com";
+    var adminPassword = configuration["ADMIN_PASSWORD"] ?? "Pa$$w0rd";
 
     var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
     if (existingAdmin == null)

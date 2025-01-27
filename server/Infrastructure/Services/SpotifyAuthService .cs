@@ -29,9 +29,9 @@ namespace Infrastructure.Services
 
         public string GetLoginUrl()
         {
-            var clientId = _configuration["Spotify:ClientId"];
-            var redirectUri = _configuration["Spotify:RedirectUri"];
-            var scope = "user-read-private user-read-email playlist-read-private";
+            var clientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
+            var redirectUri = Environment.GetEnvironmentVariable("SPOTIFY_REDIRECT_URI");
+            var scope = "user-read-private user-read-email playlist-read-private user-library-read";
             var state = Guid.NewGuid().ToString();
 
             return $"https://accounts.spotify.com/authorize?client_id={clientId}&response_type=code&redirect_uri={Uri.EscapeDataString(redirectUri)}&scope={Uri.EscapeDataString(scope)}&state={state}";
@@ -49,7 +49,8 @@ namespace Infrastructure.Services
                 { "code", code },
                 { "redirect_uri", redirectUri },
                 { "client_id", clientId },
-                { "client_secret", clientSecret }
+                { "client_secret", clientSecret },
+                { "scope", "user-read-private user-read-email playlist-read-private user-library-read" }
             });
 
             var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token")
@@ -125,7 +126,7 @@ namespace Infrastructure.Services
                     throw new Exception($"Failed to update user tokens: {errors}");
                 }
             }
-            var spotifyPlaylists = await _playlistService.GetSpotifyPlaylistsByUserIdAsync(user.Id);
+            var spotifyPlaylists = await _playlistService.GetSpotifyPlaylistsByUserIdAsync(user.SpotifyID);
 
             var playlistMapper = new PlaylistMapper();
             var mappedPlaylists = playlistMapper.MapToSpotifyPlaylistItems(spotifyPlaylists);
