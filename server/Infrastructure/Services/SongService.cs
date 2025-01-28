@@ -135,5 +135,55 @@ namespace Infrastructure.Services
             }
         }
 
+        public async Task<List<Song>> SearchSongsAsync(string userId, string query)
+        {
+            try
+            {
+                var userToken = await _userService.GetUserTokenForSpotify(userId);
+
+                if (string.IsNullOrEmpty(userToken))
+                {
+                    throw new Exception("Spotify access token is missing or invalid.");
+                }
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+
+                var searchUrl = $"https://api.spotify.com/v1/search?q={Uri.EscapeDataString(query)}&type=track&limit=10";
+
+                var response = await _httpClient.GetAsync(searchUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to search for songs. Status code: {response.StatusCode}. Error: {errorContent}");
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                var searchResult = JsonSerializer.Deserialize<SpotifySearchResult>(content);
+
+                if (searchResult?.Tracks?.Items == null || searchResult.Tracks.Items.Count == 0)
+                {
+                    throw new Exception("No songs found matching the search query.");
+                }
+
+                var songs = searchResult.Tracks.Items
+                    .Select(item => new Song
+                    {
+                        Id = item.Id.GetHashCode(),
+                        Title = item.Name,
+                        Artist = string.Join(", ", item.Artists.Select(artist => artist.Name)),
+                        Album = item.Album.Name,
+                        Duration = TimeSpan.FromMilliseconds(item.DurationMs).ToString(@"mm\:ss")
+                    })
+                    .ToList();
+
+                return songs;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while searching for songs: {ex.Message}", ex);
+            }
+        }
+
     }
 }
