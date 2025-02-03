@@ -54,15 +54,28 @@ namespace API.Controllers
 
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchSongs([FromQuery] string userId, [FromQuery] string query)
+        public async Task<IActionResult> SearchSongs(
+            [FromQuery] string userId, 
+            [FromQuery] string query, 
+            [FromQuery] int offset = 0, 
+            [FromQuery] int limit = 10)
         {
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(query))
             {
                 return BadRequest("User ID and search query are required.");
             }
             
-            var songs = await _songService.SearchSongsAsync(userId, query);
-            return Ok(songs);
+            var searchResults = await _songService.SearchSongsAsync(userId, query, offset, limit);
+
+            return Ok(new
+            {
+                total = searchResults.Total,
+                offset = searchResults.Offset,
+                limit = searchResults.Limit,
+                next = searchResults.Next,
+                previous = searchResults.Previous,
+                songs = searchResults.Items
+            });
         }
     }
 

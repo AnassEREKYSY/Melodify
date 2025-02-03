@@ -135,7 +135,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<List<Song>> SearchSongsAsync(string userId, string query)
+        public async Task<SpotifyTracks> SearchSongsAsync(string userId, string query, int offset = 0, int limit = 10)
         {
             try
             {
@@ -148,7 +148,7 @@ namespace Infrastructure.Services
 
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
 
-                var searchUrl = $"https://api.spotify.com/v1/search?q={Uri.EscapeDataString(query)}&type=track&limit=10";
+                var searchUrl = $"https://api.spotify.com/v1/search?q={Uri.EscapeDataString(query)}&type=track&limit={limit}&offset={offset}";
 
                 var response = await _httpClient.GetAsync(searchUrl);
 
@@ -168,22 +168,26 @@ namespace Infrastructure.Services
                 if (searchResult?.Tracks?.Items == null || searchResult.Tracks.Items.Count == 0)
                 {
                     Console.WriteLine("No songs found after deserialization.");
-                    throw new Exception("No songs found matching the search query.");
+                    return new SpotifyTracks
+                    {
+                        Items = new List<SpotifyTrack>(),
+                        Total = searchResult?.Tracks?.Total ?? 0,
+                        Offset = offset,
+                        Limit = limit,
+                        Next = null,
+                        Previous = null
+                    };
                 }
 
-
-                var songs = searchResult.Tracks.Items
-                    .Select(item => new Song
-                    {
-                        Id = item.Id.GetHashCode(),
-                        Title = item.Name,
-                        Artist = string.Join(", ", item.Artists.Select(artist => artist.Name)),
-                        Album = item.Album.Name,
-                        Duration = TimeSpan.FromMilliseconds(item.DurationMs).ToString(@"mm\:ss")
-                    })
-                    .ToList();
-
-                return songs;
+                return new SpotifyTracks
+                {
+                    Items = searchResult.Tracks.Items,
+                    Total = searchResult.Tracks.Total,
+                    Offset = searchResult.Tracks.Offset,
+                    Limit = searchResult.Tracks.Limit,
+                    Next = searchResult.Tracks.Next,
+                    Previous = searchResult.Tracks.Previous
+                };
             }
             catch (Exception ex)
             {
