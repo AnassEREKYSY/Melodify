@@ -159,12 +159,18 @@ namespace Infrastructure.Services
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
-                var searchResult = JsonSerializer.Deserialize<SpotifySearchResult>(content);
+                Console.WriteLine($"Spotify API Response: {content}");
+                var searchResult = JsonSerializer.Deserialize<SpotifySearchResult>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
 
                 if (searchResult?.Tracks?.Items == null || searchResult.Tracks.Items.Count == 0)
                 {
+                    Console.WriteLine("No songs found after deserialization.");
                     throw new Exception("No songs found matching the search query.");
                 }
+
 
                 var songs = searchResult.Tracks.Items
                     .Select(item => new Song

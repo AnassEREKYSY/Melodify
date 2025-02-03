@@ -51,6 +51,19 @@ namespace API.Controllers
         //     if (success) return NoContent();
         //     return NotFound("Song not found.");
         // }
+
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchSongs([FromQuery] string userId, [FromQuery] string query)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(query))
+            {
+                return BadRequest("User ID and search query are required.");
+            }
+            
+            var songs = await _songService.SearchSongsAsync(userId, query);
+            return Ok(songs);
+        }
     }
 
 }

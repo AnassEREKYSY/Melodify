@@ -8,6 +8,7 @@ namespace Infrastructure.IServices
         // Task<bool> AddSongToFavoritesAsync(string userId, int songId);
         // Task<bool> RemoveSongFromFavoritesAsync(string userId, int songId);
         Task<List<Song>> GetSpotifySavedSongsByUserIdAsync(string userId);
+        Task<List<Song>> SearchSongsAsync(string userId, string query);
     }
 
 }
