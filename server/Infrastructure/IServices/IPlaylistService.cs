@@ -5,7 +5,7 @@ namespace Infrastructure.IServices
 {
     public interface IPlaylistService
     {
-        Task<List<Playlist>> GetSpotifyPlaylistsByUserIdAsync(string userId);
+        Task<SpotifyPaginatedPlaylists> GetSpotifyPlaylistsByUserIdAsync(string userId, int offset=0, int limit=10);
         Task<List<Playlist>> GetPlaylistsByUserIdAsync(string userId);
         Task<Playlist> CreatePlaylistAsync(string userId, string name, string description);
         Task<bool> AddSongToPlaylistAsync(string userId, string playlistId, int songId);

@@ -23,7 +23,7 @@ namespace Infrastructure.Services
             _context = context;
         }
 
-        public async Task<List<Playlist>> GetSpotifyPlaylistsByUserIdAsync(string userId)
+        public async Task<SpotifyPaginatedPlaylists> GetSpotifyPlaylistsByUserIdAsync(string userId, int offset=0, int limit=10)
         {
             try
             {
@@ -36,7 +36,9 @@ namespace Infrastructure.Services
 
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
 
-                var response = await _httpClient.GetAsync($"https://api.spotify.com/v1/users/{userId}/playlists");
+                var url = $"https://api.spotify.com/v1/users/{userId}/playlists?limit={limit}&offset={offset}";
+
+                var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -45,12 +47,22 @@ namespace Infrastructure.Services
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
-
-                var playlistResponse = JsonSerializer.Deserialize<SpotifyPlaylistResponse>(content);
-
-                if (playlistResponse == null || playlistResponse.Items == null || playlistResponse.Items.Count == 0)
+                var playlistResponse = JsonSerializer.Deserialize<SpotifyPlaylistResponse>(content, new JsonSerializerOptions
                 {
-                    throw new Exception("Received empty or invalid playlist data from Spotify.");
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (playlistResponse == null || playlistResponse.Items == null)
+                {
+                    return new SpotifyPaginatedPlaylists
+                    {
+                        Playlists = new List<Playlist>(),
+                        Total = 0,
+                        Limit = limit,
+                        Offset = offset,
+                        Next = null,
+                        Previous = null
+                    };
                 }
 
                 var playlists = playlistResponse.Items
@@ -62,19 +74,32 @@ namespace Infrastructure.Services
                         Description = dto.Description,
                         ExternalUrl = dto.ExternalUrls?.Spotify ?? string.Empty,
                         ImageUrls = dto.Images?.Select(image => image.Url).ToList() ?? new List<string>(),
-                        OwnerDisplayName = dto.Owner?.DisplayName ?? string.Empty, 
-                        OwnerUri = dto.Owner?.Uri ?? string.Empty, 
+                        OwnerDisplayName = dto.Owner?.DisplayName ?? string.Empty,
+                        OwnerUri = dto.Owner?.Uri ?? string.Empty,
                         Public = dto.Public,
-                        SnapshotId = dto.SnapshotId 
+                        SnapshotId = dto.SnapshotId
                     }).ToList();
 
-                return playlists ?? new List<Playlist>();
+                return new SpotifyPaginatedPlaylists
+                {
+                    Playlists = playlists,
+                    Total = playlistResponse.Total,
+                    Limit = playlistResponse.Limit,
+                    Offset = playlistResponse.Offset,
+                    Next = playlistResponse.Offset + playlistResponse.Limit < playlistResponse.Total
+                        ? $"?offset={playlistResponse.Offset + playlistResponse.Limit}&limit={playlistResponse.Limit}"
+                        : null,
+                    Previous = playlistResponse.Offset > 0
+                        ? $"?offset={Math.Max(0, playlistResponse.Offset - playlistResponse.Limit)}&limit={playlistResponse.Limit}"
+                        : null
+                };
             }
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while retrieving playlists: {ex.Message}", ex);
             }
         }
+
 
         public async Task<List<Playlist>> GetPlaylistsByUserIdAsync(string userId)
         {

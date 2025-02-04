@@ -2,6 +2,7 @@ using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Core.Entities;
 using Core.Dtos;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -17,9 +18,9 @@ namespace API.Controllers
         }
 
         [HttpGet("spotify-by-user/{spotifyid}")]
-        public async Task<IActionResult> GetPlaylistsSpotifyByUserId(string spotifyid)
+        public async Task<IActionResult> GetPlaylistsSpotifyByUserId(string spotifyid, [FromQuery] int offset = 0, [FromQuery] int limit = 20)
         {
-            var playlists = await _playlistService.GetSpotifyPlaylistsByUserIdAsync(spotifyid);
+            var playlists = await _playlistService.GetSpotifyPlaylistsByUserIdAsync(spotifyid, offset, limit);
             return Ok(playlists);
         }
 
@@ -29,13 +30,6 @@ namespace API.Controllers
             var playlists = await _playlistService.GetPlaylistsByUserIdAsync(userId);
             return Ok(playlists);
         }
-
-        // [HttpPost("create")]
-        // public async Task<IActionResult> CreatePlaylist([FromBody] PlaylistCreateDto playlistCreateDto)
-        // {
-        //     var playlist = await _playlistService.CreatePlaylistAsync(playlistCreateDto.UserId, playlistCreateDto.Name, playlistCreateDto.Description);
-        //     return CreatedAtAction(nameof(GetPlaylistsSpotifyByUserId), new { userId = playlistCreateDto.UserId }, playlist);
-        // }
 
         [HttpPost("add-song/{playlistId}")]
         public async Task<IActionResult> AddSongToPlaylist(string playlistId, [FromBody] SongDto songDto)
@@ -60,6 +54,5 @@ namespace API.Controllers
                 return BadRequest("Failed to remove song from playlist");
             }
         }
-
     }
 }

@@ -16,5 +16,11 @@ namespace Infrastructure.Response
 
         [JsonPropertyName("total")]
         public int Total { get; set; }
+
+        [JsonPropertyName("next")]
+        public string Next { get; set; }
+
+        [JsonPropertyName("previous")]
+        public string Previous { get; set; }
     }
 }
