@@ -1,3 +1,4 @@
+using Core.Dtos;
 using Core.Entities;
 using Infrastructure.Data;
 using Infrastructure.IServices;
@@ -142,28 +143,45 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<Playlist> CreatePlaylistAsync(string userId, string name, string description)
+        public async Task<Playlist> CreatePlaylistAsync(PlaylistCreateDto playlistCreateDto)
         {
-            var playlistData = new
+            try
             {
-                name,
-                description 
-            };
+                var playlistData = new
+                {
+                    playlistCreateDto.Name,
+                    playlistCreateDto.Description,
+                    @public = playlistCreateDto.isPublic
+                };
 
-            var response = await _httpClient.PostAsJsonAsync($"https://api.spotify.com/v1/users/{userId}/playlists", playlistData);
+                var userToken = await _userService.GetUserTokenForSpotify(playlistCreateDto.UserId);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Failed to retrieve playlists. Status code: {response.StatusCode}. Error: {errorContent}");
+                if (string.IsNullOrEmpty(userToken))
+                {
+                    throw new Exception("Spotify access token is missing or invalid.");
+                }
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+
+                var response = await _httpClient.PostAsJsonAsync($"https://api.spotify.com/v1/users/{playlistCreateDto.UserId}/playlists", playlistData);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to create playlist. Status code: {response.StatusCode}. Error: {errorContent}");
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                var playlist = JsonSerializer.Deserialize<Playlist>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                return playlist;
             }
-
-
-            var content = await response.Content.ReadAsStringAsync();
-            var playlist = JsonSerializer.Deserialize<Playlist>(content);
-
-            return playlist;
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while creating the playlist: {ex.Message}", ex);
+            }
         }
+
 
         public async Task<bool> AddSongToPlaylistAsync(string userId, string playlistId, int songId)
         {

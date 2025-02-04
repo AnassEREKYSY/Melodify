@@ -31,6 +31,22 @@ namespace API.Controllers
             return Ok(playlists);
         }
 
+        [HttpPost("create")]
+        public async Task<IActionResult> CreatePlaylist([FromBody] PlaylistCreateDto playlistCreateDto)
+        {
+            try
+            {
+                var playlist = await _playlistService.CreatePlaylistAsync(playlistCreateDto);
+
+                return CreatedAtAction(nameof(GetPlaylistsSpotifyByUserId), new { spotifyid = playlistCreateDto.UserId }, playlist);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to create playlist: {ex.Message}");
+            }
+        }
+
+
         [HttpPost("add-song/{playlistId}")]
         public async Task<IActionResult> AddSongToPlaylist(string playlistId, [FromBody] SongDto songDto)
         {

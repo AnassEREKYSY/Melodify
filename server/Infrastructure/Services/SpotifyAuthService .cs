@@ -31,7 +31,7 @@ namespace Infrastructure.Services
         {
             var clientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
             var redirectUri = Environment.GetEnvironmentVariable("SPOTIFY_REDIRECT_URI");
-            var scope = "user-read-private user-read-email playlist-read-private user-library-read";
+            var scope = "user-read-private user-read-email playlist-read-private user-library-read playlist-modify-public playlist-modify-private";
             var state = Guid.NewGuid().ToString();
 
             return $"https://accounts.spotify.com/authorize?client_id={clientId}&response_type=code&redirect_uri={Uri.EscapeDataString(redirectUri)}&scope={Uri.EscapeDataString(scope)}&state={state}";
