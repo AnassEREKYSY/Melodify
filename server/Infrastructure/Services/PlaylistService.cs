@@ -11,18 +11,8 @@ using System.Text.Json;
 
 namespace Infrastructure.Services
 {
-    public class PlaylistService : IPlaylistService
+    public class PlaylistService(HttpClient _httpClient, IUserService _userService, StoreContext _context) : IPlaylistService
     {
-        private readonly HttpClient _httpClient;
-        private readonly IUserService _userService;
-        private readonly StoreContext _context;
-
-        public PlaylistService(HttpClient httpClient, IUserService userService, StoreContext context)
-        {
-            _httpClient = httpClient;
-            _userService = userService;
-            _context = context;
-        }
 
         public async Task<SpotifyPaginatedPlaylists> GetSpotifyPlaylistsByUserIdAsync(string userId, int offset=0, int limit=10)
         {
@@ -57,7 +47,7 @@ namespace Infrastructure.Services
                 {
                     return new SpotifyPaginatedPlaylists
                     {
-                        Playlists = new List<Playlist>(),
+                        Playlists = new List<PlaylistDto>(),
                         Total = 0,
                         Limit = limit,
                         Offset = offset,
@@ -68,7 +58,7 @@ namespace Infrastructure.Services
 
                 var playlists = playlistResponse.Items
                     .Where(dto => dto != null)
-                    .Select(dto => new Playlist
+                    .Select(dto => new PlaylistDto
                     {
                         Id = dto.Id,
                         Name = dto.Name,
@@ -77,7 +67,7 @@ namespace Infrastructure.Services
                         ImageUrls = dto.Images?.Select(image => image.Url).ToList() ?? new List<string>(),
                         OwnerDisplayName = dto.Owner?.DisplayName ?? string.Empty,
                         OwnerUri = dto.Owner?.Uri ?? string.Empty,
-                        Public = dto.Public,
+                        isPublic = dto.Public,
                         SnapshotId = dto.SnapshotId
                     }).ToList();
 
@@ -101,48 +91,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<List<Playlist>> GetPlaylistsByUserIdAsync(string userId)
-        {
-            try
-            {
-                var userToken = await _userService.GetUserToken(userId);
-
-                if (string.IsNullOrEmpty(userToken))
-                {
-                    throw new Exception("User access token is missing or invalid.");
-                }
-
-                var returnedPlaylists = await _context.Playlists
-                    .Where(b => b.UserId == userId)
-                    .ToListAsync();
-
-                if (returnedPlaylists == null || returnedPlaylists.Count == 0)
-                {
-                    return null;
-                }
-
-                var playlists = returnedPlaylists
-                    .Select(p => new Playlist
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                        Description = p.Description,
-                        ExternalUrl = p.ExternalUrl ?? string.Empty,
-                        ImageUrls = p.ImageUrls.ToList() ?? new List<string>(),
-                        OwnerDisplayName = p.OwnerDisplayName ?? string.Empty, 
-                        OwnerUri = p.OwnerUri ?? string.Empty, 
-                        Public = p.Public,
-                        SnapshotId = p.SnapshotId 
-                    }).ToList();
-                return playlists;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while retrieving playlists: {ex.Message}", ex);
-            }
-        }
-
-        public async Task<Playlist> CreatePlaylistAsync(PlaylistCreateDto playlistCreateDto)
+        public async Task<PlaylistDto> CreatePlaylistAsync(PlaylistCreateDto playlistCreateDto)
         {
             try
             {
@@ -171,7 +120,7 @@ namespace Infrastructure.Services
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
-                var playlist = JsonSerializer.Deserialize<Playlist>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var playlist = JsonSerializer.Deserialize<PlaylistDto>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                 return playlist;
             }
@@ -181,18 +130,18 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<bool> AddSongToPlaylistAsync(string userId, string playlistId, string songId)
+        public async Task<bool> AddSongToPlaylistAsync(SongCreateDto songDto)
         {
             try
             {
-                var songUri = $"spotify:track:{songId}";  
+                var songUri = $"spotify:track:{songDto.SongId}";  
 
                 var addSongData = new
                 {
                     uris = new[] { songUri }
                 };
 
-                var userToken = await _userService.GetUserTokenForSpotify(userId);
+                var userToken = await _userService.GetUserTokenForSpotify(songDto.UserId);
 
                 if (string.IsNullOrEmpty(userToken))
                 {
@@ -201,7 +150,7 @@ namespace Infrastructure.Services
 
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
 
-                var response = await _httpClient.PostAsJsonAsync($"https://api.spotify.com/v1/playlists/{playlistId}/tracks", addSongData);
+                var response = await _httpClient.PostAsJsonAsync($"https://api.spotify.com/v1/playlists/{songDto.PlaylistId}/tracks", addSongData);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -217,11 +166,11 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<bool> RemoveSongFromPlaylistAsync(string userId, string playlistId, string songId)
+        public async Task<bool> RemoveSongFromPlaylistAsync(SongCreateDto songDto)
         {
             try
             {
-                var userToken = await _userService.GetUserTokenForSpotify(userId);
+                var userToken = await _userService.GetUserTokenForSpotify(songDto.UserId);
                 if (string.IsNullOrEmpty(userToken))
                 {
                     throw new Exception("Spotify access token is missing or invalid.");
@@ -233,11 +182,11 @@ namespace Infrastructure.Services
                 {
                     tracks = new[]
                     {
-                        new { uri = $"spotify:track:{songId}" }
+                        new { uri = $"spotify:track:{songDto.SongId}" }
                     }
                 };
 
-                var requestMessage = new HttpRequestMessage(HttpMethod.Delete, $"https://api.spotify.com/v1/playlists/{playlistId}/tracks")
+                var requestMessage = new HttpRequestMessage(HttpMethod.Delete, $"https://api.spotify.com/v1/playlists/{songDto.PlaylistId}/tracks")
                 {
                     Content = new StringContent(JsonSerializer.Serialize(removeSongData), Encoding.UTF8, "application/json")
                 };
@@ -256,47 +205,6 @@ namespace Infrastructure.Services
             {
                 throw new Exception($"An error occurred while removing the song: {ex.Message}", ex);
             }
-        }
-
-        public async Task CheckPlaylistsAsync(string userId, List<SpotifyPlaylistItem> spotifyPlaylists)
-        {
-            var existingPlaylists = await _context.Playlists
-                .Where(p => p.UserId == userId)
-                .ToListAsync();
-
-            if (existingPlaylists == null || existingPlaylists.Count == 0)
-            {
-                await InsertPlaylistsAsync(userId, spotifyPlaylists);
-            }
-            else
-            {
-                var existingPlaylistIds = existingPlaylists.Select(p => p.Id).ToList();
-
-                var newPlaylists = spotifyPlaylists
-                    .Where(p => !existingPlaylistIds.Contains(p.Id))
-                    .ToList();
-
-                if (newPlaylists.Count != 0)
-                {
-                    await InsertPlaylistsAsync(userId, newPlaylists);
-                }
-            }
-        }
-        public async Task InsertPlaylistsAsync(string userId, List<SpotifyPlaylistItem> spotifyPlaylists)
-        {
-            var playlistsToInsert = spotifyPlaylists.Select(p => new Playlist
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                ExternalUrl = p.ExternalUrls?.Spotify,  
-                UserId = userId, 
-                Public = p.Public,
-                SnapshotId = p.SnapshotId
-            }).ToList();
-
-            await _context.Playlists.AddRangeAsync(playlistsToInsert);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> DeletePlaylistAsync(string userId, string playlistId)
@@ -328,5 +236,6 @@ namespace Infrastructure.Services
                 throw new Exception($"An error occurred while deleting the playlist: {ex.Message}", ex);
             }
         }
+    
     }
 }

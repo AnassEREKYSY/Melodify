@@ -2,7 +2,10 @@ namespace Core.Dtos
 {
     public class SongDto
     {
-        public string UserId { get; set; }
-        public string SongId { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public List<ArtistDto> Artists { get; set; }
+        public AlbumDto Album { get; set; }
+        public int DurationMs { get; set; }
     }
 }

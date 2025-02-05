@@ -126,11 +126,6 @@ namespace Infrastructure.Services
                     throw new Exception($"Failed to update user tokens: {errors}");
                 }
             }
-            var spotifyPlaylists = await _playlistService.GetSpotifyPlaylistsByUserIdAsync(user.SpotifyID);
-
-            var playlistMapper = new PlaylistMapper();
-            var mappedPlaylists = playlistMapper.MapToSpotifyPlaylistItems(spotifyPlaylists.Playlists);
-            await _playlistService.CheckPlaylistsAsync(user.Id, mappedPlaylists);
             return user;
         }
 

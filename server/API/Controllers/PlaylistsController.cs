@@ -1,33 +1,18 @@
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
-using Core.Entities;
 using Core.Dtos;
-using System.Threading.Tasks;
 
 namespace API.Controllers
 {
     [ApiController]
     [Route("api/playlists")]
-    public class PlaylistsController : ControllerBase
+    public class PlaylistsController(IPlaylistService _playlistService) : ControllerBase
     {
-        private readonly IPlaylistService _playlistService;
-
-        public PlaylistsController(IPlaylistService playlistService)
-        {
-            _playlistService = playlistService;
-        }
 
         [HttpGet("spotify-by-user/{spotifyid}")]
         public async Task<IActionResult> GetPlaylistsSpotifyByUserId(string spotifyid, [FromQuery] int offset = 0, [FromQuery] int limit = 20)
         {
             var playlists = await _playlistService.GetSpotifyPlaylistsByUserIdAsync(spotifyid, offset, limit);
-            return Ok(playlists);
-        }
-
-        [HttpGet("local-by-user/{userId}")]
-        public async Task<IActionResult> GetPlaylistsByUserId(string userId)
-        {
-            var playlists = await _playlistService.GetPlaylistsByUserIdAsync(userId);
             return Ok(playlists);
         }
 
@@ -61,8 +46,8 @@ namespace API.Controllers
             }
         }
 
-        [HttpPost("add-song/{playlistId}")]
-        public async Task<IActionResult> AddSongToPlaylist(string playlistId, [FromBody] SongDto songDto)
+        [HttpPost("add-song-to-playlist")]
+        public async Task<IActionResult> AddSongToPlaylist([FromBody] SongCreateDto songDto)
         {
             if (string.IsNullOrEmpty(songDto.UserId) || string.IsNullOrEmpty(songDto.SongId))
             {
@@ -71,7 +56,7 @@ namespace API.Controllers
 
             try
             {
-                var success = await _playlistService.AddSongToPlaylistAsync(songDto.UserId, playlistId, songDto.SongId);
+                var success = await _playlistService.AddSongToPlaylistAsync(songDto);
 
                 if (success)
                     return Ok("Song successfully added to playlist.");
@@ -84,18 +69,18 @@ namespace API.Controllers
             }
         }
 
-        [HttpDelete("remove-song-from-playlist/{userId}/{playlistId}/{songId}")]
-        public async Task<IActionResult> RemoveSongFromPlaylist(string userId, string playlistId, string songId)
+        [HttpDelete("remove-song-from-playlist")]
+        public async Task<IActionResult> RemoveSongFromPlaylist(SongCreateDto songCreateDto)
         {
 
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(songCreateDto.UserId))
             {
                 return Unauthorized("User must be authenticated to remove a song from a playlist.");
             }
 
             try
             {
-                var result = await _playlistService.RemoveSongFromPlaylistAsync(userId, playlistId, songId);
+                var result = await _playlistService.RemoveSongFromPlaylistAsync(songCreateDto);
 
                 if (result)
                 {
@@ -103,7 +88,7 @@ namespace API.Controllers
                 }
                 else
                 {
-                    return NotFound($"Failed to remove song with ID {songId} from playlist {playlistId}.");
+                    return NotFound($"Failed to remove song with ID {songCreateDto.SongId} from playlist {songCreateDto.PlaylistId}.");
                 }
             }
             catch (Exception ex)
