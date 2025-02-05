@@ -46,6 +46,22 @@ namespace API.Controllers
             }
         }
 
+        [HttpDelete("delete/{userId}/{playlistId}")]
+        public async Task<IActionResult> DeletePlaylist(string userId,string playlistId)
+        {
+            var result = await _playlistService.DeletePlaylistAsync(userId, playlistId);
+
+            if (result)
+            {
+                return Ok("Playlist successfully deleted (unfollowed).");
+            }
+            else
+            {
+                return BadRequest("Failed to delete playlist.");
+            }
+        }
+
+
 
         [HttpPost("add-song/{playlistId}")]
         public async Task<IActionResult> AddSongToPlaylist(string playlistId, [FromBody] SongDto songDto)

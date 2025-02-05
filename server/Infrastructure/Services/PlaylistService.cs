@@ -258,5 +258,34 @@ namespace Infrastructure.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> DeletePlaylistAsync(string userId, string playlistId)
+        {
+            try
+            {
+                var userToken = await _userService.GetUserTokenForSpotify(userId);
+
+                if (string.IsNullOrEmpty(userToken))
+                {
+                    throw new Exception("Spotify access token is missing or invalid.");
+                }
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+
+                var requestUri = $"https://api.spotify.com/v1/playlists/{playlistId}/followers";
+                var response = await _httpClient.DeleteAsync(requestUri);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to delete (unfollow) playlist. Status code: {response.StatusCode}. Error: {errorContent}");
+                }
+
+                return true; 
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while deleting the playlist: {ex.Message}", ex);
+            }
+        }
     }
 }
