@@ -1,12 +1,14 @@
 using Core.Dtos;
 using Core.Entities;
 using Infrastructure.IServices;
+using Infrastructure.Middleware;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [ApiController]
     [Route("api/songs")]
+    [SpotifyAuthorize] 
     public class SongsController(ISongService _songService) : ControllerBase
     {
 

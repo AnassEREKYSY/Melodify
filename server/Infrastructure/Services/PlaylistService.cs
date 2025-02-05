@@ -1,9 +1,7 @@
 using Core.Dtos;
-using Core.Entities;
 using Infrastructure.Data;
 using Infrastructure.IServices;
 using Infrastructure.Response;
-using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;

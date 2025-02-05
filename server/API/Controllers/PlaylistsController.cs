@@ -1,11 +1,14 @@
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Core.Dtos;
+using Microsoft.AspNetCore.Authorization;
+using Infrastructure.Middleware;
 
 namespace API.Controllers
 {
     [ApiController]
     [Route("api/playlists")]
+    [SpotifyAuthorize] 
     public class PlaylistsController(IPlaylistService _playlistService) : ControllerBase
     {
 
