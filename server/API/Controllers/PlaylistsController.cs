@@ -47,7 +47,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("delete/{userId}/{playlistId}")]
-        public async Task<IActionResult> DeletePlaylist(string userId,string playlistId)
+        public async Task<IActionResult> DeletePlaylist(string userId, string playlistId)
         {
             var result = await _playlistService.DeletePlaylistAsync(userId, playlistId);
 
@@ -61,29 +61,54 @@ namespace API.Controllers
             }
         }
 
-
-
         [HttpPost("add-song/{playlistId}")]
         public async Task<IActionResult> AddSongToPlaylist(string playlistId, [FromBody] SongDto songDto)
         {
-            var success = await _playlistService.AddSongToPlaylistAsync(songDto.UserId, playlistId, songDto.SongId);
-            if (success) return Ok();
-            return NotFound($"Playlist with ID {playlistId} or song with ID {songDto.SongId} not found.");
+            if (string.IsNullOrEmpty(songDto.UserId) || string.IsNullOrEmpty(songDto.SongId))
+            {
+                return BadRequest("UserId and SongId must be provided.");
+            }
+
+            try
+            {
+                var success = await _playlistService.AddSongToPlaylistAsync(songDto.UserId, playlistId, songDto.SongId);
+
+                if (success)
+                    return Ok("Song successfully added to playlist.");
+
+                return BadRequest("Failed to add song to playlist.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
-        [HttpDelete("remove-song/{playlistId}/{songId}")]
-        public async Task<IActionResult> RemoveSongFromPlaylist(string playlistId, int songId)
+        [HttpDelete("remove-song-from-playlist/{userId}/{playlistId}/{songId}")]
+        public async Task<IActionResult> RemoveSongFromPlaylist(string userId, string playlistId, string songId)
         {
-            var userId = User.Identity.Name; 
-            var result = await _playlistService.RemoveSongFromPlaylistAsync(userId, playlistId, songId);
 
-            if (result)
+            if (string.IsNullOrEmpty(userId))
             {
-                return Ok("Song removed from playlist");
+                return Unauthorized("User must be authenticated to remove a song from a playlist.");
             }
-            else
+
+            try
             {
-                return BadRequest("Failed to remove song from playlist");
+                var result = await _playlistService.RemoveSongFromPlaylistAsync(userId, playlistId, songId);
+
+                if (result)
+                {
+                    return Ok("Song removed from playlist successfully.");
+                }
+                else
+                {
+                    return NotFound($"Failed to remove song with ID {songId} from playlist {playlistId}.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while removing the song: {ex.Message}");
             }
         }
     }

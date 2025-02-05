@@ -101,7 +101,6 @@ namespace Infrastructure.Services
             }
         }
 
-
         public async Task<List<Playlist>> GetPlaylistsByUserIdAsync(string userId)
         {
             try
@@ -182,39 +181,81 @@ namespace Infrastructure.Services
             }
         }
 
-
-        public async Task<bool> AddSongToPlaylistAsync(string userId, string playlistId, int songId)
+        public async Task<bool> AddSongToPlaylistAsync(string userId, string playlistId, string songId)
         {
-            var songUri = $"spotify:track:{songId}";  // Assuming the songId is a track ID
-
-            var addSongData = new
+            try
             {
-                uris = new[] { songUri }
-            };
+                var songUri = $"spotify:track:{songId}";  
 
-            var response = await _httpClient.PostAsJsonAsync($"https://api.spotify.com/v1/playlists/{playlistId}/tracks", addSongData);
+                var addSongData = new
+                {
+                    uris = new[] { songUri }
+                };
 
-            return response.IsSuccessStatusCode;
+                var userToken = await _userService.GetUserTokenForSpotify(userId);
+
+                if (string.IsNullOrEmpty(userToken))
+                {
+                    throw new Exception("Spotify access token is missing or invalid.");
+                }
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+
+                var response = await _httpClient.PostAsJsonAsync($"https://api.spotify.com/v1/playlists/{playlistId}/tracks", addSongData);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to add song to playlist. Status code: {response.StatusCode}. Error: {errorContent}");
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while adding the song: {ex.Message}", ex);
+            }
         }
 
-        public async Task<bool> RemoveSongFromPlaylistAsync(string userId, string playlistId, int songId)
+        public async Task<bool> RemoveSongFromPlaylistAsync(string userId, string playlistId, string songId)
         {
-            var songUri = $"spotify:track:{songId}";
-
-            var removeSongData = new
+            try
             {
-                tracks = new[] { new { uri = songUri } }
-            };
+                var userToken = await _userService.GetUserTokenForSpotify(userId);
+                if (string.IsNullOrEmpty(userToken))
+                {
+                    throw new Exception("Spotify access token is missing or invalid.");
+                }
 
-            // Using HttpClient.SendAsync to send DELETE request with a JSON body
-            var requestMessage = new HttpRequestMessage(HttpMethod.Delete, $"https://api.spotify.com/v1/playlists/{playlistId}/tracks")
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+
+                var removeSongData = new
+                {
+                    tracks = new[]
+                    {
+                        new { uri = $"spotify:track:{songId}" }
+                    }
+                };
+
+                var requestMessage = new HttpRequestMessage(HttpMethod.Delete, $"https://api.spotify.com/v1/playlists/{playlistId}/tracks")
+                {
+                    Content = new StringContent(JsonSerializer.Serialize(removeSongData), Encoding.UTF8, "application/json")
+                };
+
+                var response = await _httpClient.SendAsync(requestMessage);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to remove song. Status code: {response.StatusCode}. Error: {errorContent}");
+                }
+
+                return true;
+            }
+            catch (Exception ex)
             {
-                Content = new StringContent(JsonSerializer.Serialize(removeSongData), Encoding.UTF8, "application/json")
-            };
-
-            var response = await _httpClient.SendAsync(requestMessage);
-
-            return response.IsSuccessStatusCode;
+                throw new Exception($"An error occurred while removing the song: {ex.Message}", ex);
+            }
         }
 
         public async Task CheckPlaylistsAsync(string userId, List<SpotifyPlaylistItem> spotifyPlaylists)
