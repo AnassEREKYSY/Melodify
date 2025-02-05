@@ -13,8 +13,7 @@ namespace Infrastructure.Services
 {
     public class PlaylistService(HttpClient _httpClient, IUserService _userService, StoreContext _context) : IPlaylistService
     {
-
-        public async Task<SpotifyPaginatedPlaylists> GetSpotifyPlaylistsByUserIdAsync(string userId, int offset=0, int limit=10)
+        public async Task<SpotifyPaginatedPlaylists> GetSpotifyPlaylistsByUserIdAsync(string userId, int offset = 0, int limit = 10)
         {
             try
             {
@@ -27,8 +26,8 @@ namespace Infrastructure.Services
 
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
 
+                // Get user's playlists
                 var url = $"https://api.spotify.com/v1/users/{userId}/playlists?limit={limit}&offset={offset}";
-
                 var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
@@ -56,9 +55,13 @@ namespace Infrastructure.Services
                     };
                 }
 
-                var playlists = playlistResponse.Items
-                    .Where(dto => dto != null)
-                    .Select(dto => new PlaylistDto
+                // Fetch songs for each playlist
+                var playlists = new List<PlaylistDto>();
+                foreach (var dto in playlistResponse.Items.Where(dto => dto != null))
+                {
+                    var songs = await GetSongsForPlaylist(dto.Id, userToken);
+
+                    var playlistDto = new PlaylistDto
                     {
                         Id = dto.Id,
                         Name = dto.Name,
@@ -68,8 +71,12 @@ namespace Infrastructure.Services
                         OwnerDisplayName = dto.Owner?.DisplayName ?? string.Empty,
                         OwnerUri = dto.Owner?.Uri ?? string.Empty,
                         isPublic = dto.Public,
-                        SnapshotId = dto.SnapshotId
-                    }).ToList();
+                        SnapshotId = dto.SnapshotId,
+                        Songs = songs
+                    };
+
+                    playlists.Add(playlistDto);
+                }
 
                 return new SpotifyPaginatedPlaylists
                 {
@@ -236,6 +243,47 @@ namespace Infrastructure.Services
                 throw new Exception($"An error occurred while deleting the playlist: {ex.Message}", ex);
             }
         }
-    
+
+        private async Task<List<SongDto>> GetSongsForPlaylist(string playlistId, string accessToken)
+        {
+            var songs = new List<SongDto>();
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks";
+            var response = await _httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return songs; 
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var trackResponse = JsonSerializer.Deserialize<SpotifyPlaylistTracksResponse>(content, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (trackResponse?.Items == null) return songs;
+
+            foreach (var item in trackResponse.Items)
+            {
+                var track = item.Track;
+                if (track != null)
+                {
+                    songs.Add(new SongDto
+                    {
+                        Id = track.Id,
+                        Name = track.Name,
+                        DurationMs = track.DurationMs,
+                        Album = new AlbumDto { Name = track.Album?.Name ?? string.Empty },
+                        Artists = track.Artists?.Select(a => new ArtistDto { Name = a.Name }).ToList() ?? new List<ArtistDto>()
+                    });
+                }
+            }
+
+            return songs;
+        }
+
     }
 }

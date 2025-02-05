@@ -1,5 +1,4 @@
 using Core.Dtos;
-using Core.Entities;
 
 namespace Infrastructure.Response
 {
