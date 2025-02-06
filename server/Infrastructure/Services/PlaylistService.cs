@@ -9,23 +9,21 @@ using System.Text.Json;
 
 namespace Infrastructure.Services
 {
-    public class PlaylistService(HttpClient _httpClient, IUserService _userService, StoreContext _context) : IPlaylistService
+    public class PlaylistService(HttpClient _httpClient, IUserService _userService, StoreContext _context, ISpotifyAuthService _spotifyAuthService) : IPlaylistService
     {
-        public async Task<SpotifyPaginatedPlaylists> GetSpotifyPlaylistsByUserIdAsync(string userId, int offset = 0, int limit = 10)
+        public async Task<SpotifyPaginatedPlaylists> GetSpotifyPlaylistsByUserIdAsync(string userToken, int offset = 0, int limit = 10)
         {
             try
             {
-                var userToken = await _userService.GetUserTokenForSpotify(userId);
-
                 if (string.IsNullOrEmpty(userToken))
                 {
                     throw new Exception("Spotify access token is missing or invalid.");
                 }
 
+                var user = await _spotifyAuthService.GetSpotifyUserProfileAsync(userToken) ?? throw new Exception("User doesnt exist.");
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
 
-                // Get user's playlists
-                var url = $"https://api.spotify.com/v1/users/{userId}/playlists?limit={limit}&offset={offset}";
+                var url = $"https://api.spotify.com/v1/users/{user.Id}/playlists?limit={limit}&offset={offset}";
                 var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
@@ -53,7 +51,6 @@ namespace Infrastructure.Services
                     };
                 }
 
-                // Fetch songs for each playlist
                 var playlists = new List<PlaylistDto>();
                 foreach (var dto in playlistResponse.Items.Where(dto => dto != null))
                 {
@@ -96,7 +93,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<PlaylistDto> CreatePlaylistAsync(PlaylistCreateDto playlistCreateDto)
+        public async Task<PlaylistDto> CreatePlaylistAsync(PlaylistCreateDto playlistCreateDto, string token)
         {
             try
             {
@@ -107,14 +104,12 @@ namespace Infrastructure.Services
                     @public = playlistCreateDto.isPublic
                 };
 
-                var userToken = await _userService.GetUserTokenForSpotify(playlistCreateDto.UserId);
-
-                if (string.IsNullOrEmpty(userToken))
+                if (string.IsNullOrEmpty(token))
                 {
                     throw new Exception("Spotify access token is missing or invalid.");
                 }
 
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var response = await _httpClient.PostAsJsonAsync($"https://api.spotify.com/v1/users/{playlistCreateDto.UserId}/playlists", playlistData);
 
@@ -135,7 +130,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<bool> AddSongToPlaylistAsync(SongCreateDto songDto)
+        public async Task<bool> AddSongToPlaylistAsync(SongCreateDto songDto ,  string token)
         {
             try
             {
@@ -146,14 +141,12 @@ namespace Infrastructure.Services
                     uris = new[] { songUri }
                 };
 
-                var userToken = await _userService.GetUserTokenForSpotify(songDto.UserId);
-
-                if (string.IsNullOrEmpty(userToken))
+                if (string.IsNullOrEmpty(token))
                 {
                     throw new Exception("Spotify access token is missing or invalid.");
                 }
 
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var response = await _httpClient.PostAsJsonAsync($"https://api.spotify.com/v1/playlists/{songDto.PlaylistId}/tracks", addSongData);
 
@@ -171,17 +164,16 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<bool> RemoveSongFromPlaylistAsync(SongCreateDto songDto)
+        public async Task<bool> RemoveSongFromPlaylistAsync(SongCreateDto songDto, string token)
         {
             try
             {
-                var userToken = await _userService.GetUserTokenForSpotify(songDto.UserId);
-                if (string.IsNullOrEmpty(userToken))
+                if (string.IsNullOrEmpty(token))
                 {
                     throw new Exception("Spotify access token is missing or invalid.");
                 }
 
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var removeSongData = new
                 {
@@ -212,18 +204,16 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<bool> DeletePlaylistAsync(string userId, string playlistId)
+        public async Task<bool> DeletePlaylistAsync(string token, string playlistId)
         {
             try
             {
-                var userToken = await _userService.GetUserTokenForSpotify(userId);
-
-                if (string.IsNullOrEmpty(userToken))
+                if (string.IsNullOrEmpty(token))
                 {
                     throw new Exception("Spotify access token is missing or invalid.");
                 }
 
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var requestUri = $"https://api.spotify.com/v1/playlists/{playlistId}/followers";
                 var response = await _httpClient.DeleteAsync(requestUri);

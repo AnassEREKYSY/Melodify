@@ -12,10 +12,15 @@ namespace API.Controllers
     public class PlaylistsController(IPlaylistService _playlistService) : ControllerBase
     {
 
-        [HttpGet("spotify-by-user/{spotifyid}")]
-        public async Task<IActionResult> GetPlaylistsSpotifyByUserId(string spotifyid, [FromQuery] int offset = 0, [FromQuery] int limit = 20)
+        [HttpGet("spotify-by-user")]
+        public async Task<IActionResult> GetPlaylistsSpotifyByUserId([FromQuery] int offset = 0, [FromQuery] int limit = 20)
         {
-            var playlists = await _playlistService.GetSpotifyPlaylistsByUserIdAsync(spotifyid, offset, limit);
+            var accessToken =ExtractAccessToken();
+            if (accessToken == null)
+            {
+                return Unauthorized("Missing or invalid Authorization header.");
+            }
+            var playlists = await _playlistService.GetSpotifyPlaylistsByUserIdAsync(accessToken, offset, limit);
             return Ok(playlists);
         }
 
@@ -24,7 +29,12 @@ namespace API.Controllers
         {
             try
             {
-                var playlist = await _playlistService.CreatePlaylistAsync(playlistCreateDto);
+                var accessToken =ExtractAccessToken();
+                if (accessToken == null)
+                {
+                    return Unauthorized("Missing or invalid Authorization header.");
+                }
+                var playlist = await _playlistService.CreatePlaylistAsync(playlistCreateDto,accessToken);
 
                 return CreatedAtAction(nameof(GetPlaylistsSpotifyByUserId), new { spotifyid = playlistCreateDto.UserId }, playlist);
             }
@@ -34,10 +44,15 @@ namespace API.Controllers
             }
         }
 
-        [HttpDelete("delete/{userId}/{playlistId}")]
-        public async Task<IActionResult> DeletePlaylist(string userId, string playlistId)
+        [HttpDelete("delete/{playlistId}")]
+        public async Task<IActionResult> DeletePlaylist(string playlistId)
         {
-            var result = await _playlistService.DeletePlaylistAsync(userId, playlistId);
+            var accessToken =ExtractAccessToken();
+            if (accessToken == null)
+            {
+                return Unauthorized("Missing or invalid Authorization header.");
+            }
+            var result = await _playlistService.DeletePlaylistAsync(accessToken, playlistId);
 
             if (result)
             {
@@ -59,7 +74,12 @@ namespace API.Controllers
 
             try
             {
-                var success = await _playlistService.AddSongToPlaylistAsync(songDto);
+                var accessToken =ExtractAccessToken();
+                if (accessToken == null)
+                {
+                    return Unauthorized("Missing or invalid Authorization header.");
+                }
+                var success = await _playlistService.AddSongToPlaylistAsync(songDto, accessToken);
 
                 if (success)
                     return Ok("Song successfully added to playlist.");
@@ -83,7 +103,12 @@ namespace API.Controllers
 
             try
             {
-                var result = await _playlistService.RemoveSongFromPlaylistAsync(songCreateDto);
+                var accessToken =ExtractAccessToken();
+                if (accessToken == null)
+                {
+                    return Unauthorized("Missing or invalid Authorization header.");
+                }
+                var result = await _playlistService.RemoveSongFromPlaylistAsync(songCreateDto, accessToken);
 
                 if (result)
                 {
@@ -99,5 +124,18 @@ namespace API.Controllers
                 return StatusCode(500, $"An error occurred while removing the song: {ex.Message}");
             }
         }
+    
+        private string? ExtractAccessToken()
+        {
+            var authHeader = Request.Headers.Authorization.ToString();
+
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return null;
+            }
+
+            return authHeader["Bearer ".Length..].Trim();
+        }
+
     }
 }

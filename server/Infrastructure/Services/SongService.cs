@@ -9,18 +9,16 @@ namespace Infrastructure.Services
 {
     public class SongService(HttpClient _httpClient, IUserService _userService) : ISongService
     {
-        public async Task<SpotifyTracks> SearchSongsAsync(string userId, string query, int offset = 0, int limit = 10)
+        public async Task<SpotifyTracks> SearchSongsAsync(string token, string query, int offset = 0, int limit = 10)
         {
             try
             {
-                var userToken = await _userService.GetUserTokenForSpotify(userId);
-
-                if (string.IsNullOrEmpty(userToken))
+                if (string.IsNullOrEmpty(token))
                 {
                     throw new Exception("Spotify access token is missing or invalid.");
                 }
 
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var searchUrl = $"https://api.spotify.com/v1/search?q={Uri.EscapeDataString(query)}&type=track&limit={limit}&offset={offset}";
 

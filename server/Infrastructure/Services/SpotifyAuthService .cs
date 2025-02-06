@@ -1,7 +1,7 @@
+using System.Net.Http.Headers;
 using System.Text.Json;
 using Core.Entities;
 using Infrastructure.IServices;
-using Infrastructure.Mappers;
 using Infrastructure.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -11,19 +11,15 @@ namespace Infrastructure.Services
 
     public class SpotifyAuthService : ISpotifyAuthService
     {
-        private readonly IConfiguration _configuration;
         private readonly UserManager<AppUser> _userManager;
         private readonly HttpClient _httpClient;
-        private readonly IPlaylistService _playlistService;
         private readonly IUserService _userService;
 
 
-        public SpotifyAuthService(IConfiguration configuration, UserManager<AppUser> userManager, HttpClient httpClient , IPlaylistService playlistService,IUserService userService)
+        public SpotifyAuthService( UserManager<AppUser> userManager, HttpClient httpClient, IUserService userService)
         {
-            _configuration = configuration;
             _userManager = userManager;
             _httpClient = httpClient;
-            _playlistService = playlistService;
             _userService = userService;
         }
 
@@ -127,6 +123,28 @@ namespace Infrastructure.Services
                 }
             }
             return user;
+        }
+
+        public async Task<SpotifyUserProfile> GetSpotifyUserProfileAsync(string accessToken)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.GetAsync("https://api.spotify.com/v1/me");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to retrieve Spotify user profile. Status code: {response.StatusCode}. Error: {errorContent}");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"URRRRRRRRA: {content}");
+            var userProfile = JsonSerializer.Deserialize<SpotifyUserProfile>(content, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            return userProfile;
         }
 
     }
