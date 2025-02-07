@@ -1,0 +1,20 @@
+<div class="user-profile">
+    <mat-card *ngIf="userProfile; else loading">
+      <mat-card-header>
+        <mat-card-title>{{ userProfile.displayName }}</mat-card-title>
+        <mat-card-subtitle>{{ userProfile.email }}</mat-card-subtitle>
+      </mat-card-header>
+      <img mat-card-image [src]="userProfile.profileImageUrl || 'assets/default-profile.png'" alt="Profile Image">
+      <mat-card-content>
+        <p><strong>Country:</strong> {{ userProfile.country }}</p>
+        <p><strong>Product:</strong> {{ userProfile.product }}</p>
+        <p><strong>Spotify URI:</strong> {{ userProfile.uri }}</p>
+        <a [href]="userProfile.externalUrls.spotify" target="_blank">View on Spotify</a>
+      </mat-card-content>
+    </mat-card>
+    <ng-template #loading>
+      <p>Loading user profile...</p>
+    </ng-template>
+    <p *ngIf="errorMessage">{{ errorMessage }}</p>
+  </div>
+  
