@@ -32,46 +32,6 @@ namespace API.Controllers
             return Ok(authUrl);
         }
 
-        // [HttpGet("get-connected-user")]
-        // public async Task<IActionResult> GetConnectedUserAsync()
-        // {
-        //     var token = Request.Headers["Authorization"].ToString();
-        //     if (string.IsNullOrEmpty(token))
-        //     {
-        //         return Unauthorized("No token found in request.");
-        //     }
-
-        //     Console.WriteLine("Token received: " + token);
-        //     var userId = User?.Identity?.Name ?? User?.FindFirst("sub")?.Value;
-
-        //     if (string.IsNullOrEmpty(userId))
-        //     {
-        //         return Unauthorized("User is not authenticated.");
-        //     }
-        //     var user = await _spotifyAuthService.GetOneUser(userId);
-
-        //     if (user == null)
-        //     {
-        //         return NotFound("User not found.");
-        //     }
-
-        //     return Ok(new
-        //     {
-        //         user.Id,
-        //         user.SpotifyID,
-        //         user.FirstName,
-        //         user.LastName,
-        //         user.SpotifyAccessToken,
-        //         user.SpotifyRefreshToken,
-        //         user.Email,
-        //         user.DisplayName,
-        //         user.ProfileImageUrl,
-        //         user.Playlists,
-        //         user.SongHistory,
-        //         user.FavoriteSongs
-        //     });
-        // }
-
         [HttpGet("callback")]
         public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
         {

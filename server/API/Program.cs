@@ -27,30 +27,31 @@ builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 var logLevelDefault = builder.Configuration["LOG_LEVEL_DEFAULT"] ?? "Information";
 var logLevelMicrosoftAspNetCore = builder.Configuration["LOG_LEVEL_MICROSOFT_ASPNETCORE"] ?? "Warning";
 
-var spotifyClientId = builder.Configuration["SPOTIFY_CLIENT_ID"] ?? Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID");
-var spotifyClientSecret = builder.Configuration["SPOTIFY_CLIENT_SECRET"] ?? Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_SECRET");
-var spotifyRedirectUri = builder.Configuration["SPOTIFY_REDIRECT_URI"] ?? Environment.GetEnvironmentVariable("SPOTIFY_REDIRECT_URI");
+// Read Spotify API credentials from environment variables
+var spotifyClientId = builder.Configuration["SPOTIFY_CLIENT_ID"];
+var spotifyClientSecret = builder.Configuration["SPOTIFY_CLIENT_SECRET"];
+var spotifyRedirectUri = builder.Configuration["SPOTIFY_REDIRECT_URI"];
 
 Console.WriteLine($"Spotify Client ID: {spotifyClientId}");
-Console.WriteLine($"Spotify Client Secret: {spotifyClientSecret}");
 Console.WriteLine($"Spotify Redirect URI: {spotifyRedirectUri}");
 
 // Configure logging levels dynamically
 builder.Logging.AddFilter("Default", Enum.Parse<LogLevel>(logLevelDefault, true));
 builder.Logging.AddFilter("Microsoft.AspNetCore", Enum.Parse<LogLevel>(logLevelMicrosoftAspNetCore, true));
 
-// Set up CORS policy
+// Set up CORS policy - Allow only frontend origin
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins",
+    options.AddPolicy("AllowFrontend",
         policyBuilder => policyBuilder
-            .AllowAnyOrigin()
+            .WithOrigins("http://localhost:4200") // Allow only frontend domain
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .AllowCredentials()); // If cookies or credentials are used
 });
 
-// Configure DbContext with connection string from .env
-var defaultConnection = builder.Configuration["DEFAULT_CONNECTION"] ?? Environment.GetEnvironmentVariable("DEFAULT_CONNECTION");
+// Configure DbContext with connection string
+var defaultConnection = builder.Configuration["DEFAULT_CONNECTION"];
 if (string.IsNullOrEmpty(defaultConnection))
 {
     throw new InvalidOperationException("Connection string not found in environment variables.");
@@ -67,9 +68,9 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 // Add JWT Authentication
-var jwtIssuer = builder.Configuration["JWT_ISSUER"] ?? Environment.GetEnvironmentVariable("JWT_ISSUER");
-var jwtAudience = builder.Configuration["JWT_AUDIENCE"] ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-var jwtSecretKey = builder.Configuration["JWT_SECRET_KEY"] ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+var jwtIssuer = builder.Configuration["JWT_ISSUER"];
+var jwtAudience = builder.Configuration["JWT_AUDIENCE"];
+var jwtSecretKey = builder.Configuration["JWT_SECRET_KEY"];
 
 if (string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience) || string.IsNullOrEmpty(jwtSecretKey))
 {
@@ -89,9 +90,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"], // from appsettings.json
-        ValidAudience = builder.Configuration["Jwt:Audience"], // from appsettings.json
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"])) // from appsettings.json
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
     };
 });
 
@@ -117,8 +118,29 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Ensure HTTPS redirection works correctly
 app.UseHttpsRedirection();
-app.UseCors("AllowAllOrigins");
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Remove("Content-Security-Policy");
+
+    context.Response.Headers.Add("Content-Security-Policy",
+        "default-src 'self'; " +
+        "connect-src 'self' http://localhost:5041 http://localhost:4200; " +  // Allow API calls
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +  // Allow inline scripts
+        "style-src 'self' 'unsafe-inline'; " +
+        "img-src 'self' data:; " +
+        "font-src 'self' data:;");
+
+    await next();
+});
+
+
+
+// CORS should be applied before Authentication
+app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

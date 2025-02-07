@@ -1,20 +1,12 @@
-<!-- login.component.html -->
-
 <div class="flex justify-center items-center h-screen bg-gradient-to-b from-green-500 to-black">
-    <div class="flex flex-col items-center text-white w-full max-w-md px-6">
-      
-      <!-- Spotify Logo -->
-      <img src="../../assets/SpotifyLogo.jpg" alt="Spotify Logo" class="w-32 mb-8" />
-      
-      <!-- Login Button -->
-      <button class="w-full py-4 px-6 bg-[#1DB954] hover:bg-[#1ed760] rounded-full text-white font-bold text-lg focus:outline-none">
-        <div class="flex justify-center items-center space-x-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
-            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.648 9.352h-1.053c-.65 0-1.182-.467-1.182-1.043 0-.583.467-1.043 1.053-1.043h.18V5.33h-.18c-.596 0-1.053-.467-1.053-1.043 0-.576.467-1.043 1.053-1.043h.18v-.953c0-.575.467-1.043 1.043-1.043h1.053v3.774h-1.053c-.65 0-1.182.467-1.182 1.043s.532 1.043 1.182 1.043h1.053v3.774H15.648z"/>
-          </svg>
-          <span>Login with Spotify</span>
-        </div>
-      </button>
-    </div>
+  <div class="flex flex-col items-center text-white w-full max-w-md px-6">
+    
+    <img src="../../assets/SpotifyLogo.jpg" alt="Spotify Logo" class="w-32 mb-8" />
+    
+    <button (click)="loginWithSpotify()" class="w-full py-4 px-6 bg-[#1DB954] hover:bg-[#1ed760] rounded-full text-white font-bold text-lg focus:outline-none">
+      <div class="flex justify-center items-center space-x-2">
+        <span>Login with Spotify</span>
+      </div>
+    </button>
   </div>
-  
+</div>
