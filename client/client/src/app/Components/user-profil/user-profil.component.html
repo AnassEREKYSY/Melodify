@@ -1,20 +1,37 @@
-<div class="user-profile">
-    <mat-card *ngIf="userProfile; else loading">
-      <mat-card-header>
-        <mat-card-title>{{ userProfile.displayName }}</mat-card-title>
-        <mat-card-subtitle>{{ userProfile.email }}</mat-card-subtitle>
-      </mat-card-header>
-      <img mat-card-image [src]="userProfile.profileImageUrl || 'assets/default-profile.png'" alt="Profile Image">
-      <mat-card-content>
-        <p><strong>Country:</strong> {{ userProfile.country }}</p>
-        <p><strong>Product:</strong> {{ userProfile.product }}</p>
-        <p><strong>Spotify URI:</strong> {{ userProfile.uri }}</p>
-        <a [href]="userProfile.externalUrls.spotify" target="_blank">View on Spotify</a>
-      </mat-card-content>
-    </mat-card>
-    <ng-template #loading>
-      <p>Loading user profile...</p>
-    </ng-template>
-    <p *ngIf="errorMessage">{{ errorMessage }}</p>
+<div class="user-profile" *ngIf="userProfile; else loading">
+  <div class="profile-header">
+    <div class="profile-image">
+      <img
+        *ngIf="userProfile.images.length; else defaultIcon"
+        [src]="userProfile.images[0].url"
+        alt="Profile Image"
+      />
+      <ng-template #defaultIcon>
+        <mat-icon>account_circle</mat-icon>
+      </ng-template>
+    </div>
+    <div class="profile-info">
+      <h1 class="display-name">{{ userProfile.display_name }}</h1>
+      <p class="email">{{ userProfile.email }}</p>
+    </div>
   </div>
-  
+  <div class="profile-details">
+    <p><strong>Country:</strong> {{ userProfile.country }}</p>
+    <p><strong>Subscription:</strong> {{ userProfile.product | titlecase }}</p>
+    <p><strong>Spotify URI:</strong> {{ userProfile.uri }}</p>
+    <div class="button-container">
+      <a [href]="userProfile.external_urls.spotify" target="_blank">
+        <button class="view-profile">
+          <mat-icon>remove_red_eye</mat-icon> View Profile
+        </button>
+      </a>
+      <button class="edit-profile">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
+    </div>
+  </div>
+</div>
+<ng-template #loading>
+  <p>Loading user profile...</p>
+</ng-template>
+<p *ngIf="errorMessage">{{ errorMessage }}</p>

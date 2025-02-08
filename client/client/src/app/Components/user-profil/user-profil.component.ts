@@ -1,19 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { UserProfileService } from '../../core/services/user-profile.service';
 import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { SpotifyUserProfile } from '../../core/models/SpotifyUserProfile.model';
 
 @Component({
   selector: 'app-user-profil',
   imports: [
     MatCardModule,
     CommonModule,
+    MatButtonModule,
+    MatIconModule
   ],
   templateUrl: './user-profil.component.html',
   styleUrl: './user-profil.component.scss'
 })
 export class UserProfilComponent implements OnInit {
-  userProfile: any;
+  userProfile: SpotifyUserProfile | undefined;
   errorMessage: string | undefined;
 
   constructor(private userProfileService: UserProfileService) {}
@@ -21,6 +26,7 @@ export class UserProfilComponent implements OnInit {
   ngOnInit(): void {
     this.userProfileService.getUserProfile().subscribe(
       (profile) => {
+        console.log(profile)
         this.userProfile = profile;
       },
       (error) => {

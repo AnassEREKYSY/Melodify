@@ -1,7 +1,109 @@
+$user-green: #1db954;
+$dark-gray: #121212;
+$light-gray: #b3b3b3;
+$white: #ffffff;
+
 .user-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: $dark-gray;
+  color: $white;
+  padding: 50px;
+  min-height: 100vh;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+
+  .profile-header {
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 30px;
+    margin-top: 50px;
+
+    .profile-image {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 30px;
+      border: 2px solid $user-green;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: $light-gray;
+
+      mat-icon {
+        font-size: 100px;
+        color: $dark-gray;
+      }
+    }
+
+    .profile-info {
+      h1 {
+        margin: 10px;
+        font-size: 46px;
+        font-weight: 800;
+        letter-spacing: 6px;
+      }
+
+      p {
+        margin: 10px;
+        font-size: 15px;
+        color: $light-gray;
+        font-weight: 700;
+        letter-spacing: 2px;
+      }
+    }
   }
-  
+
+  .profile-details {
+    width: 100%;
+    height: 250px;
+    max-width: 800px;
+    background-color: #1e1e1e;
+    padding: 30px;
+    border-radius: 8px;
+
+    p {
+      margin: 10px 20px 20px 0;
+      font-size: 22px;
+      letter-spacing: 1px;
+    }
+
+    strong {
+      margin-right: 8px;
+      letter-spacing: 1px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 20px;
+
+      .view-profile,
+      .edit-profile {
+        display: flex;
+        align-items: center;
+        background-color: $dark-gray;
+        color: $white;
+        border: 2px solid $user-green;
+        border-radius: 70px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 15px;
+        text-decoration: none;
+
+        mat-icon {
+          margin-right: 8px;
+        }
+
+        &:hover {
+          background-color: $user-green;
+          color: $dark-gray;
+        }
+      }
+    }
+  }
+}
