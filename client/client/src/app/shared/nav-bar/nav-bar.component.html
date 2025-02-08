@@ -1,0 +1,23 @@
+<nav class="spotify-navbar">
+    <div class="navbar-left">
+      <a href="#" class="logo">
+        <img src="path/to/spotify-logo.png" alt="Spotify Logo">
+      </a>
+      <button class="nav-button home" (click)="navigateToHome()">
+        <mat-icon>home</mat-icon>
+      </button>
+      <div class="search-bar">
+        <input type="text" placeholder="Search">
+      </div>
+    </div>
+    <div class="navbar-right">
+      <button class="nav-button premium">Discover Premium</button>
+      <button class="nav-button install">
+        <mat-icon>get_app</mat-icon> Install App
+      </button>
+      <button class="nav-button profile" (click)="navigateToProfile()">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </div>
+  </nav>
+  

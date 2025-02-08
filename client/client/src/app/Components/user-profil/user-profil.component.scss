@@ -22,6 +22,7 @@ $white: #ffffff;
     margin-top: 50px;
 
     .profile-image {
+      position: relative;
       width: 200px;
       height: 200px;
       border-radius: 50%;
@@ -34,8 +35,29 @@ $white: #ffffff;
       background-color: $light-gray;
 
       mat-icon {
-        font-size: 100px;
+      font-size: 20px;
         color: $dark-gray;
+      }
+
+      .edit-image-button {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background-color: $user-green;
+        color: $dark-gray;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+
+        mat-icon {
+          font-size: 24px;
+        }
       }
     }
 
@@ -96,7 +118,7 @@ $white: #ffffff;
         text-decoration: none;
 
         mat-icon {
-          margin-right: 8px;
+          margin-right: 4px;
         }
 
         &:hover {

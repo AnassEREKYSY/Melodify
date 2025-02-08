@@ -1,0 +1,118 @@
+:root {
+    --spotify-green: #1DB954;
+    --spotify-black: #121212;
+    --spotify-white: #FFFFFF;
+    --spotify-dark-gray: #282828;
+  }
+    
+  .spotify-navbar {
+    color: var(--spotify-white);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--spotify-black);
+    padding: 20px 40px;
+    height: 80px;
+    margin: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--spotify-black);
+  }
+  
+  .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+  
+  .logo img {
+    height: 50px;
+  }
+  
+  .nav-button {
+    color: var(--spotify-white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 16px;
+    padding: 10px 25px;
+    border-radius: 40px;
+    background-color: var(--spotify-dark-gray);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    font-weight: 600;
+
+    mat-icon {
+        font-size: 25px;
+    }
+  }
+  
+  .nav-button:hover {
+    transform: scale(1.05);
+  }
+  
+  .search-bar input {
+    background-color: var(--spotify-dark-gray);
+    border: none;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 14px;
+    color: var(--spotify-white);
+    width: 450px;
+    height: 40px;
+    transition: width 0.3s ease;
+  }
+  
+  .search-bar input:focus {
+    transform: scale(1.05);
+  }
+  
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+  
+  .nav-button.premium {
+    background-color: var(--spotify-white);
+    color: var(--spotify-black);
+  }
+  
+  .nav-button.install {
+    background-color: var(--spotify-dark-gray);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .nav-button.profile {
+    background-color: var(--spotify-dark-gray);
+    border-radius: 50%;
+    padding: 10px;
+  }
+
+  .nav-button.home {
+    background-color: var(--spotify-dark-gray);
+    border-radius: 50%;
+    padding: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .spotify-navbar {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 10px 20px;
+    }
+  
+    .navbar-left, .navbar-right {
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
+  
+    .nav-button {
+      width: 100%;
+      text-align: left;
+      padding: 10px;
+    }
+  }
+  
