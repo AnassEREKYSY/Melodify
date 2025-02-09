@@ -1,0 +1,28 @@
+<div *ngIf="playlist as pl">
+    <div class="playlist-card">
+      <img *ngIf="pl.imageUrls?.length; else noImage"
+           [src]="pl.imageUrls[0]"
+           alt="Playlist cover"
+           class="playlist-image">
+      <ng-template #noImage>
+        <div class="playlist-image no-image"></div>
+      </ng-template>
+  
+      <div class="playlist-details">
+        <div class="text-left">
+          <h3 class="playlist-title">{{ pl.name || 'Unnamed Playlist' }}</h3>
+          <p class="playlist-artist">by {{ pl.ownerDisplayName || 'Unknown' }}</p>
+        </div>
+    
+        <div class="action-buttons">
+          <button (click)="editPlaylist()" class="edit-btn">
+            <i class="fas fa-pen"></i>
+          </button>
+          <button (click)="deletePlaylist()" class="delete-btn">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  

@@ -1,0 +1,12 @@
+<div class="playlists-container min-h-screen w-full p-4">
+  <h2 class="text-2xl font-bold text-white mb-4">Your Playlists</h2>
+
+  <div *ngIf="playlists.length === 0" class="text-gray-400">No playlists found.</div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <app-playlist 
+      *ngFor="let playlist of playlists" 
+      [playlist]="playlist">
+    </app-playlist>
+  </div>
+</div>

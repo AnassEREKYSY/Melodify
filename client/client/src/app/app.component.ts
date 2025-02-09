@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { NavBarComponent } from "./shared/nav-bar/nav-bar.component";
 
 @Component({
@@ -9,5 +9,12 @@ import { NavBarComponent } from "./shared/nav-bar/nav-bar.component";
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'client';
+  title = 'Melodify';
+  showNavBar = true;
+
+  constructor(private router: Router) {
+    this.router.events.subscribe(() => {
+      this.showNavBar = this.router.url !== '/login';
+    });
+  }
 }
