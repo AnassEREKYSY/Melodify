@@ -1,9 +1,10 @@
-<div class="flex justify-center items-center h-screen bg-gradient-to-b from-green-500 to-black">
+<div class="flex justify-center items-center h-screen bg-[#121212]">
   <div class="flex flex-col items-center text-white w-full max-w-md px-6">
     
-    <img src="../../assets/SpotifyLogo.jpg" alt="Spotify Logo" class="w-32 mb-8" />
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg" alt="Spotify Logo" class="mb-8 p-8"/>
     
-    <button (click)="loginWithSpotify()" class="w-full py-4 px-6 bg-[#1DB954] hover:bg-[#1ed760] rounded-full text-white font-bold text-lg focus:outline-none">
+    <button (click)="loginWithSpotify()" 
+      class="w-full py-4 px-2 bg-[#121212] border-2 border-[#1DB954] rounded-full text-white font-bold text-lg focus:outline-none hover:bg-[#1DB954] hover:text-black transition duration-300">
       <div class="flex justify-center items-center space-x-2">
         <span>Login with Spotify</span>
       </div>
