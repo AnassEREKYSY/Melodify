@@ -25,6 +25,11 @@ export class PlaylistsListComponent {
   createPlaylistForm: FormGroup;
   userId:string ="";
 
+  totalPlaylists: number = 0;
+  limit: number = 4; 
+  offset: number = 0;
+
+  Math = Math;  
 
   constructor(
     private playlistService: PlaylistService,
@@ -47,15 +52,30 @@ export class PlaylistsListComponent {
 
   fetchPlaylists(): void {
 
-    this.playlistService.getSpotifyPlaylistsByUserId(0, 20)
+    this.playlistService.getSpotifyPlaylistsByUserId(this.offset, this.limit)
       .subscribe({
         next: (response: SpotifyPaginatedPlaylists) => {
           this.playlists = response.playlists;
+          this.totalPlaylists = response.total;
         },
         error: (error) => {
           console.error('Error fetching playlists:', error);
         }
       });
+  }
+
+  nextPage(): void {
+    if (this.offset + this.limit < this.totalPlaylists) {
+      this.offset += this.limit;
+      this.fetchPlaylists(); 
+    }
+  }
+  
+  previousPage(): void {
+    if (this.offset >= this.limit) {
+      this.offset -= this.limit;
+      this.fetchPlaylists();
+    }
   }
 
   deletePlaylist(id: string) {

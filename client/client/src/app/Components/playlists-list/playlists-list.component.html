@@ -1,15 +1,15 @@
-<div class="playlists-container min-h-screen w-full p-4">
-  <div class="flex justify-between items-center mb-4">
+<div class="playlists-container">
+  <div class="flex">
     <h2 class="text-2xl font-bold text-white">Your Playlists</h2>
-
     <button (click)="toggleCreateForm()" class="add-btn">
       <i class="fas fa-plus"></i>
     </button>
   </div>
 
+  <!-- Modal for Creating Playlist -->
   <div *ngIf="showCreateForm" class="modal-overlay" (click)="toggleCreateForm()"></div>
   <div *ngIf="showCreateForm" class="modal">
-    <h3>Create New Playlist</h3>
+    <h3 class="text-white text-lg font-bold mb-4">Create New Playlist</h3>
 
     <form [formGroup]="createPlaylistForm" (submit)="createPlaylist($event)">
       <input type="text" formControlName="name" placeholder="Playlist Name" required class="input-field" />
@@ -38,13 +38,25 @@
     </form>
   </div>
 
-  <div *ngIf="playlists.length === 0" class="text-gray-400">No playlists found.</div>
+  <!-- Show Message if No Playlists Exist -->
+  <div *ngIf="playlists.length === 0" class="text-gray-400 text-center mt-6">No playlists found.</div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  <!-- Display Playlists -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
     <app-playlist 
       *ngFor="let playlist of playlists" 
       [playlist]="playlist"
       (deleteRequest)="deletePlaylist($event)">
     </app-playlist>
+  </div>
+
+  <div class="pagination-controls space-x-4">
+    <button (click)="previousPage()" [disabled]="offset === 0" class="pagination-btn">
+      Previous
+    </button>
+    <p class="text-white">Page {{ (offset / limit) + 1 }} of {{ Math.ceil(totalPlaylists / limit) }}</p>
+    <button (click)="nextPage()" [disabled]="offset + limit >= totalPlaylists" class="pagination-btn">
+      Next
+    </button>
   </div>
 </div>
