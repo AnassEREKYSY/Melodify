@@ -51,7 +51,6 @@ $dark-gray: #121212;
   gap: 10px;
 }
 
-.edit-btn,
 .delete-btn {
   background: $user-green;    
   border: none;
@@ -67,7 +66,6 @@ $dark-gray: #121212;
   justify-content: center;
 }
 
-.edit-btn:hover,
 .delete-btn:hover {
   filter: brightness(1.2);
   color: $user-green;

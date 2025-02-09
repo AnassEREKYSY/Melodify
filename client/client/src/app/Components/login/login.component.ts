@@ -2,6 +2,7 @@ import { Component, Inject, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { LoginService } from '../../core/services/login.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { SnackBarService } from '../../core/services/snack-bar.service';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +15,7 @@ export class LoginComponent  implements OnInit {
     private route: ActivatedRoute,
     private router: Router, 
     private loginService: LoginService,
+    private snackBarService: SnackBarService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -42,9 +44,10 @@ export class LoginComponent  implements OnInit {
           localStorage.setItem('accessToken', user.spotifyAccessToken);
         }
         this.router.navigate(['/home']);
+        this.snackBarService.success("You're logged successfully");
       },
       error => {
-        console.error('Authentication failed', error);
+        this.snackBarService.success('Authentication failed'+error);
       }
     );    
   }

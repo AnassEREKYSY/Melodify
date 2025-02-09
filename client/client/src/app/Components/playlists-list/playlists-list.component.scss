@@ -1,8 +1,135 @@
+@import 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
+
+$user-green: #1db954;
+$dark-gray: #121212;
+$modal-bg: rgba(0, 0, 0, 0.7);
+
 .playlists-container {
-    width: 100vw;
-    min-height: 100vh;
-    padding: 1rem;
-    box-sizing: border-box; 
-    padding: 60px;
-    background: #191414;
+  width: 100vw;
+  min-height: 100vh;
+  padding: 60px;
+  background: $dark-gray;
+  position: relative;
+  color: white;
+}
+
+/* Flexbox for title + button alignment */
+.flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Add Playlist Button */
+.add-btn {
+  width: 45px;
+  height: 45px;
+  background: #000;
+  color: white;
+  border: 2px solid $user-green;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bolder;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.add-btn:hover {
+  background: $user-green;
+  color: black;
+  transform: scale(1.1);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: $modal-bg;
+  backdrop-filter: blur(5px);
+  z-index: 10;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: $dark-gray;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px 5px rgba(165, 164, 164, 0.3);
+  z-index: 11;
+  width: 500px;
+  height: 450px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+  color: $dark-gray;
+}
+
+.input-field, 
+.textarea-field {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  margin-bottom: 30px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.textarea-field {
+  resize: none;
+  height: 150px;
+}
+
+.visibility-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.visibility-toggle button {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: gray;
+}
+
+.visibility-toggle button.active {
+  color: $user-green;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.save-btn, .cancel-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+  border: none;
+  gap: 20px;
+}
+
+.save-btn {
+  background: $user-green;
+  color: white;
+}
+
+.cancel-btn {
+  background: #ff4d4d;
+  color: white;
+}
+
+.save-btn:hover, .cancel-btn:hover {
+  filter: brightness(1.2);
 }

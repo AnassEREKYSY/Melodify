@@ -65,14 +65,17 @@ export class PlaylistService {
     );
   }
 
-  deletePlaylist(playlistId: string): Observable<string> {
+  deletePlaylist(playlistId: string): Observable<any> {
     const token = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-    return this.http.delete<string>(
+    return this.http.delete<any>(
       `${this.apiUrl}playlists/delete/${playlistId}`,
-      { headers }
+      { 
+        headers , 
+        responseType: 'text' as 'json'
+      }
     );
   }
 }
