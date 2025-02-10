@@ -1,4 +1,5 @@
 <div class="playlists-container">
+  <!-- Title and Add Playlist Button -->
   <div class="flex">
     <h2 class="text-2xl font-bold text-white">Your Playlists</h2>
     <button (click)="toggleCreateForm()" class="add-btn">
@@ -6,6 +7,7 @@
     </button>
   </div>
 
+  <!-- Create Playlist Modal -->
   <div *ngIf="showCreateForm" class="modal-overlay" (click)="toggleCreateForm()"></div>
   <div *ngIf="showCreateForm" class="modal">
     <h3 class="text-white text-lg font-bold mb-4">Create New Playlist</h3>
@@ -37,18 +39,10 @@
     </form>
   </div>
 
-  <!-- Loading card shown when playlists are being fetched -->
-  <div *ngIf="isLoading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-    <div class="loading-card" *ngFor="let _ of [1, 2, 3, 4]">
-      <div class="loading-image"></div>
-      <div class="loading-text"></div>
-      <div class="loading-text"></div>
-    </div>
-  </div>
-
-  <!-- Show actual playlists once data is loaded -->
+  <!-- No playlists found message -->
   <div *ngIf="!isLoading && playlists.length === 0" class="text-gray-400 text-center mt-6">No playlists found.</div>
 
+  <!-- Show actual playlists once data is loaded -->
   <div *ngIf="!isLoading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
     <app-playlist 
       *ngFor="let playlist of playlists" 
@@ -57,13 +51,19 @@
     </app-playlist>
   </div>
 
-  <div class="pagination-controls space-x-4">
-    <button (click)="previousPage()" [disabled]="offset === 0" class="pagination-btn">
-      Previous
-    </button>
-    <p class="text-white">Page {{ (offset / limit) + 1 }} of {{ Math.ceil(totalPlaylists / limit) }}</p>
-    <button (click)="nextPage()" [disabled]="offset + limit >= totalPlaylists" class="pagination-btn">
-      Next
-    </button>
+  <!-- Loading card shown only when new data is being fetched -->
+  <div *ngIf="isLoadingNewData" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+    <div class="loading-card" *ngFor="let _ of [1, 2, 3, 4]">
+      <div class="loading-image"></div>
+      <div class="loading-text"></div>
+      <div class="loading-text"></div>
+    </div>
+  </div>
+
+  <!-- Infinite scroll component -->
+  <div *ngIf="!isLoading" infiniteScroll
+       [infiniteScrollDistance]="scrollDistance"
+       [infiniteScrollUpDistance]="scrollUpDistance"
+       (scrolled)="loadMore()">
   </div>
 </div>

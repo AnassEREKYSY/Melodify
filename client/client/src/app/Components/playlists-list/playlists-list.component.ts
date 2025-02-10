@@ -8,13 +8,15 @@ import { SnackBarService } from '../../core/services/snack-bar.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CreatePlaylist } from '../../core/Dtos/CreatePlaylist.dto';
 import { UserService } from '../../core/services/user.service';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 @Component({
   selector: 'app-playlists-list',
   imports: [
     PlaylistComponent,
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    InfiniteScrollModule,
   ],
   templateUrl: './playlists-list.component.html',
   styleUrl: './playlists-list.component.scss'
@@ -23,15 +25,18 @@ export class PlaylistsListComponent {
   playlists: Playlist[] = [];
   showCreateForm = false;
   createPlaylistForm: FormGroup;
-  userId:string ="";
+  userId: string = "";
 
   totalPlaylists: number = 0;
-  limit: number = 4; 
+  limit: number = 8; 
   offset: number = 0;
 
   Math = Math; 
   
-  isLoading: boolean = false; 
+  isLoading: boolean = true; // Set to true initially for first-time loading
+  isLoadingNewData: boolean = false; // Flag for loading new data during scrolling
+  scrollDistance = 1;
+  scrollUpDistance = 2;
 
   constructor(
     private playlistService: PlaylistService,
@@ -49,35 +54,30 @@ export class PlaylistsListComponent {
   ngOnInit(): void {
     this.fetchPlaylists();
     this.userService.extractUserIdFromToken().subscribe({ next: (id) => { this.userId = id;  console.log(this.userId)} });
-
   }
 
   fetchPlaylists(): void {
-    this.isLoading = true;
+    this.isLoadingNewData = true; // Show loading cards for new data
     this.playlistService.getSpotifyPlaylistsByUserId(this.offset, this.limit)
       .subscribe({
         next: (response: SpotifyPaginatedPlaylists) => {
-          this.playlists = response.playlists;
+          this.playlists = [...this.playlists, ...response.playlists];
           this.totalPlaylists = response.total;
-          this.isLoading = false;  
+          this.isLoading = false; // Set to false when data is loaded
+          this.isLoadingNewData = false; // Stop showing loading cards once data is fetched
         },
         error: (error) => {
           console.error('Error fetching playlists:', error);
           this.isLoading = false;
+          this.isLoadingNewData = false;
         }
       });
   }
 
-  nextPage(): void {
-    if (this.offset + this.limit < this.totalPlaylists) {
+  loadMore(): void {
+    if (this.offset + this.limit < this.totalPlaylists && !this.isLoading) {
       this.offset += this.limit;
-      this.fetchPlaylists(); 
-    }
-  }
-  
-  previousPage(): void {
-    if (this.offset >= this.limit) {
-      this.offset -= this.limit;
+      this.isLoadingNewData = true; // Show loading cards when new data is being fetched
       this.fetchPlaylists();
     }
   }
@@ -90,7 +90,7 @@ export class PlaylistsListComponent {
       },
       error: (error) => {
         console.error('Error deleting playlist:', error);
-        this.snackBarService.error('Error deleting playlist: '+error);
+        this.snackBarService.error('Error deleting playlist: ' + error);
       }
     });
   }
@@ -102,7 +102,6 @@ export class PlaylistsListComponent {
   setVisibility(isPublic: boolean): void {
     this.createPlaylistForm.patchValue({ isPublic });
   }
-
 
   createPlaylist(event: Event): void {
     event.preventDefault();
@@ -119,7 +118,7 @@ export class PlaylistsListComponent {
         this.toggleCreateForm();
         this.createPlaylistForm.reset();
         this.playlists.push(response);
-        this.fetchPlaylists()
+        this.fetchPlaylists();
       },
       error: (error) => {
         this.snackBarService.error('Error creating playlist: ' + error);
@@ -127,3 +126,5 @@ export class PlaylistsListComponent {
     });
   }
 }
+
+
