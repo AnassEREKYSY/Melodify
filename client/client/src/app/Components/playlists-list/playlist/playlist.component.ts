@@ -2,10 +2,14 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Playlist } from '../../../core/models/Playlist.model';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-playlist',
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MatIconModule
+  ],
   templateUrl: './playlist.component.html',
   styleUrl: './playlist.component.scss'
 })

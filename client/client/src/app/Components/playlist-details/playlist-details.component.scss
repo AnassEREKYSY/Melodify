@@ -1,17 +1,19 @@
 $dark-gray: #121212;
 
+
 .playlist-container {
   background-color: $dark-gray;
   color: white;
   font-family: Arial, sans-serif;
   padding: 20px;
-  height:auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .playlist-header {
   position: relative;
   width: 100%;
-  height: auto;
 }
 
 .playlist-image {
@@ -43,6 +45,7 @@ $dark-gray: #121212;
 }
 
 .song-list {
+  flex-grow: 1; 
   margin-top: 20px;
   padding: 70px;
 }
@@ -52,4 +55,3 @@ $dark-gray: #121212;
   height: 300px;
   background-color: #444;
 }
-

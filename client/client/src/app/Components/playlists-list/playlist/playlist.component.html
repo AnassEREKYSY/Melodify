@@ -1,25 +1,18 @@
-<div *ngIf="playlist as pl" (click)="goToDetails(playlist.id)">
-    <div class="playlist-card">
-      <img *ngIf="pl.imageUrls?.length; else noImage"
-           [src]="pl.imageUrls[0]"
-           alt="Playlist cover"
-           class="playlist-image">
-      <ng-template #noImage>
-        <div class="playlist-image no-image"></div>
-      </ng-template>
-  
-      <div class="playlist-details">
-        <div class="text-left">
-          <h3 class="playlist-title">{{ pl.name || 'Unnamed Playlist' }}</h3>
-          <p class="playlist-artist">by {{ pl.ownerDisplayName || 'Unknown' }}</p>
-        </div>
-    
-        <div class="action-buttons">
-          <button (click)="deletePlaylist(pl.id)" class="delete-btn">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </div>
+<div *ngIf="playlist as pl" (click)="goToDetails(pl.id)" class="playlist-card">
+  <img *ngIf="pl.imageUrls?.length; else noImage" [src]="pl.imageUrls[0]" alt="Playlist cover" class="playlist-image">
+  <ng-template #noImage>
+    <div class="playlist-image no-image"></div>
+  </ng-template>
+
+  <div class="playlist-overlay">
+    <div class="playlist-details">
+      <h3 class="playlist-title">{{ pl.name || 'Unnamed Playlist' }}</h3>
+      <p class="playlist-artist">by {{ pl.ownerDisplayName || 'Unknown' }}</p>
+    </div>
+    <div class="action-buttons">
+      <button (click)="deletePlaylist(pl.id); $event.stopPropagation()" class="delete-btn">
+        <i class="fas fa-trash"></i>
+      </button>
     </div>
   </div>
-  
+</div>
