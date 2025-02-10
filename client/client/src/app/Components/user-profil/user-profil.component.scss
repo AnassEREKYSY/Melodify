@@ -2,6 +2,7 @@ $user-green: #1db954;
 $dark-gray: #121212;
 $light-gray: #b3b3b3;
 $white: #ffffff;
+$shadow-dark: rgba(0, 0, 0, 0.8);
 
 .user-profile {
   display: flex;
@@ -12,119 +13,106 @@ $white: #ffffff;
   padding: 50px;
   min-height: 100vh;
   font-family: 'Helvetica Neue', Arial, sans-serif;
+}
 
-  .profile-header {
-    display: flex;
-    align-items: center;
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Left Section */
+.profile-sidebar {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px 10px 0px 0px;
+}
+
+.profile-image {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  box-shadow: 0px 10px 20px $shadow-dark;
+  overflow: hidden;
+  margin-right: 20px;
+
+  img {
     width: 100%;
-    max-width: 800px;
-    margin-bottom: 30px;
-    margin-top: 50px;
-
-    .profile-image {
-      position: relative;
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-right: 30px;
-      border: 2px solid $user-green;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: $light-gray;
-
-      mat-icon {
-      font-size: 20px;
-        color: $dark-gray;
-      }
-
-      .edit-image-button {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        background-color: $user-green;
-        color: $dark-gray;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        transition: background-color 0.3s, color 0.3s;
-
-        mat-icon {
-          font-size: 24px;
-        }
-      }
-    }
-
-    .profile-info {
-      h1 {
-        margin: 10px;
-        font-size: 46px;
-        font-weight: 800;
-        letter-spacing: 6px;
-      }
-
-      p {
-        margin: 10px;
-        font-size: 15px;
-        color: $light-gray;
-        font-weight: 700;
-        letter-spacing: 2px;
-      }
-    }
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
 
-  .profile-details {
-    width: 100%;
-    height: 250px;
-    max-width: 800px;
-    background-color: #1e1e1e;
-    padding: 30px;
-    border-radius: 8px;
+  mat-icon {
+    font-size: 50px;
+    color: $light-gray;
+  }
+}
 
-    p {
-      margin: 10px 20px 20px 0;
-      font-size: 22px;
-      letter-spacing: 1px;
-    }
+.profile-text {
+  display: flex;
+  flex-direction: column;
 
-    strong {
-      margin-right: 8px;
-      letter-spacing: 1px;
-    }
+  .display-name {
+    font-size: 66px;
+    font-weight: bold;
+    color: $white;
+    margin-top : 80px;
+  }
 
-    .button-container {
+  .public-playlists {
+    font-size: 18px;
+    color: $light-gray;
+    margin-top: 25px;
+    margin-right: 10px;
+  }
+}
+
+/* Right Section */
+.profile-details {
+  background-color: #282828;
+  padding: 30px;
+
+  p {
+    margin: 20px 0;
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  strong {
+    margin-right: 8px;
+    letter-spacing: 1px;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+
+    .view-profile,
+    .edit-profile {
       display: flex;
-      justify-content: space-between;
-      width: 100%;
-      margin-top: 20px;
+      align-items: center;
+      background-color: transparent;
+      color: $white;
+      border: 2px solid $user-green;
+      border-radius: 30px;
+      padding: 12px 24px;
+      cursor: pointer;
+      font-size: 15px;
+      text-decoration: none;
+      transition: all 0.3s ease;
 
-      .view-profile,
-      .edit-profile {
-        display: flex;
-        align-items: center;
-        background-color: $dark-gray;
-        color: $white;
-        border: 2px solid $user-green;
-        border-radius: 70px;
-        padding: 10px 20px;
-        cursor: pointer;
-        font-size: 15px;
-        text-decoration: none;
+      mat-icon {
+        margin-right: 4px;
+      }
 
-        mat-icon {
-          margin-right: 4px;
-        }
-
-        &:hover {
-          background-color: $user-green;
-          color: $dark-gray;
-        }
+      &:hover {
+        background-color: $user-green;
+        color: $dark-gray;
       }
     }
   }

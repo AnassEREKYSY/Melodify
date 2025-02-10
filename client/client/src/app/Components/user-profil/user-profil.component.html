@@ -1,40 +1,44 @@
 <div class="user-profile" *ngIf="userProfile; else loading">
-  <div class="profile-header">
-    <div class="profile-image">
-      <img
-        *ngIf="userProfile.images.length; else defaultIcon"
-        [src]="userProfile.images[0].url"
-        alt="Profile Image"
-      />
-      <ng-template #defaultIcon>
-        <mat-icon>account_circle</mat-icon>
-      </ng-template>
-      <button class="edit-image-button" aria-label="Edit Profile Image">
-        <mat-icon>edit</mat-icon>
-      </button>
+  <div class="profile-container">
+    <!-- Left Section: Profile Image & Basic Info -->
+    <div class="profile-sidebar">
+      <div class="profile-image">
+        <img
+          *ngIf="userProfile.images.length; else defaultIcon"
+          [src]="userProfile.images[0].url"
+          alt="Profile Image"
+        />
+        <ng-template #defaultIcon>
+          <mat-icon>account_circle</mat-icon>
+        </ng-template>
+      </div>
+      <div class="profile-text">
+        <h1 class="display-name">{{ userProfile.display_name }}</h1>
+        <p class="public-playlists">Profil - {{ 8 }} playlists publiques</p>
+      </div>
     </div>
-    <div class="profile-info">
-      <h1 class="display-name">{{ userProfile.display_name }}</h1>
-      <p class="email">{{ userProfile.email }}</p>
-    </div>
-  </div>
-  <div class="profile-details">
-    <p><strong>Country:</strong> {{ userProfile.country }}</p>
-    <p><strong>Subscription:</strong> {{ userProfile.product | titlecase }}</p>
-    <p><strong>Spotify URI:</strong> {{ userProfile.uri }}</p>
-    <div class="button-container">
-      <a [href]="userProfile.external_urls.spotify" target="_blank">
-        <button class="view-profile">
-          <mat-icon>remove_red_eye</mat-icon> View Profile
+
+    <!-- Right Section: Profile Details -->
+    <div class="profile-details">
+      <p><strong>Country:</strong> {{ userProfile.country }}</p>
+      <p><strong>Subscription:</strong> {{ userProfile.product | titlecase }}</p>
+      <p><strong>Spotify URI:</strong> {{ userProfile.uri }}</p>
+      <div class="button-container">
+        <a [href]="userProfile.external_urls.spotify" target="_blank">
+          <button class="view-profile">
+            <mat-icon>remove_red_eye</mat-icon> View Profile
+          </button>
+        </a>
+        <button class="edit-profile">
+          <mat-icon>edit</mat-icon>
         </button>
-      </a>
-      <button class="edit-profile">
-        <mat-icon>edit</mat-icon> Edit
-      </button>
+      </div>
     </div>
   </div>
 </div>
+
 <ng-template #loading>
   <p>Loading user profile...</p>
 </ng-template>
+
 <p *ngIf="errorMessage">{{ errorMessage }}</p>
