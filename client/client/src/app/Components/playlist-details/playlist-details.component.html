@@ -1,0 +1,24 @@
+<div *ngIf="playlistId && playlist" class="playlist-container">
+  <div class="playlist-header">
+    <img *ngIf="playlist.imageUrls?.length; else noImage"
+         [src]="playlist.imageUrls[0]"
+         alt="Playlist cover"
+         class="playlist-image">
+    <ng-template #noImage>
+      <div class="playlist-image no-image"></div>
+    </ng-template>
+    <div class="playlist-info">
+      <h2 class="playlist-title">{{ playlist.name || 'Unnamed Playlist' }}</h2>
+      <p class="playlist-owner">{{ playlist.ownerDisplayName || 'Unknown' }}</p>
+    </div>
+  </div>
+
+  <div class="song-list">
+    <app-song 
+      *ngFor="let song of songs" 
+      [song]="song" 
+      (playRequest)="onPlay($event)" 
+      (deleteRequest)="onDelete($event)">
+    </app-song>
+  </div>
+</div>

@@ -11,5 +11,7 @@ namespace Infrastructure.IServices
         Task<bool> DeletePlaylistAsync(string token, string playlistId);
         Task<bool> AddSongToPlaylistAsync(SongCreateDto songDto , string token);
         Task<bool> RemoveSongFromPlaylistAsync(SongCreateDto songDto , string token);
+        Task<List<SongDto>> GetSongsForPlaylist(string playlistId, string accessToken);
+        Task<PlaylistDto> GetPlaylistByIdAsync(string playlistId, string accessToken);
     }
 }

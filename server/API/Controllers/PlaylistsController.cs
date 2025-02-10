@@ -24,6 +24,21 @@ namespace API.Controllers
             return Ok(playlists);
         }
 
+        [HttpGet("spotify-by-user/one/{playlistId}")]
+        public async Task<IActionResult> GetOnePlaylistById(string playlistId)
+        {
+            var accessToken =ExtractAccessToken();
+            if (accessToken == null)
+            {
+                return Unauthorized("Missing or invalid Authorization header.");
+            }
+            var playlist = await _playlistService.GetPlaylistByIdAsync(playlistId,accessToken);
+            if(playlist  ==null ){
+                return NotFound("Playlist not found");
+            }
+            return Ok(playlist);
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreatePlaylist([FromBody] PlaylistCreateDto playlistCreateDto)
         {
@@ -125,6 +140,18 @@ namespace API.Controllers
             }
         }
     
+        [HttpGet("songs/{playlistId}")]
+        public async Task<IActionResult> GetSongsForPlaylist(string playlistId)
+        {
+            var accessToken =ExtractAccessToken();
+            if (accessToken == null)
+            {
+                return Unauthorized("Missing or invalid Authorization header.");
+            }
+            var playlists = await _playlistService.GetSongsForPlaylist(playlistId,accessToken);
+            return Ok(playlists);
+        }
+
         private string? ExtractAccessToken()
         {
             var authHeader = Request.Headers.Authorization.ToString();

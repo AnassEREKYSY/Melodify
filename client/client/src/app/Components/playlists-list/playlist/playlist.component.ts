@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Playlist } from '../../../core/models/Playlist.model';
 import { CommonModule } from '@angular/common';
-import { PlaylistService } from '../../../core/services/playlist.service';
-import { SnackBarService } from '../../../core/services/snack-bar.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-playlist',
@@ -15,7 +14,7 @@ export class PlaylistComponent implements OnInit {
   @Input() playlist: Playlist | undefined;
   @Output() deleteRequest = new EventEmitter<string>();
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
     console.log(this.playlist)
@@ -23,5 +22,9 @@ export class PlaylistComponent implements OnInit {
 
   deletePlaylist(id : string) {
     this.deleteRequest.emit(id);
+  }
+
+  goToDetails(id: string) {
+    this.router.navigate(['/playlist', id]); 
   }
 }

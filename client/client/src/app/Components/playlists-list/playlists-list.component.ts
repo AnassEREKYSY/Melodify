@@ -29,7 +29,9 @@ export class PlaylistsListComponent {
   limit: number = 4; 
   offset: number = 0;
 
-  Math = Math;  
+  Math = Math; 
+  
+  isLoading: boolean = false; 
 
   constructor(
     private playlistService: PlaylistService,
@@ -51,15 +53,17 @@ export class PlaylistsListComponent {
   }
 
   fetchPlaylists(): void {
-
+    this.isLoading = true;
     this.playlistService.getSpotifyPlaylistsByUserId(this.offset, this.limit)
       .subscribe({
         next: (response: SpotifyPaginatedPlaylists) => {
           this.playlists = response.playlists;
           this.totalPlaylists = response.total;
+          this.isLoading = false;  
         },
         error: (error) => {
           console.error('Error fetching playlists:', error);
+          this.isLoading = false;
         }
       });
   }

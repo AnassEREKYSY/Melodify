@@ -6,7 +6,6 @@
     </button>
   </div>
 
-  <!-- Modal for Creating Playlist -->
   <div *ngIf="showCreateForm" class="modal-overlay" (click)="toggleCreateForm()"></div>
   <div *ngIf="showCreateForm" class="modal">
     <h3 class="text-white text-lg font-bold mb-4">Create New Playlist</h3>
@@ -38,11 +37,19 @@
     </form>
   </div>
 
-  <!-- Show Message if No Playlists Exist -->
-  <div *ngIf="playlists.length === 0" class="text-gray-400 text-center mt-6">No playlists found.</div>
+  <!-- Loading card shown when playlists are being fetched -->
+  <div *ngIf="isLoading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+    <div class="loading-card" *ngFor="let _ of [1, 2, 3, 4]">
+      <div class="loading-image"></div>
+      <div class="loading-text"></div>
+      <div class="loading-text"></div>
+    </div>
+  </div>
 
-  <!-- Display Playlists -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+  <!-- Show actual playlists once data is loaded -->
+  <div *ngIf="!isLoading && playlists.length === 0" class="text-gray-400 text-center mt-6">No playlists found.</div>
+
+  <div *ngIf="!isLoading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
     <app-playlist 
       *ngFor="let playlist of playlists" 
       [playlist]="playlist"

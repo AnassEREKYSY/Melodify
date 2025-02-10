@@ -1,0 +1,20 @@
+<div *ngIf="song as s">
+  <div class="song-card">
+    <!-- Play Button -->
+    <button class="play-btn" (click)="playSong(s.id)">
+      <mat-icon>play_arrow</mat-icon>
+    </button>
+
+    <div class="song-details">
+      <h4 class="song-title">{{ s.name || 'Unknown Song' }}</h4>
+      <p class="song-artist">{{ s.artists[0]?.name || 'Unknown Artist' }}</p>
+    </div>
+
+    <div class="song-actions">
+      <span class="song-duration">{{ formatDuration(s.durationMs) }}</span>
+      <button (click)="deleteSong(s.id)" class="delete-btn">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

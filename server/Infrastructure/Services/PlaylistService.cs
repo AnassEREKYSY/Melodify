@@ -232,7 +232,7 @@ namespace Infrastructure.Services
             }
         }
 
-        private async Task<List<SongDto>> GetSongsForPlaylist(string playlistId, string accessToken)
+        public async Task<List<SongDto>> GetSongsForPlaylist(string playlistId, string accessToken)
         {
             var songs = new List<SongDto>();
 
@@ -271,6 +271,53 @@ namespace Infrastructure.Services
             }
 
             return songs;
+        }
+
+        public async Task<PlaylistDto> GetPlaylistByIdAsync(string playlistId, string accessToken)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    throw new Exception("Spotify access token is missing or invalid.");
+                }
+
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                var url = $"https://api.spotify.com/v1/playlists/{playlistId}";
+                var response = await _httpClient.GetAsync(url);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to retrieve playlist. Status code: {response.StatusCode}. Error: {errorContent}");
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                var playlistResponse = JsonSerializer.Deserialize<SpotifyPlaylistItem>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? throw new Exception("Failed to deserialize playlist response.");
+                var songs = await GetSongsForPlaylist(playlistId, accessToken);
+
+                return new PlaylistDto
+                {
+                    Id = playlistResponse.Id,
+                    Name = playlistResponse.Name,
+                    Description = playlistResponse.Description,
+                    ExternalUrl = playlistResponse.ExternalUrls?.Spotify ?? string.Empty,
+                    ImageUrls = playlistResponse.Images?.Select(image => image.Url).ToList() ?? new List<string>(),
+                    OwnerDisplayName = playlistResponse.Owner?.DisplayName ?? string.Empty,
+                    OwnerUri = playlistResponse.Owner?.Uri ?? string.Empty,
+                    isPublic = playlistResponse.Public,
+                    SnapshotId = playlistResponse.SnapshotId,
+                    Songs = songs
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while retrieving the playlist: {ex.Message}", ex);
+            }
         }
 
     }

@@ -1,4 +1,4 @@
-<div *ngIf="playlist as pl">
+<div *ngIf="playlist as pl" (click)="goToDetails(playlist.id)">
     <div class="playlist-card">
       <img *ngIf="pl.imageUrls?.length; else noImage"
            [src]="pl.imageUrls[0]"

@@ -6,6 +6,7 @@ import { SpotifyPaginatedPlaylists } from '../models/SpotifyPaginatedPlaylists.m
 import { Playlist } from '../models/Playlist.model';
 import { CreatePlaylist } from '../Dtos/CreatePlaylist.dto';
 import { AddRemoveSong } from '../Dtos/AddSong.dto';
+import { Song } from '../models/Song.model';
 
 @Injectable({
   providedIn: 'root'
@@ -77,5 +78,23 @@ export class PlaylistService {
         responseType: 'text' as 'json'
       }
     );
+  }
+
+  getSongsFormPlaylist(playlistId: string): Observable<Song[]> {
+    const token = localStorage.getItem('accessToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.get<Song[]>(
+      `${this.apiUrl}playlists/songs/${playlistId}`,{ headers });
+  }
+
+  getOnePlaylist(playlistId: string): Observable<Playlist> {
+    const token = localStorage.getItem('accessToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.get<Playlist>(
+      `${this.apiUrl}playlists/spotify-by-user/one/${playlistId}`,{ headers });
   }
 }
