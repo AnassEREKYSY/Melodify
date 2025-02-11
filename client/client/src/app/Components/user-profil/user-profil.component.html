@@ -4,14 +4,19 @@
     <div class="profile-sidebar">
       <div class="profile-image">
         <img
-          *ngIf="userProfile.images.length; else defaultIcon"
+          *ngIf="userProfile?.images?.length; else defaultIcon"
           [src]="userProfile.images[0].url"
           alt="Profile Image"
         />
         <ng-template #defaultIcon>
           <mat-icon>account_circle</mat-icon>
         </ng-template>
+      
+        <button class="edit-button" (click)="editProfilePicture()">
+          <mat-icon>edit</mat-icon>
+        </button>
       </div>
+              
       <div class="profile-text">
         <h1 class="display-name">{{ userProfile.display_name }}</h1>
         <p class="public-playlists">Profil - {{ 8 }} playlists publiques</p>
@@ -20,17 +25,13 @@
 
     <!-- Right Section: Profile Details -->
     <div class="profile-details">
+      <p><strong>Email:</strong> {{ userProfile.email }}</p>
       <p><strong>Country:</strong> {{ userProfile.country }}</p>
       <p><strong>Subscription:</strong> {{ userProfile.product | titlecase }}</p>
       <p><strong>Spotify URI:</strong> {{ userProfile.uri }}</p>
       <div class="button-container">
-        <a [href]="userProfile.external_urls.spotify" target="_blank">
-          <button class="view-profile">
-            <mat-icon>remove_red_eye</mat-icon> View Profile
-          </button>
-        </a>
-        <button class="edit-profile">
-          <mat-icon>edit</mat-icon>
+        <button class="view-profile" (click)="viewProfile()">
+          <mat-icon>remove_red_eye</mat-icon>
         </button>
       </div>
     </div>

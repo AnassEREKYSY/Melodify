@@ -32,23 +32,68 @@ $shadow-dark: rgba(0, 0, 0, 0.8);
 }
 
 .profile-image {
+  position: relative;
   width: 250px;
   height: 250px;
   border-radius: 50%;
   box-shadow: 0px 10px 20px $shadow-dark;
   overflow: hidden;
   margin-right: 20px;
+  cursor: pointer;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
+    transition: opacity 0.3s ease-in-out;
   }
 
   mat-icon {
-    font-size: 50px;
+    font-size: 250px;
     color: $light-gray;
+    width: 100%;
+    height: 100%;
+  }
+
+  .edit-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: $white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    font-size: 40px;
+    border: none;
+    cursor: pointer;
+    z-index: 2;
+
+    mat-icon {
+      font-size: 80px;
+      color: $white;
+      z-index: 3;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  &:hover img {
+    opacity: 0.3;
+  }
+
+  &:hover .edit-button {
+    opacity: 1;
+  }
+
+  .edit-button:hover {
+    background-color: rgba(0, 0, 0, 0.7); 
   }
 }
 
@@ -74,10 +119,10 @@ $shadow-dark: rgba(0, 0, 0, 0.8);
 /* Right Section */
 .profile-details {
   background-color: #282828;
-  padding: 30px;
+  padding: 20px;
 
   p {
-    margin: 20px 0;
+    margin-bottom: 15px;
     font-size: 18px;
     letter-spacing: 1px;
   }
@@ -89,31 +134,31 @@ $shadow-dark: rgba(0, 0, 0, 0.8);
 
   .button-container {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: flex-end;
     margin-top: 20px;
-
-    .view-profile,
-    .edit-profile {
+  
+    .view-profile {
+      width: 40px;
+      height: 40px;
+      background-color: #1db954;
+      color: #121212;
+      border-radius: 50%;
       display: flex;
+      justify-content: center;
       align-items: center;
-      background-color: transparent;
-      color: $white;
-      border: 2px solid $user-green;
-      border-radius: 30px;
-      padding: 12px 24px;
+      border: none;
       cursor: pointer;
-      font-size: 15px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-
+      transition: background 0.3s ease;
+  
       mat-icon {
-        margin-right: 4px;
+        font-size: 24px;
       }
-
+  
       &:hover {
-        background-color: $user-green;
-        color: $dark-gray;
+        background-color: lighten(#1db954, 10%);
       }
     }
   }
+  
 }

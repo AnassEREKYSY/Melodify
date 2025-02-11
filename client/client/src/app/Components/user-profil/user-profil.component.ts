@@ -35,4 +35,15 @@ export class UserProfilComponent implements OnInit {
       }
     );
   }
+
+  viewProfile(): void {
+    if (this.userProfile?.external_urls?.spotify) {
+      window.open(this.userProfile.external_urls.spotify, '_blank');
+    }
+  }
+
+  editProfilePicture(): void {
+    console.log("Edit profile picture clicked!");
+    // You can trigger a file input, open a modal, or navigate to an edit page here.
+  }
 }
