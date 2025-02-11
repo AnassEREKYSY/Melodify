@@ -110,6 +110,7 @@ namespace Infrastructure.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
         public async Task<List<SpotifyFollowedArtistDetails>> GetFollowedArtistsAsync(string accessToken)
         {
             var allArtists = new List<SpotifyFollowedArtistDetails>();
@@ -136,6 +137,28 @@ namespace Infrastructure.Services
             }
 
             return allArtists;
+        }
+
+        public async Task<bool> UnfollowArtistAsync(string accessToken, string artistId)
+        {
+            var requestUrl = "https://api.spotify.com/v1/me/following?type=artist&ids=" + artistId;
+            
+            var request = new HttpRequestMessage(HttpMethod.Delete, requestUrl);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Successfully unfollowed artist {artistId}");
+                return true;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Failed to unfollow artist {artistId}: {errorContent}");
+                return false;
+            }
         }
 
     

@@ -17,7 +17,7 @@ $black-line: #000;
   flex-direction: column;
   justify-content: flex-end;
   padding: 10px;
-  width: 250px;
+  width: 350px;
 
   &:hover {
     transform: scale(1.01);
@@ -95,8 +95,7 @@ $black-line: #000;
   }
 
   &:hover {
-    background-color: $unfollow-btn-icon-color;
-    color: $unfollow-btn-bg;
+    color: white;
   }
 
   mat-icon {

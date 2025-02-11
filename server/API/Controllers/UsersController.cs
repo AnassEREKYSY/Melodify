@@ -55,6 +55,26 @@ namespace API.Controllers
             return Ok(artists);
         }
 
+        [HttpDelete("unfollow-artist/{artistId}")]
+        public async Task<IActionResult> UnfollowArtist(string artistId)
+        {
+            var accessToken = GetAccessTokenFromHeader();
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return Unauthorized("Missing or invalid Authorization header.");
+            }
+
+            var success = await _userService.UnfollowArtistAsync(accessToken, artistId);
+
+            if (success)
+            {
+                return Ok(new { message = $"Successfully unfollowed artist {artistId}" });
+            }
+
+            return BadRequest(new { message = $"Failed to unfollow artist {artistId}" });
+        }
+
         private string GetAccessTokenFromHeader()
         {
             var authHeader = Request.Headers.Authorization.ToString();

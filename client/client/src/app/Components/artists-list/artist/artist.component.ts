@@ -1,6 +1,5 @@
-import { Component, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FollowedArtist } from '../../../core/models/FollowedArtist.model';
-import { EventEmitter } from 'stream';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -15,20 +14,18 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class ArtistComponent implements OnInit {
   @Input() artist: FollowedArtist | undefined;  
-  // @Output() unfollowRequest = new EventEmitter<string>(); 
+  @Output() unfollowRequest:EventEmitter<string> = new EventEmitter<string>();
+  
 
 
   ngOnInit(): void {
   }
 
   unfollowArtist(id:string) {
-    // if (this.artist) {
-    //   this.unfollowRequest.emit(this.artist.id);  // Emit the artist ID to the parent
-    // }
+    this.unfollowRequest.emit(id);
   }
 
   goToArtistDetails(arg0: any) {
-    throw new Error('Method not implemented.');
   }
 
 }

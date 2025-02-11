@@ -1,17 +1,13 @@
 <div class="artists-container">
-  <h2 class="text-2xl font-bold text-white">Your Followed Artists</h2>
+  <h2 class="text-2xl font-bold text-white">Followed Artists</h2>
 
-  <ngx-slick-carousel #slickModal="slick-carousel" class="carousel" [config]="slideConfig">
-    <div *ngFor="let artist of followedArtists" class="artist-card">
-      <app-artist [artist]="artist"></app-artist>
+  <ngx-slick-carousel  class="carousel" [config]="slideConfig">
+    <div *ngFor="let artist of followedArtists"  ngxSlickItem class="artist-card">
+      <app-artist 
+        [artist]="artist"
+        (unfollowRequest)="UnfollowArtist($event)"
+      ></app-artist>
     </div>
   </ngx-slick-carousel>
-
-  <button mat-icon-button (click)="prev()" class="carousel-btn left-btn">
-    <mat-icon>chevron_left</mat-icon>
-  </button>
-
-  <button mat-icon-button (click)="next()" class="carousel-btn right-btn">
-    <mat-icon>chevron_right</mat-icon>
-  </button>
+  
 </div>

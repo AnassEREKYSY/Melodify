@@ -5,6 +5,7 @@ import { ArtistComponent } from "./artist/artist.component";
 import { CommonModule } from '@angular/common';
 import { SlickCarouselComponent, SlickCarouselModule } from 'ngx-slick-carousel';
 import { MatIconModule } from '@angular/material/icon';
+import { SnackBarService } from '../../core/services/snack-bar.service';
 
 
 @Component({
@@ -19,28 +20,54 @@ import { MatIconModule } from '@angular/material/icon';
   ]
 })
 export class ArtistsListComponent implements OnInit, AfterViewInit {
-  @ViewChild('slickModal') slickModal!: SlickCarouselComponent;
+  @ViewChild('slickModal') slickModal!: SlickCarouselComponent; 
   followedArtists: FollowedArtist[] = [];
   isLoading: boolean = true;
+
+  isSlickInitialized = false;
+
+  ngAfterViewInit() {
+    console.log('ngAfterViewInit: Checking Slick Initialization...');
+  }
+
+  ngAfterViewChecked() {
+    if (!this.isSlickInitialized && this.slickModal && this.slickModal.$instance) {
+      this.isSlickInitialized = true;
+      console.log('✅ Slick is initialized:', this.slickModal);
+    }
+  }
+
+  prev() {
+    if (this.isSlickInitialized) {
+      console.log("Moving left...");
+      this.slickModal.slickPrev();
+    } else {
+      console.warn('❌ Slick instance not ready yet');
+    }
+  }
+
+  next() {
+    if (this.isSlickInitialized) {
+      console.log("Moving right...");
+      this.slickModal.slickNext();
+    } else {
+      console.warn('❌ Slick instance not ready yet');
+    }
+  }
 
   slideConfig = {
     slidesToShow: 4,
     slidesToScroll: 1,
     infinite: true,
-    autoplay: false, // Disable autoplay for testing
-    autoplaySpeed: 3000,
-    arrows: false,
     dots: false,
-    rtl: true, 
-    responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 3 } },
-      { breakpoint: 768, settings: { slidesToShow: 2 } },
-      { breakpoint: 480, settings: { slidesToShow: 1 } }
-    ]
+    arrows: false,
+    autoplay: true,
+    autoplaySpeed: 3000,
   };
 
   constructor(
     private followedArtistService: FollowedArtistService,
+    private snackBarService: SnackBarService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -48,22 +75,22 @@ export class ArtistsListComponent implements OnInit, AfterViewInit {
     this.fetchFollowedArtists();
   }
 
-  ngAfterViewInit(): void {
-    // Use ChangeDetectorRef to ensure proper change detection
-    setTimeout(() => {
-      this.cdr.detectChanges(); // Manually trigger change detection
-      if (this.slickModal) {
-        console.log('Slick carousel initialized');
-        this.slickModal.slickNext();
-      }
-    }, 500); // Delay to ensure the carousel instance is ready
-  }
+  
 
   fetchFollowedArtists(): void {
     this.followedArtistService.getFollowedArtist().subscribe({
       next: (artists: FollowedArtist[]) => {
         this.followedArtists = artists;
         this.isLoading = false;
+  
+        setTimeout(() => {
+          if (this.slickModal && this.slickModal.$instance) {
+            console.log('Slick carousel is ready, resetting index');
+            this.slickModal.slickGoTo(0);
+          } else {
+            console.warn('Slick carousel instance is still not ready');
+          }
+        }, 500);
       },
       error: (error) => {
         console.error('Error fetching followed artists:', error);
@@ -72,16 +99,20 @@ export class ArtistsListComponent implements OnInit, AfterViewInit {
     });
   }
 
-  prev() {
-    if (this.slickModal) {
-      this.slickModal.slickPrev();
-    }
+  UnfollowArtist(id: string) {
+    this.followedArtistService.unfollowArtist(id).subscribe({
+      next: () => {
+        this.snackBarService.success("Artist Unfollowed successfully");
+        this.followedArtists = this.followedArtists.filter(artist => artist.id !== id);
+      },
+      error: (error) => {
+        console.error('Error Unfollowing artist:', error);
+        this.snackBarService.error('Error Unfollowing artist: ' + error);
+      }
+    });
   }
+    
 
-  next() {
-    if (this.slickModal) {
-      this.slickModal.slickNext();
-    }
-  }
+  
 }
 
