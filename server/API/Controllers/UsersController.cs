@@ -1,4 +1,3 @@
-
 using Infrastructure.IServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,14 +18,12 @@ namespace API.Controllers
         [HttpGet("spotify/me")]
         public async Task<IActionResult> GetSpotifyUserProfile()
         {
-            var authHeader = Request.Headers.Authorization.ToString();
+            var accessToken = GetAccessTokenFromHeader();
 
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            if (string.IsNullOrEmpty(accessToken))
             {
                 return Unauthorized("Missing or invalid Authorization header.");
             }
-
-            var accessToken = authHeader["Bearer ".Length..].Trim();
 
             var userProfile = await _spotifyAuthService.GetSpotifyUserProfileAsync(accessToken);
 
@@ -38,5 +35,36 @@ namespace API.Controllers
             return Ok(userProfile);
         }
 
+        [HttpGet("followed-artists")]
+        public async Task<IActionResult> GetFollowedArtists()
+        {
+            var accessToken = GetAccessTokenFromHeader();
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return Unauthorized("Missing or invalid Authorization header.");
+            }
+
+            var artists = await _userService.GetFollowedArtistsAsync(accessToken);
+
+            if (artists == null || artists.Count == 0)
+            {
+                return NotFound("No followed artists found.");
+            }
+
+            return Ok(artists);
+        }
+
+        private string GetAccessTokenFromHeader()
+        {
+            var authHeader = Request.Headers.Authorization.ToString();
+
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return null;
+            }
+
+            return authHeader["Bearer ".Length..].Trim();
+        }
     }
 }

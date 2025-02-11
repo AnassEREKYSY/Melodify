@@ -11,5 +11,6 @@ namespace Infrastructure.IServices
         Task<string> GetUserToken(string userId);
         Task<string> GetUserTokenForSpotify(string userId);
         string GenerateJwtToken(AppUser user);
+        Task<List<SpotifyFollowedArtist>> GetFollowedArtistsAsync(string accessToken, int limit = 20, string after = null);
     }
 }

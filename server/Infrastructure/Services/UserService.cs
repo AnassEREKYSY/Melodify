@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -109,6 +110,34 @@ namespace Infrastructure.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+    
+        public async Task<List<SpotifyFollowedArtist>> GetFollowedArtistsAsync(string accessToken, int limit = 20, string after = null)
+        {
+            var requestUrl = $"https://api.spotify.com/v1/me/following?type=artist&limit={limit}";
+            if (!string.IsNullOrEmpty(after))
+            {
+                requestUrl += $"&after={after}";
+            }
+
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await _httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Followed Artists: {content}");
+
+            var result = JsonSerializer.Deserialize<SpotifyFollowedArtistsResponse>(content);
+
+            if (result?.artists?.items == null || result.artists.items.Count == 0)
+            {
+                Console.WriteLine("No followed artists found.");
+            }
+
+            return result?.artists?.items ?? [];
+        }
+
     
     }
 }
