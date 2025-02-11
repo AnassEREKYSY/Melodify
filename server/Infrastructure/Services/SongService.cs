@@ -9,7 +9,7 @@ namespace Infrastructure.Services
 {
     public class SongService(HttpClient _httpClient, IUserService _userService) : ISongService
     {
-        public async Task<SpotifyTracks> SearchSongsAsync(string token, string query, int offset = 0, int limit = 10)
+        public async Task<SpotifySearchResult> SearchSongsAsync(string token, string query, int offset = 0, int limit = 10)
         {
             try
             {
@@ -20,7 +20,7 @@ namespace Infrastructure.Services
 
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                var searchUrl = $"https://api.spotify.com/v1/search?q={Uri.EscapeDataString(query)}&type=track&limit={limit}&offset={offset}";
+                var searchUrl = $"https://api.spotify.com/v1/search?q={Uri.EscapeDataString(query)}&type=track,artist,album,playlist,show,episode&limit={limit}&offset={offset}";
 
                 var response = await _httpClient.GetAsync(searchUrl);
 
@@ -40,26 +40,9 @@ namespace Infrastructure.Services
                 if (searchResult?.Tracks?.Items == null || searchResult.Tracks.Items.Count == 0)
                 {
                     Console.WriteLine("No songs found after deserialization.");
-                    return new SpotifyTracks
-                    {
-                        Items = new List<SongDto>(),
-                        Total = searchResult?.Tracks?.Total ?? 0,
-                        Offset = offset,
-                        Limit = limit,
-                        Next = null,
-                        Previous = null
-                    };
                 }
 
-                return new SpotifyTracks
-                {
-                    Items = searchResult.Tracks.Items,
-                    Total = searchResult.Tracks.Total,
-                    Offset = searchResult.Tracks.Offset,
-                    Limit = searchResult.Tracks.Limit,
-                    Next = searchResult.Tracks.Next,
-                    Previous = searchResult.Tracks.Previous
-                };
+                return searchResult;
             }
             catch (Exception ex)
             {

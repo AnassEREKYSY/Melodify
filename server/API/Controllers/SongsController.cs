@@ -30,15 +30,7 @@ namespace API.Controllers
             
             var searchResults = await _songService.SearchSongsAsync(accessToken, query, offset, limit);
 
-            return Ok(new
-            {
-                total = searchResults.Total,
-                offset = searchResults.Offset,
-                limit = searchResults.Limit,
-                next = searchResults.Next,
-                previous = searchResults.Previous,
-                songs = searchResults.Items
-            });
+            return Ok(searchResults);
         }
     
         
