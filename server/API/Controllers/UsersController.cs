@@ -75,6 +75,27 @@ namespace API.Controllers
             return BadRequest(new { message = $"Failed to unfollow artist {artistId}" });
         }
 
+        
+        [HttpPost("follow-artist/{artistId}")]
+        public async Task<IActionResult> FollowArtist(string artistId)
+        {
+            var accessToken = GetAccessTokenFromHeader();
+
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                return Unauthorized("Missing or invalid Authorization header.");
+            }
+
+            var success = await _userService.FollowArtistAsync(accessToken, artistId);
+
+            if (!success)
+            {
+                return BadRequest("Failed to follow the artist.");
+            }
+
+            return Ok(new { message = "Artist followed successfully." });
+        }
+
         private string GetAccessTokenFromHeader()
         {
             var authHeader = Request.Headers.Authorization.ToString();

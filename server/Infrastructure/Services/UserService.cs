@@ -15,19 +15,8 @@ using Microsoft.IdentityModel.Tokens;
 namespace Infrastructure.Services
 {
 
-    public class UserService : IUserService
+    public class UserService(IConfiguration _configuration, UserManager<AppUser> _userManager, HttpClient _httpClient) : IUserService
     {
-        private readonly IConfiguration _configuration;
-        private readonly UserManager<AppUser> _userManager;
-        private readonly HttpClient _httpClient;
-
-        public UserService(IConfiguration configuration, UserManager<AppUser> userManager, HttpClient httpClient)
-        {
-            _configuration = configuration;
-            _userManager = userManager;
-            _httpClient = httpClient;
-        }
-
 
         public async Task<SpotifyUserProfileResponse> GetUserProfileAsync(string accessToken)
         {
@@ -159,6 +148,19 @@ namespace Infrastructure.Services
                 Console.WriteLine($"Failed to unfollow artist {artistId}: {errorContent}");
                 return false;
             }
+        }
+
+        public async Task<bool> FollowArtistAsync(string accessToken, string artistId)
+        {
+            var requestUrl = "https://api.spotify.com/v1/me/following?type=artist";
+            
+            var request = new HttpRequestMessage(HttpMethod.Put, requestUrl);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            request.Content = new StringContent(JsonSerializer.Serialize(new { ids = new[] { artistId } }), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.SendAsync(request);
+
+            return response.IsSuccessStatusCode;
         }
 
     

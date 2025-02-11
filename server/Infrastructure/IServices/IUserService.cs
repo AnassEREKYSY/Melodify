@@ -13,5 +13,6 @@ namespace Infrastructure.IServices
         string GenerateJwtToken(AppUser user);
         Task<List<SpotifyFollowedArtistDetails>> GetFollowedArtistsAsync(string accessToken);
         Task<bool> UnfollowArtistAsync(string accessToken, string artistId);
+        Task<bool> FollowArtistAsync(string accessToken, string artistId);
     }
 }

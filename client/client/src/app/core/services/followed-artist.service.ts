@@ -29,4 +29,13 @@ export class FollowedArtistService {
 
     return this.http.delete(`${this.apiUrl}users/unfollow-artist/${artistId}`, { headers });
   }
+
+  followArtist(artistId: string): Observable<any> {
+    const token = localStorage.getItem('accessToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+  
+    return this.http.post(`${this.apiUrl}users/follow-artist/${artistId}`, {}, { headers });
+  }
 }

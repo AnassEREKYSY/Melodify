@@ -19,6 +19,7 @@ export class ArtistComponent implements OnInit {
 
 
   ngOnInit(): void {
+    console.log(this.artist?.id,this.artist?.name)
   }
 
   unfollowArtist(id:string) {
