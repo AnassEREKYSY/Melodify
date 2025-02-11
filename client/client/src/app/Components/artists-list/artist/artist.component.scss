@@ -1,64 +1,106 @@
-$artist-card-bg: #222;  /* A slightly lighter shade for the card background */
+$artist-card-bg: #222; 
 $artist-name-color: #fff;
-$unfollow-btn-bg: rgba(255, 0, 0, 0.7);
-$unfollow-btn-hover-bg: rgba(255, 0, 0, 1);
+$unfollow-btn-bg: #fff;
+$unfollow-btn-icon-color: #000; 
+$black-line: #000; 
 
 .artist-card {
-  position: relative;
-  width: 100%;
-  height: 300px; /* Fixed height for each card */
-  margin-right: 30px; /* Space between cards */
-  background-color: $artist-card-bg;
+  margin-top: 30px;
+  background: $artist-card-bg;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  position: relative;
+  height: 200px; 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease-in-out;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end; /* Align the content to the bottom of the card */
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
+  justify-content: flex-end;
+  padding: 10px;
+  width: 250px;
 
   &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.01);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
   }
 }
 
 .artist-image {
   width: 100%;
   height: 100%;
-  background-position: center;
-  background-size: cover;
-  border-bottom: 3px solid #000; /* Black line at the bottom of the image */
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  border-bottom: 4px solid $black-line; 
 }
 
-.artist-info {
+.artist-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); 
+  z-index: 2;
+}
+
+.artist-name {
   position: absolute;
   bottom: 10px;
   left: 10px;
   color: $artist-name-color;
   font-weight: bold;
   font-size: 1.3rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); 
+}
+
+.artist-info-bottom-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: $black-line;
+  z-index: 2;
 }
 
 .unfollow-btn {
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: $unfollow-btn-bg;
+  background-color:  rgba(133, 132, 132, 0.521);
   border: none;
   border-radius: 50%;
-  padding: 8px;
-  color: white;
+  padding: 0;
+  color: $unfollow-btn-icon-color;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  z-index: 3;
+  width: 30px;
+  height: 30px;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-  &:hover {
-    background-color: $unfollow-btn-hover-bg;
+  opacity: 0; 
+  visibility: hidden; 
+  transition: opacity 0.3s ease, visibility 0s 0.3s; 
+  .artist-card:hover & {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0s 0s; 
   }
 
-  i {
-    font-size: 16px;
+  &:hover {
+    background-color: $unfollow-btn-icon-color;
+    color: $unfollow-btn-bg;
+  }
+
+  mat-icon {
+    font-size: 19px;
+    font-weight: bolder;
   }
 }
