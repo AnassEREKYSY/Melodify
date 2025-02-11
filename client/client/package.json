@@ -25,7 +25,9 @@
     "@angular/ssr": "^19.0.6",
     "express": "^4.18.2",
     "ngx-infinite-scroll": "^19.0.0",
+    "ngx-slick-carousel": "^19.0.0",
     "rxjs": "~7.8.0",
+    "slick-carousel": "^1.8.1",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },

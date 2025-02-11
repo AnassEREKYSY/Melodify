@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Infrastructure.Response
 {
-    public class SpotifyFollowedArtist
+    public class SpotifyFollowedArtistDetails
     {
         [JsonPropertyName("id")]
         public string Id { get; set; }
@@ -15,6 +15,8 @@ namespace Infrastructure.Response
         
         [JsonPropertyName("type")]
         public string Type { get; set; }
+
+        public string ImageUrl { get; set; }
     }
 
 }

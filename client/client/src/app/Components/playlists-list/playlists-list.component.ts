@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Playlist } from '../../core/models/Playlist.model';
 import { PlaylistService } from '../../core/services/playlist.service';
 import { SpotifyPaginatedPlaylists } from '../../core/models/SpotifyPaginatedPlaylists.model';
@@ -21,7 +21,7 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
   templateUrl: './playlists-list.component.html',
   styleUrl: './playlists-list.component.scss'
 })
-export class PlaylistsListComponent {
+export class PlaylistsListComponent implements OnInit{
   playlists: Playlist[] = [];
   showCreateForm = false;
   createPlaylistForm: FormGroup;
@@ -33,8 +33,8 @@ export class PlaylistsListComponent {
 
   Math = Math; 
   
-  isLoading: boolean = true; // Set to true initially for first-time loading
-  isLoadingNewData: boolean = false; // Flag for loading new data during scrolling
+  isLoading: boolean = true; 
+  isLoadingNewData: boolean = false; 
   scrollDistance = 1;
   scrollUpDistance = 2;
 
@@ -53,18 +53,18 @@ export class PlaylistsListComponent {
 
   ngOnInit(): void {
     this.fetchPlaylists();
-    this.userService.extractUserIdFromToken().subscribe({ next: (id) => { this.userId = id;  console.log(this.userId)} });
+    this.userService.extractUserIdFromToken().subscribe({ next: (id) => { this.userId = id} });
   }
 
   fetchPlaylists(): void {
-    this.isLoadingNewData = true; // Show loading cards for new data
+    this.isLoadingNewData = true;
     this.playlistService.getSpotifyPlaylistsByUserId(this.offset, this.limit)
       .subscribe({
         next: (response: SpotifyPaginatedPlaylists) => {
           this.playlists = [...this.playlists, ...response.playlists];
           this.totalPlaylists = response.total;
-          this.isLoading = false; // Set to false when data is loaded
-          this.isLoadingNewData = false; // Stop showing loading cards once data is fetched
+          this.isLoading = false; 
+          this.isLoadingNewData = false; 
         },
         error: (error) => {
           console.error('Error fetching playlists:', error);
@@ -77,7 +77,7 @@ export class PlaylistsListComponent {
   loadMore(): void {
     if (this.offset + this.limit < this.totalPlaylists && !this.isLoading) {
       this.offset += this.limit;
-      this.isLoadingNewData = true; // Show loading cards when new data is being fetched
+      this.isLoadingNewData = true; 
       this.fetchPlaylists();
     }
   }
@@ -117,8 +117,8 @@ export class PlaylistsListComponent {
         this.snackBarService.success("Playlist created successfully");
         this.toggleCreateForm();
         this.createPlaylistForm.reset();
-        this.playlists.push(response);
-        this.fetchPlaylists();
+        this.playlists = [response, ...this.playlists]; 
+        this.totalPlaylists++;
       },
       error: (error) => {
         this.snackBarService.error('Error creating playlist: ' + error);

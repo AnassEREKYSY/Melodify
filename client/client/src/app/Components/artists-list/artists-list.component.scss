@@ -1,0 +1,21 @@
+$artist-card-bg: #222;  /* A slightly lighter shade for the card background */
+$artist-name-color: #fff;
+$unfollow-btn-bg: rgba(255, 0, 0, 0.7);
+$unfollow-btn-hover-bg: rgba(255, 0, 0, 1);
+
+.artists-container {
+  position: relative;
+  width: 100vw;
+  padding: 40px 0; /* Vertical padding only */
+  background-color: #121212;
+  color: white;
+  overflow: hidden; /* Ensure no horizontal overflow */
+}
+
+.carousel {
+  width: 100%;
+  display: flex;
+  overflow: hidden;
+}
+
+

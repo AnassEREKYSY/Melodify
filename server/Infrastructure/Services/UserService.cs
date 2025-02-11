@@ -110,32 +110,32 @@ namespace Infrastructure.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-    
-        public async Task<List<SpotifyFollowedArtist>> GetFollowedArtistsAsync(string accessToken, int limit = 20, string after = null)
+        public async Task<List<SpotifyFollowedArtistDetails>> GetFollowedArtistsAsync(string accessToken)
         {
-            var requestUrl = $"https://api.spotify.com/v1/me/following?type=artist&limit={limit}";
-            if (!string.IsNullOrEmpty(after))
+            var allArtists = new List<SpotifyFollowedArtistDetails>();
+            var requestUrl = "https://api.spotify.com/v1/me/following?type=artist&limit=50";
+
+            while (!string.IsNullOrEmpty(requestUrl))
             {
-                requestUrl += $"&after={after}";
+                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Followed Artists Response: {content}");
+
+                var result = JsonSerializer.Deserialize<SpotifyFollowedArtistsResponse>(content);
+
+                if (result?.Artists?.Items != null)
+                {
+                    allArtists.AddRange(result.Artists.Items);
+                }
+                requestUrl = result?.Artists?.Next;
             }
 
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
-            var content = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"Followed Artists: {content}");
-
-            var result = JsonSerializer.Deserialize<SpotifyFollowedArtistsResponse>(content);
-
-            if (result?.artists?.items == null || result.artists.items.Count == 0)
-            {
-                Console.WriteLine("No followed artists found.");
-            }
-
-            return result?.artists?.items ?? [];
+            return allArtists;
         }
 
     

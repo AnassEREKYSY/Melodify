@@ -21,7 +21,6 @@ export class PlaylistComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    console.log(this.playlist)
   }
 
   deletePlaylist(id : string) {

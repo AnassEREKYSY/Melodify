@@ -39,10 +39,8 @@
     </form>
   </div>
 
-  <!-- No playlists found message -->
   <div *ngIf="!isLoading && playlists.length === 0" class="text-gray-400 text-center mt-6">No playlists found.</div>
 
-  <!-- Show actual playlists once data is loaded -->
   <div *ngIf="!isLoading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
     <app-playlist 
       *ngFor="let playlist of playlists" 
@@ -51,7 +49,6 @@
     </app-playlist>
   </div>
 
-  <!-- Loading card shown only when new data is being fetched -->
   <div *ngIf="isLoadingNewData" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
     <div class="loading-card" *ngFor="let _ of [1, 2, 3, 4]">
       <div class="loading-image"></div>
@@ -60,7 +57,6 @@
     </div>
   </div>
 
-  <!-- Infinite scroll component -->
   <div *ngIf="!isLoading" infiniteScroll
        [infiniteScrollDistance]="scrollDistance"
        [infiniteScrollUpDistance]="scrollUpDistance"

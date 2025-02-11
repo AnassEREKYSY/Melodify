@@ -26,7 +26,6 @@ export class UserProfilComponent implements OnInit {
   ngOnInit(): void {
     this.userProfileService.getUserProfile().subscribe(
       (profile) => {
-        console.log(profile)
         this.userProfile = profile;
       },
       (error) => {
@@ -43,7 +42,6 @@ export class UserProfilComponent implements OnInit {
   }
 
   editProfilePicture(): void {
-    console.log("Edit profile picture clicked!");
     // You can trigger a file input, open a modal, or navigate to an edit page here.
   }
 }

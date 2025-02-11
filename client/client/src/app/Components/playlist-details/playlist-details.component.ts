@@ -37,7 +37,6 @@ export class PlaylistDetailsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.playlist = response;
-          console.log(this.playlist)
         },
         error: (error) => {
           console.error('Error fetching the playlist with the id: '+this.playlistId, error);
@@ -58,12 +57,10 @@ export class PlaylistDetailsComponent implements OnInit {
   }
 
   onPlay(songId: string) {
-    console.log('Playing song:', songId);
   }
 
   onDelete(songId: string) {
     this.songs = this.songs.filter(song => song.id !== songId);
-    console.log('Deleted song:', songId);
   }
 
 }

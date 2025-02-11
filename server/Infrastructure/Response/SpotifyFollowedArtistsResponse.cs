@@ -4,6 +4,7 @@ namespace Infrastructure.Response
 {
     public class SpotifyFollowedArtistsResponse
     {
-        public SpotifyFollowedArtistItems artists { get; set; }
+         [JsonPropertyName("artists")]
+        public SpotifyFollowedArtistItems Artists { get; set; }
     }
 }

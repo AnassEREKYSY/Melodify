@@ -1,0 +1,14 @@
+<div *ngIf="artist as art" class="artist-card" (click)="goToArtistDetails(art.id)">
+  <img *ngIf="art.images[0]?.url; else noImage" [src]="art.images[0].url" alt="Artist image" class="artist-image">
+  <ng-template #noImage>
+    <div class="artist-image no-image"></div>
+  </ng-template>
+
+  <button (click)="unfollowArtist(art.id); $event.stopPropagation()" class="unfollow-btn">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <div class="artist-overlay">
+    <h3 class="artist-name">{{ art.name || 'Unnamed Artist' }}</h3>
+  </div>
+</div>

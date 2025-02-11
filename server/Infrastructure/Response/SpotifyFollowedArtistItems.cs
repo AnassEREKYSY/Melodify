@@ -1,8 +1,13 @@
+using System.Text.Json.Serialization;
+
 namespace Infrastructure.Response
 {
     public class SpotifyFollowedArtistItems
     {
-        public List<SpotifyFollowedArtist> items { get; set; }
-        public string next { get; set; }
+        [JsonPropertyName("items")]
+        public List<SpotifyFollowedArtistDetails> Items { get; set; }
+        
+        [JsonPropertyName("next")]
+        public string Next { get; set; }
     }
 }
