@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { SpotifySearchService } from '../../core/services/spotify-search.service';
@@ -19,13 +19,31 @@ import { CommonModule } from '@angular/common';
 export class NavBarComponent implements OnInit {
   searchQuery: string = '';
   searchResults: any[] = [];
-  constructor(private router: Router, private spotifySearchService: SpotifySearchService) {}
-  
-  ngOnInit(): void {
+  selectedFilter: string = 'all'; 
 
+  constructor(
+    private router: Router,
+    private spotifySearchService: SpotifySearchService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
     this.spotifySearchService.getSearchResults().subscribe({
       next: (response) => {
-        this.searchResults = response.tracks?.items || [];
+        console.log('Search Results:', response);
+        if (this.selectedFilter === 'all') {
+          this.searchResults = [
+            ...response.tracks.items,
+            ...response.artists.items,
+            ...response.albums.items,
+            ...response.playlists.items,
+            ...response.shows.items,
+            ...response.episodes.items
+          ];
+        } else {
+          this.searchResults = response[this.selectedFilter]?.items || [];
+        }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Search error:', err);
@@ -33,6 +51,7 @@ export class NavBarComponent implements OnInit {
       }
     });
   }
+   
 
   navigateToHome(): void {
     this.router.navigate(['/home']);
@@ -48,16 +67,24 @@ export class NavBarComponent implements OnInit {
   }
 
   onSearchInput(): void {
+    console.log('Search Query:', this.searchQuery); 
     if (this.searchQuery.trim().length > 0) {
       this.spotifySearchService.updateSearchQuery(this.searchQuery);
     } else {
       this.searchResults = [];
     }
   }
+  
 
   selectResult(result: any): void {
     console.log('Selected:', result);
     this.searchResults = []; 
   }
 
+  changeFilter(filter: string): void {
+    this.selectedFilter = filter;
+    this.spotifySearchService.setFilterType(filter);
+    this.searchQuery = ''; 
+    this.searchResults = []; 
+  }
 }

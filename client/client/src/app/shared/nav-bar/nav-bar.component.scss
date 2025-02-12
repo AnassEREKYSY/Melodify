@@ -1,125 +1,200 @@
 :root {
-    --spotify-green: #1DB954;
-    --spotify-black: #121212;
-    --spotify-white: #FFFFFF;
-    --spotify-dark-gray: #282828;
+  --spotify-green: #1DB954;
+  --spotify-black: #121212;
+  --spotify-white: #FFFFFF;
+  --spotify-dark-gray: #282828;
+}
+
+.spotify-navbar {
+  color: var(--spotify-white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--spotify-black);
+  padding: 20px 60px;
+  height: 80px;
+  margin-bottom: 25px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--spotify-black);
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.logo img {
+  height: 50px;
+}
+
+.nav-button {
+  color: var(--spotify-white);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 16px;
+  padding: 10px 25px;
+  border-radius: 40px;
+  background-color: var(--spotify-dark-gray);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 25px;
   }
-    
+}
+
+.nav-button:hover {
+  transform: scale(1.05);
+}
+.search-container{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+.search-bar{
+  position: relative;
+  margin-top: 10px;
+}
+.search-bar input {
+  background-color: var(--spotify-dark-gray);
+  border: none;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 20px;
+  color: var(--spotify-white);
+  width: 600px;
+  height: 47px;
+  transition: width 0.3s ease;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.nav-button.premium {
+  background-color: var(--spotify-white);
+  color: var(--spotify-black);
+}
+
+.nav-button.install {
+  background-color: var(--spotify-dark-gray);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.nav-button.profile {
+  background-color: var(--spotify-dark-gray);
+  border-radius: 50%;
+  padding: 10px;
+}
+
+.nav-button.home {
+  background-color: var(--spotify-dark-gray);
+  border-radius: 50%;
+  padding: 10px;
+}
+
+@media (max-width: 768px) {
   .spotify-navbar {
-    color: var(--spotify-white);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--spotify-black);
-    padding: 20px 40px;
-    height: 80px;
-    margin: 0;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: var(--spotify-black);
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 20px;
   }
-  
-  .navbar-left {
-    display: flex;
-    align-items: center;
-    gap: 40px;
+
+  .navbar-left, .navbar-right {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
   }
-  
-  .logo img {
-    height: 50px;
-  }
-  
+
   .nav-button {
-    color: var(--spotify-white);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 16px;
-    padding: 10px 25px;
-    border-radius: 40px;
-    background-color: var(--spotify-dark-gray);
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    font-weight: 600;
-
-    mat-icon {
-        font-size: 25px;
-    }
-  }
-  
-  .nav-button:hover {
-    transform: scale(1.05);
-  }
-  
-  .search-bar input {
-    background-color: var(--spotify-dark-gray);
-    border: none;
-    border-radius: 20px;
-    padding: 5px 10px;
-    font-size: 20px;
-    color: var(--spotify-white);
-    width: 550px;
-    height: 47px;
-    transition: width 0.3s ease;
-  }
-    
-  .navbar-right {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-  }
-  
-  .nav-button.premium {
-    background-color: var(--spotify-white);
-    color: var(--spotify-black);
-  }
-  
-  .nav-button.install {
-    background-color: var(--spotify-dark-gray);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .nav-button.profile {
-    background-color: var(--spotify-dark-gray);
-    border-radius: 50%;
+    width: 100%;
+    text-align: left;
     padding: 10px;
   }
+}
 
-  .nav-button.home {
-    background-color: var(--spotify-dark-gray);
-    border-radius: 50%;
-    padding: 10px;
-  }
+.nav-button.logout {
+  background-color: var(--spotify-dark-gray);
+  border-radius: 50%;
+  padding: 10px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
 
-  @media (max-width: 768px) {
-    .spotify-navbar {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 10px 20px;
-    }
-  
-    .navbar-left, .navbar-right {
-      flex-direction: column;
-      align-items: flex-start;
-      width: 100%;
-    }
-  
-    .nav-button {
-      width: 100%;
-      text-align: left;
-      padding: 10px;
-    }
-  }
+.nav-button.logout:hover {
+  transform: scale(1.05);
+}
 
-  .nav-button.logout {
-    background-color: var(--spotify-dark-gray);
-    border-radius: 50%;
-    padding: 10px;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-  }
-  
-  .nav-button.logout:hover {
-    transform: scale(1.05);
-  }
-  
+
+.search-results {
+  position: absolute;
+  top: 45px;
+  left: 0;
+  background: var(--spotify-dark-gray);
+  width: 600px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  padding: 10px 0;
+  margin-top: 10px;
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-result:hover {
+  background: var(--spotify-green);
+}
+
+.search-result img.cover {
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.filter-options {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px
+}
+
+.filter-btn {
+  background: black;
+  color: var(--spotify-white); 
+  border: none;
+  padding: 5px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.filter-btn.active {
+  background: var(--spotify-white);
+  color: var(--spotify-black); 
+}
+
+.filter-btn:hover {
+  transform: scale(0.95); 
+}
+
+.filter-btn:focus {
+  outline: none;
+}
+
+
+

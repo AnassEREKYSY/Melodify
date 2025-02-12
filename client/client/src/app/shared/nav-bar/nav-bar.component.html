@@ -1,32 +1,42 @@
 <nav class="spotify-navbar">
-    <div class="navbar-left">
-      <a href="#" class="logo">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" alt="Spotify Logo"/>
-      </a>
-      <button class="nav-button home" (click)="navigateToHome()">
-        <mat-icon>home</mat-icon>
-      </button>
+  <div class="navbar-left">
+    <a href="#" class="logo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg" alt="Spotify Logo"/>
+    </a>
+    <button class="nav-button home" (click)="navigateToHome()">
+      <mat-icon>home</mat-icon>
+    </button>
+    <div class="search-container">
       <div class="search-bar">
         <input type="text" placeholder="Search" [(ngModel)]="searchQuery" (input)="onSearchInput()">
-        <div class="search-results" *ngIf="searchResults.length > 0">
+        <div class="search-results" *ngIf="searchResults && searchResults.length > 0">
+          <div class="filter-options">
+            <button class="filter-btn" [class.active]="selectedFilter === 'all'" (click)="changeFilter('all')">All</button>
+            <button class="filter-btn" [class.active]="selectedFilter === 'artist'" (click)="changeFilter('artist')">Artists</button>
+            <button class="filter-btn" [class.active]="selectedFilter === 'track'" (click)="changeFilter('track')">Tracks</button>
+            <button class="filter-btn" [class.active]="selectedFilter === 'playlist'" (click)="changeFilter('playlist')">Playlists</button>
+            <button class="filter-btn" [class.active]="selectedFilter === 'album'" (click)="changeFilter('album')">Albums</button>
+            <button class="filter-btn" [class.active]="selectedFilter === 'podcast'" (click)="changeFilter('podcast')">Podcasts</button>
+            <button class="filter-btn" [class.active]="selectedFilter === 'show'" (click)="changeFilter('show')">Shows</button>
+          </div>
           <div *ngFor="let result of searchResults" class="search-result" (click)="selectResult(result)">
-            <img *ngIf="result.album?.images?.length" [src]="result.album.images[0].url" alt="Cover" class="cover">
-            <span>{{ result.name }} - {{ result.artists[0]?.name }}</span>
+            <img *ngIf="result?.album?.images?.length" [src]="result?.album?.images[0].url" alt="Cover" class="cover">
+            <span>{{ result?.name }} - {{ result?.artists?.[0]?.name }}</span> <!-- Safe navigation here -->
           </div>
         </div>
       </div>
     </div>
-    <div class="navbar-right">
-      <button class="nav-button premium">Discover Premium</button>
-      <button class="nav-button install">
-        <mat-icon>get_app</mat-icon> Install App
-      </button>
-      <button class="nav-button profile" (click)="navigateToProfile()">
-        <mat-icon>account_circle</mat-icon>
-      </button>
-      <button class="nav-button logout" (click)="logout()">
-        <mat-icon>logout</mat-icon>
-      </button>
-    </div>    
-  </nav>
-  
+  </div>
+  <div class="navbar-right">
+    <button class="nav-button premium">Discover Premium</button>
+    <button class="nav-button install">
+      <mat-icon>get_app</mat-icon> Install App
+    </button>
+    <button class="nav-button profile" (click)="navigateToProfile()">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <button class="nav-button logout" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </div>    
+</nav>
