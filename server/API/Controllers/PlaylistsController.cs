@@ -82,9 +82,9 @@ namespace API.Controllers
         [HttpPost("add-song-to-playlist")]
         public async Task<IActionResult> AddSongToPlaylist([FromBody] SongCreateDto songDto)
         {
-            if (string.IsNullOrEmpty(songDto.UserId) || string.IsNullOrEmpty(songDto.SongId))
+            if (string.IsNullOrEmpty(songDto.SongId))
             {
-                return BadRequest("UserId and SongId must be provided.");
+                return BadRequest("SongId must be provided.");
             }
 
             try
@@ -110,12 +110,6 @@ namespace API.Controllers
         [HttpDelete("remove-song-from-playlist")]
         public async Task<IActionResult> RemoveSongFromPlaylist(SongCreateDto songCreateDto)
         {
-
-            if (string.IsNullOrEmpty(songCreateDto.UserId))
-            {
-                return Unauthorized("User must be authenticated to remove a song from a playlist.");
-            }
-
             try
             {
                 var accessToken =ExtractAccessToken();

@@ -5,6 +5,7 @@ import { Playlist } from '../../core/models/Playlist.model';
 import { SongComponent } from "../song/song.component";
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { SnackBarService } from '../../core/services/snack-bar.service';
 
 @Component({
   selector: 'app-playlist-details',
@@ -20,6 +21,7 @@ export class PlaylistDetailsComponent implements OnInit {
   constructor
   (
     private playlistService: PlaylistService,
+    private snackBarService: SnackBarService,
     private route: ActivatedRoute
   ){}
 
@@ -49,7 +51,6 @@ export class PlaylistDetailsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.songs = response;
-          console.log(this.songs)
         },
         error: (error) => {
           console.error('Error fetching Songs for the playlist with the id: '+this.playlistId, error);
@@ -61,7 +62,20 @@ export class PlaylistDetailsComponent implements OnInit {
   }
 
   onDelete(songId: string) {
-    this.songs = this.songs.filter(song => song.id !== songId);
+    const songData = {
+      playlistId: this.playlistId,
+      songId: songId
+    };
+    this.playlistService.removeSongFromPlaylist(songData)
+      .subscribe({
+        next: (response) => {
+          this.snackBarService.success(response)
+          this.songs = this.songs.filter(song => song.id !== songId);
+        },
+        error: (error) => {
+          console.error('Error removing song from playlist:', error);
+        }
+      });
   }
 
 }

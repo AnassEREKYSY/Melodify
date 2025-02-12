@@ -50,18 +50,18 @@ export class PlaylistService {
     );
   }
 
-  removeSongFromPlaylist(songData: AddRemoveSong): Observable<string> {
+  removeSongFromPlaylist(songData: AddRemoveSong): Observable<any> {
     const token = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    return this.http.request<string>(
-      'DELETE',
+    return this.http.delete<any>(
       `${this.apiUrl}playlists/remove-song-from-playlist`,
       {
-       headers,
-        body: songData
+        headers,
+        body: songData,
+        responseType: 'text' as 'json'
       }
     );
   }
