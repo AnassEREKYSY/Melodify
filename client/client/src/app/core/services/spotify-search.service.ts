@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/envirnoment.developement';
+import { combineLatest } from 'rxjs'; 
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +11,8 @@ import { environment } from '../../../environments/envirnoment.developement';
 export class SpotifySearchService {
 
   private apiUrl = environment.apiUrl;
-  private searchSubject = new Subject<string>();
-  private filterType: string = 'all'; 
+  private searchSubject = new BehaviorSubject<string>('');
+  private filterSubject = new BehaviorSubject<string>('all');  
 
   constructor(private http: HttpClient) {}
 
@@ -25,10 +26,10 @@ export class SpotifySearchService {
   }
 
   getSearchResults(): Observable<any> {
-    return this.searchSubject.pipe(
+    return combineLatest([this.searchSubject, this.filterSubject]).pipe(  
       debounceTime(300),
       distinctUntilChanged(),
-      switchMap(query => this.search(query, this.filterType))
+      switchMap(([query, filterType]) => this.search(query, filterType))  
     );
   }
 
@@ -37,6 +38,6 @@ export class SpotifySearchService {
   }
 
   setFilterType(type: string): void {
-    this.filterType = type;
+    this.filterSubject.next(type);  
   }
 }

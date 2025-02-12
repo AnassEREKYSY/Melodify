@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Song } from '../../core/models/Song.model';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -12,11 +12,14 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './song.component.html',
   styleUrl: './song.component.scss'
 })
-export class SongComponent {
+export class SongComponent implements OnInit{
   @Input() song: Song | undefined;
   @Output() playRequest = new EventEmitter<string>();
   @Output() deleteRequest = new EventEmitter<string>();
 
+  ngOnInit(): void {
+    console.log(this.song?.durationMs);
+  }
   playSong(id: string) {
     this.playRequest.emit(id);
   }

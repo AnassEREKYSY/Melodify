@@ -11,7 +11,7 @@
     </div>
 
     <div class="song-actions">
-      <span class="song-duration">{{ formatDuration(s.durationMs) }}</span>
+      <span class="song-duration">{{ formatDuration(s.durationMs || s.duration_ms) }}</span>
       <button (click)="deleteSong(s.id)" class="delete-btn">
         <mat-icon>delete</mat-icon>
       </button>

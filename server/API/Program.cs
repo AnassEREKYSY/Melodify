@@ -109,6 +109,8 @@ builder.Services.AddScoped<ISpotifyAuthService, SpotifyAuthService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddScoped<IArtistService, ArtistService>();
+
 
 builder.Services.AddHttpClient();
 

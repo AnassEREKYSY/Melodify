@@ -7,4 +7,6 @@ export interface Song {
     artists: Artist[];
     album: Album;
     durationMs: number;
-  }
+    duration_ms: number;
+    previewUrl:string;
+}

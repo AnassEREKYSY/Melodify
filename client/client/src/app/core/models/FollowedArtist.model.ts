@@ -5,5 +5,8 @@ export interface FollowedArtist {
     name: string;
     images: FollowedArtistImage[];
     type: string;
+    genre:string[];
+    popularity: number;
+    followers:number;
   }
   

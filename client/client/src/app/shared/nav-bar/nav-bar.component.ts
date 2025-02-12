@@ -73,12 +73,15 @@ export class NavBarComponent implements OnInit {
     console.log('Search Query:', this.searchQuery); 
     if (this.searchQuery.trim().length > 0) {
       this.spotifySearchService.updateSearchQuery(this.searchQuery);
-      this.offset = 0; 
-      this.loadSearchResults();
+      this.offset = 0;
+      this.loadSearchResults(); 
     } else {
-      this.searchResults = [];
+      console.log('Search query is empty, skipping request');
+      this.searchResults = [];  
     }
   }
+  
+  
 
   onScroll(): void {
     const scrollContainer = document.querySelector('.search-results');
@@ -128,9 +131,9 @@ export class NavBarComponent implements OnInit {
 
   changeFilter(filter: string): void {
     this.selectedFilter = filter;
-    this.spotifySearchService.setFilterType(filter);
+    this.spotifySearchService.setFilterType(filter);  
     this.searchResults = []; 
     this.offset = 0;  
-    this.loadSearchResults();
+    this.loadSearchResults(); 
   }
 }

@@ -1,0 +1,100 @@
+$dark-gray: #121212;
+$white: #ffffff;
+$black: #000000;
+$spotify-green: #1db954;
+$spotify-green-hover: #17a64a;
+
+.artist-container {
+  background-color: $dark-gray;
+  color: $white;
+  font-family: Arial, sans-serif;
+  padding: 50px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.artist-header {
+  position: relative;
+  width: 100%;
+}
+
+.artist-image {
+  width: 100%;
+  height: 300px;
+  object-fit: contain;
+}
+
+.artist-info {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: white;
+}
+
+.artist-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  display: flex;
+  align-items: center;
+
+  .genres {
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 10px;
+    color: #ccc;
+  }
+}
+
+.artist-stats {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  text-align: right;
+  color: white;
+
+  .followers {
+    font-size: 16px;
+    letter-spacing: 1px;
+    font-weight: bold;
+  }
+
+  .popularity {
+    font-size: 14px;
+    margin-top: 4px;
+    margin-right: 15px;
+  }
+}
+
+.follow-button {
+  position: absolute;
+  bottom: 10px;
+  right: 20px;
+  background-color: $white;
+  color: $black;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 50px;
+  font-weight: bold;
+  transition: background 0.3s ease, color 0.3s ease;
+
+  &:hover {
+    background-color: rgb(184, 184, 184);
+    color: $white;
+  }
+}
+
+.song-list {
+  flex-grow: 1; 
+  margin-top: 20px;
+  padding: 20px;
+}
+
+.no-image {
+  width: 100%;
+  height: 300px;
+  background-color: #444;
+}

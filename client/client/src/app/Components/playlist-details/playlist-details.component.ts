@@ -49,6 +49,7 @@ export class PlaylistDetailsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.songs = response;
+          console.log(this.songs)
         },
         error: (error) => {
           console.error('Error fetching Songs for the playlist with the id: '+this.playlistId, error);

@@ -13,6 +13,9 @@ namespace Infrastructure.Response
         [JsonPropertyName("duration_ms")]
         public int DurationMs { get; set; }
 
+        [JsonPropertyName("preview_url")]
+        public string PreviewUrl { get; set; }
+
         [JsonPropertyName("album")]
         public SpotifyAlbum Album { get; set; }
 
