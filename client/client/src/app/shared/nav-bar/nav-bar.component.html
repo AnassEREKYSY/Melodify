@@ -9,7 +9,7 @@
     <div class="search-container">
       <div class="search-bar">
         <input type="text" placeholder="Search" [(ngModel)]="searchQuery" (input)="onSearchInput()">
-        <div class="search-results" *ngIf="searchResults && searchResults.length > 0">
+        <div class="search-results" *ngIf="searchResults && searchResults.length > 0" (scroll)="onScroll()">
           <div class="filter-options">
             <button class="filter-btn" [class.active]="selectedFilter === 'all'" (click)="changeFilter('all')">All</button>
             <button class="filter-btn" [class.active]="selectedFilter === 'artist'" (click)="changeFilter('artist')">Artists</button>
@@ -21,7 +21,7 @@
           </div>
           <div *ngFor="let result of searchResults" class="search-result" (click)="selectResult(result)">
             <img *ngIf="result?.album?.images?.length" [src]="result?.album?.images[0].url" alt="Cover" class="cover">
-            <span>{{ result?.name }} - {{ result?.artists?.[0]?.name }}</span> <!-- Safe navigation here -->
+            <span>{{ result?.name }} - {{ result?.artists?.[0]?.name }}</span>
           </div>
         </div>
       </div>

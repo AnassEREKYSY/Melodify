@@ -20,6 +20,9 @@ export class NavBarComponent implements OnInit {
   searchQuery: string = '';
   searchResults: any[] = [];
   selectedFilter: string = 'all'; 
+  loading: boolean = false;
+  offset: number = 0;
+  limit: number = 10;
 
   constructor(
     private router: Router,
@@ -52,7 +55,7 @@ export class NavBarComponent implements OnInit {
     });
   }
    
-
+   
   navigateToHome(): void {
     this.router.navigate(['/home']);
   }
@@ -70,11 +73,53 @@ export class NavBarComponent implements OnInit {
     console.log('Search Query:', this.searchQuery); 
     if (this.searchQuery.trim().length > 0) {
       this.spotifySearchService.updateSearchQuery(this.searchQuery);
+      this.offset = 0; 
+      this.loadSearchResults();
     } else {
       this.searchResults = [];
     }
   }
-  
+
+  onScroll(): void {
+    const scrollContainer = document.querySelector('.search-results');
+    if (scrollContainer) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer as HTMLElement;
+      if (scrollHeight - scrollTop === clientHeight && !this.loading) {
+        this.offset += this.limit;
+        this.loadSearchResults();
+      }
+    }
+  }
+
+  loadSearchResults(): void {
+    this.loading = true;
+    this.spotifySearchService.search(this.searchQuery, this.selectedFilter, this.offset, this.limit).subscribe({
+      next: (response) => {
+        console.log('Lazy Loaded Results:', response);
+        if (this.selectedFilter === 'all') {
+          this.searchResults = [
+            ...this.searchResults,
+            ...response.tracks.items,
+            ...response.artists.items,
+            ...response.albums.items,
+            ...response.playlists.items,
+            ...response.shows.items,
+            ...response.episodes.items
+          ];
+        } else {
+          this.searchResults = [
+            ...this.searchResults,
+            ...(response[this.selectedFilter]?.items || [])
+          ];
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Lazy Loading Error:', err);
+        this.loading = false;
+      }
+    });
+  }
 
   selectResult(result: any): void {
     console.log('Selected:', result);
@@ -84,7 +129,8 @@ export class NavBarComponent implements OnInit {
   changeFilter(filter: string): void {
     this.selectedFilter = filter;
     this.spotifySearchService.setFilterType(filter);
-    this.searchQuery = ''; 
     this.searchResults = []; 
+    this.offset = 0;  
+    this.loadSearchResults();
   }
 }

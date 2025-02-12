@@ -20,8 +20,8 @@ export class SpotifySearchService {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-
-    return this.http.get<any>(`${this.apiUrl}search/spotify-search?query=${query}&type=${type}&limit=${limit}`, { headers });
+  
+    return this.http.get<any>(`${this.apiUrl}search/spotify-search?query=${query}&type=${type}&offset=${offset}&limit=${limit}`, { headers });
   }
 
   getSearchResults(): Observable<any> {
