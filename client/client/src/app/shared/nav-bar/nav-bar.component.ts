@@ -21,4 +21,9 @@ export class NavBarComponent {
   navigateToProfile(): void {
     this.router.navigate(['/profile']);
   }
+
+  logout(){
+    localStorage.removeItem('accessToken');
+    this.router.navigate(['/login']);
+  }
 }
