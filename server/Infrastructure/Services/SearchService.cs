@@ -1,5 +1,3 @@
-using Core.Dtos;
-using Core.Entities;
 using Infrastructure.IServices;
 using Infrastructure.Response;
 using System.Net.Http.Headers;
@@ -7,7 +5,7 @@ using System.Text.Json;
 
 namespace Infrastructure.Services
 {
-    public class SongService(HttpClient _httpClient, IUserService _userService) : ISongService
+    public class SearchService(HttpClient _httpClient, IUserService _userService) : ISearchService
     {
         public async Task<SpotifySearchResult> SearchSongsAsync(string token, string query, int offset = 0, int limit = 10)
         {

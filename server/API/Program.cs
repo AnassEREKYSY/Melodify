@@ -108,7 +108,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddScoped<ISpotifyAuthService, SpotifyAuthService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ISongService, SongService>();
+builder.Services.AddScoped<ISearchService, SearchService>();
 
 builder.Services.AddHttpClient();
 

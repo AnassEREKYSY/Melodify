@@ -18,9 +18,7 @@ export class ArtistComponent implements OnInit {
   
 
 
-  ngOnInit(): void {
-    console.log(this.artist?.id,this.artist?.name)
-  }
+  ngOnInit(): void {}
 
   unfollowArtist(id:string) {
     this.unfollowRequest.emit(id);
