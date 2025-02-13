@@ -1,0 +1,28 @@
+<div class="song-details-container" *ngIf="song">
+    <div class="song-image" [ngStyle]="{'background-image': 'url(' + song.album.imageUrl + ')'}">
+      <div class="overlay">
+        <div class="song-info">
+          <h1 class="song-name">{{ song.name }}</h1>
+          <h2 class="artist-name">{{ song.artists[0]?.name }}</h2>
+        </div>
+        <button class="follow-button" (click)="toggleFollow()">
+            {{ isFollowing ? 'Unfollow' : 'Follow' }}
+        </button>                   
+      </div>
+    </div>
+    <div class="controls-section">
+      <button class="play-button" (click)="playSong()">
+        <mat-icon>play_arrow</mat-icon>
+      </button>
+      <div class="playback-controls">
+        <mat-slider min="0" [max]="song.durationMs" step="1" [(ngModel)]="currentTime" ></mat-slider>
+        <div class="time-info">
+            <span>{{ formatTime(song.duration_ms) }}</span>
+        </div>
+      </div>
+      <div class="album-info">
+        <img [src]="song.album.imageUrl" alt="Album Image" class="album-image">
+      </div>
+    </div>
+  </div>
+  

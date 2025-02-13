@@ -1,0 +1,130 @@
+.song-details-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+  
+  .song-image {
+    width: 100%;
+    height: 75vh;
+    background-size: contain;
+    background-position: center;
+    position: relative;
+  }
+  
+  .overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 70%, rgba(0, 0, 0, 0.7) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+  }
+  
+  .song-info {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+  }
+  
+  .song-name {
+    font-size: 47px;
+    letter-spacing: 1px;
+  }
+  
+  .artist-name {
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+  
+  .follow-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 50px;
+    font-weight: bold;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  
+  .follow-button:hover {
+    background-color: #ccc;
+    color: white;
+  }
+  
+  .controls-section {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 10px;
+  }
+  
+  .play-button {
+    background-color: #19a149;
+    color: black;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    font-size: 29px;
+    cursor: pointer;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .play-button:hover {
+    background-color: rgb(189, 188, 188);
+    color:#19a149
+  }
+  
+  .playback-controls {
+    flex: 1; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  mat-slider {
+    flex-grow: 1; 
+    width: 100%; 
+  }
+  
+  .time-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-top: 5px;
+  }
+  
+  .album-info {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    margin-left:15px ;
+    width: 60px; 
+    height: 60px; 
+}
+
+.album-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    border-radius: 10px;
+}
+
+
+  

@@ -1,6 +1,5 @@
 <div *ngIf="song as s">
-  <div class="song-card">
-    <!-- Play Button -->
+  <div class="song-card" (click)="goToDetails(s.id)">
     <button class="play-btn" (click)="playSong(s.id)">
       <mat-icon>play_arrow</mat-icon>
     </button>

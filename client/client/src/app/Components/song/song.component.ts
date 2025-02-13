@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Song } from '../../core/models/Song.model';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-song',
@@ -16,6 +17,10 @@ export class SongComponent implements OnInit{
   @Input() song: Song | undefined;
   @Output() playRequest = new EventEmitter<string>();
   @Output() deleteRequest = new EventEmitter<string>();
+
+  constructor(
+    private router:Router
+  ){}
 
   ngOnInit(): void {
     console.log(this.song?.durationMs);
@@ -32,5 +37,9 @@ export class SongComponent implements OnInit{
     const minutes = Math.floor(ms / 60000);
     const seconds = ((ms % 60000) / 1000).toFixed(0);
     return `${minutes}:${(+seconds < 10 ? '0' : '')}${seconds}`;
+  }
+
+  goToDetails(id:string){
+    this.router.navigate(['/song', id]); 
   }
 }

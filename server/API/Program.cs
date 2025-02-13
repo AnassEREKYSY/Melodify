@@ -110,6 +110,7 @@ builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddScoped<ISongService, SongService>();
 
 
 builder.Services.AddHttpClient();

@@ -7,23 +7,30 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/songs")]
+    [Route("api/search")]
     [SpotifyAuthorize] 
-    public class SongsController(ISongService _songService) : ControllerBase
+    public class SearchController(ISearchService _searchService) : ControllerBase
     {
 
-        [HttpGet("one/{songId}")]
-        public async Task<IActionResult> SearchSongs(string songId)
+        [HttpGet("spotify-search")]
+        public async Task<IActionResult> SearchSongs(
+            [FromQuery] string query, 
+            [FromQuery] int offset = 0, 
+            [FromQuery] int limit = 10)
         {
             var accessToken =ExtractAccessToken();
             if (accessToken == null)
             {
                 return Unauthorized("Missing or invalid Authorization header.");
             }
+            if ( string.IsNullOrEmpty(query))
+            {
+                return BadRequest("Search query are required.");
+            }
             
-            var songResult = await _songService.GetSongByIdAsync(accessToken, songId);
+            var searchResults = await _searchService.SearchSongsAsync(accessToken, query, offset, limit);
 
-            return Ok(songResult);
+            return Ok(searchResults);
         }
     
         
