@@ -1,11 +1,11 @@
 .song-details-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    padding-right: 20px;
-    padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  padding-right: 20px;
+  padding-left: 20px;
   }
   
   .song-image {
@@ -127,4 +127,66 @@
 }
 
 
-  
+.add-playlist-button-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+}
+.add-button{
+  background-color: rgba(77, 77, 77, 0.8);
+  border-radius: 50%;
+  height: 40px;
+  width: 40px;
+
+  mat-icon{
+    margin-top:5px ;
+    font-weight: bolder;
+  }
+
+  &:hover{
+    background-color: #616060;
+  }
+}
+
+.playlist-dropdown {
+  position: absolute;
+  top: 20px; 
+  left: 35px;
+  background-color: rgba(77, 77, 77, 0.8);
+  border-radius: 8px;
+  padding: 10px;
+  display: block; 
+  width: 250px;
+  visibility: hidden;
+  max-height: 300px; 
+  overflow-y: auto; 
+}
+
+.playlist-dropdown.show {
+  visibility: visible; 
+}
+
+
+.playlist-dropdown ul {
+  list-style: none;
+  padding: 0;
+}
+
+.playlist-dropdown li {
+  margin: 10px 0;
+}
+
+.playlist-dropdown button {
+  background-color: transparent;
+  color: #fff;
+  font-size: 17px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.playlist-dropdown button:hover {
+  background-color: rgba(255, 255, 255, 0.196);
+  margin-left: 2px;
+}

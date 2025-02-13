@@ -8,6 +8,9 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { FollowedArtistService } from '../../core/services/followed-artist.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { Playlist } from '../../core/models/Playlist.model';
+import { PlaylistService } from '../../core/services/playlist.service';
+import { SpotifyPaginatedPlaylists } from '../../core/models/SpotifyPaginatedPlaylists.model';
 
 
 @Component({
@@ -16,8 +19,8 @@ import { SnackBarService } from '../../core/services/snack-bar.service';
     CommonModule,
     MatSliderModule,
     FormsModule,
-    MatIconModule
-  ],
+    MatIconModule,
+],
   templateUrl: './song-details.component.html',
   styleUrl: './song-details.component.scss'
 })
@@ -26,16 +29,28 @@ export class SongDetailsComponent implements OnInit {
   song!: Song;
   isFollowing: boolean = false;
   currentTime: number = 0;
+  playlists: Playlist[] = [];
+  isPlaylistsVisible: boolean = false; 
 
   constructor(
     private songService: SongService,
     private followedArtistService: FollowedArtistService,
-    private snackBarService:SnackBarService,
+    private playlistService: PlaylistService,
+    private snackBarService: SnackBarService,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.songId = this.route.snapshot.paramMap.get('id')!;
+    this.playlistService.getSpotifyPlaylistsByUserId().subscribe({
+      next: (response: SpotifyPaginatedPlaylists) => {
+        this.playlists = [...this.playlists, ...response.playlists];
+        console.log(this.playlists)
+      },
+      error: (error) => {
+        console.error('Error fetching playlists:', error);
+      }
+    });
     if (this.songId) {
       this.getSongDetails();
     }
@@ -51,7 +66,7 @@ export class SongDetailsComponent implements OnInit {
         console.error('Error fetching song with id: ' + this.songId, error);
       }
     });
-  }  
+  }
 
   checkIfFollowing() {
     const artistId = this.song.artists[0]?.id;
@@ -65,17 +80,16 @@ export class SongDetailsComponent implements OnInit {
         }
       });
     }
-  }  
+  }
 
   toggleFollow() {
     const artistId = this.song.artists[0]?.id;
-    console.log("AAAAAAAAAAAA", this.song)
     if (artistId) {
       if (this.isFollowing) {
         this.followedArtistService.unfollowArtist(artistId).subscribe({
           next: () => {
             this.isFollowing = false;
-            this.snackBarService.success('Unfollowed artist successfully')
+            this.snackBarService.success('Unfollowed artist successfully');
           },
           error: (error) => {
             console.error('Error unfollowing artist:', error);
@@ -85,7 +99,7 @@ export class SongDetailsComponent implements OnInit {
         this.followedArtistService.followArtist(artistId).subscribe({
           next: () => {
             this.isFollowing = true;
-            this.snackBarService.success('Followed artist successfully')
+            this.snackBarService.success('Followed artist successfully');
           },
           error: (error) => {
             console.error('Error following artist:', error);
@@ -93,9 +107,28 @@ export class SongDetailsComponent implements OnInit {
         });
       }
     }
-  }  
+  }
 
-  playSong(){}
+  togglePlaylists() {
+    this.isPlaylistsVisible = !this.isPlaylistsVisible;
+  }
+
+  addToPlaylist(playlist: Playlist) {
+    const songData = {
+      playlistId: playlist.id,
+      songId: this.songId
+    };
+    this.playlistService.addSongToPlaylist(songData).subscribe({
+      next: (response) => {
+        this.snackBarService.success(response);
+      },
+      error: (error) => {
+        console.error('Error following artist:', error);
+      }
+    });
+  }
+
+  playSong() {}
 
   formatTime(ms: number): string {
     const minutes = Math.floor(ms / 60000);
@@ -103,3 +136,5 @@ export class SongDetailsComponent implements OnInit {
     return minutes + ":" + (parseInt(seconds) < 10 ? '0' : '') + seconds;
   }
 }
+
+

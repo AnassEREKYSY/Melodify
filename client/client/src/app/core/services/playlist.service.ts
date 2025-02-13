@@ -37,16 +37,19 @@ export class PlaylistService {
     );
   }
 
-  addSongToPlaylist(songData: AddRemoveSong): Observable<string> {
+  addSongToPlaylist(songData: AddRemoveSong): Observable<any> {
     const token = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    return this.http.post<string>(
+    return this.http.post<any>(
       `${this.apiUrl}playlists/add-song-to-playlist`,
       songData,
-      { headers }
+      { 
+        headers, 
+        responseType: 'text' as 'json'
+      }
     );
   }
 
