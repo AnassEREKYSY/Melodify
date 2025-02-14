@@ -21,7 +21,6 @@
   <div class="song-actions">
     <span class="song-duration">{{ formatDuration(s.durationMs || s.duration_ms) }}</span>
 
-    <!-- Conditionally display the delete button -->
     <button *ngIf="showDeleteButton" (click)="deleteSong(s.id)" class="delete-btn">
       <mat-icon>delete</mat-icon>
     </button>

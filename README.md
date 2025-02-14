@@ -30,10 +30,14 @@ Melodify is a web application that interacts with Spotify's API, allowing users 
 7. Playlist Details: 
     ![Spotify PLaylists](images/PlaylistDetails.png)
     See playlist contents (songs, etc.).
-6. Artist Details: 
+
+8. Artist Details: 
     ![Spotify Artists](images/ArtistDetails.png)
     View artist information (followers, popularity, top 10 songs).
 
+9. Play songs: 
+    ![Spotify Songs](images/Song.png)
+    Play songs
 ## Technology Stack
 
 1. Frontend: Angular 19

@@ -14,7 +14,6 @@ $modal-bg: rgba(0, 0, 0, 0.7);
   margin: 0;
 }
 
-/* Flexbox for title + button alignment */
 .flex {
   display: flex;
   justify-content: space-between;
@@ -53,7 +52,7 @@ $modal-bg: rgba(0, 0, 0, 0.7);
   z-index: 10;
 }
 
-/* Modal Popup */
+
 .modal {
   position: fixed;
   top: 50%;
@@ -62,7 +61,7 @@ $modal-bg: rgba(0, 0, 0, 0.7);
   background: $dark-gray;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0px 4px 8px 5px rgba(165, 164, 164, 0.3);
+  box-shadow: 0px 4px 8px 5px rgba(165, 164, 164, 0);
   z-index: 11;
   width: 500px;
   height: 450px;
@@ -73,14 +72,12 @@ $modal-bg: rgba(0, 0, 0, 0.7);
   color: white;
 }
 
-/* Input Fields */
 .input-field, 
 .textarea-field {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 20px;
-  border: 1px solid #ccc;
   font-size: 16px;
   background: #222;
   color: white;
@@ -91,7 +88,6 @@ $modal-bg: rgba(0, 0, 0, 0.7);
   height: 120px;
 }
 
-/* Visibility Toggle */
 .visibility-toggle {
   display: flex;
   justify-content: center;
@@ -111,7 +107,6 @@ $modal-bg: rgba(0, 0, 0, 0.7);
   color: $user-green;
 }
 
-/* Action Buttons */
 .action-buttons {
   display: flex;
   justify-content: space-between;
@@ -135,15 +130,14 @@ $modal-bg: rgba(0, 0, 0, 0.7);
 }
 
 .cancel-btn {
-  background: #ff4d4d;
+  background: transparent;
   color: white;
 }
 
 .save-btn:hover, .cancel-btn:hover {
-  filter: brightness(1.2);
+  background-color: #bab9b932;
 }
 
-/* Pagination Controls */
 .pagination-controls {
   display: flex;
   justify-content: center;

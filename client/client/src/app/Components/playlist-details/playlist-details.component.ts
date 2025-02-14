@@ -4,7 +4,7 @@ import { Song } from '../../core/models/Song.model';
 import { Playlist } from '../../core/models/Playlist.model';
 import { SongComponent } from "../song/song.component";
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Route, Router } from '@angular/router';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -27,7 +27,8 @@ export class PlaylistDetailsComponent implements OnInit {
   (
     private playlistService: PlaylistService,
     private snackBarService: SnackBarService,
-    private route: ActivatedRoute
+    private router: Router,
+    private route: ActivatedRoute,
   ){}
 
 
@@ -83,8 +84,17 @@ export class PlaylistDetailsComponent implements OnInit {
       });
   }
 
-  onDeletePlaylist(arg0: string) {
-    throw new Error('Method not implemented.');
+  onDeletePlaylist(id: string) {
+    this.playlistService.deletePlaylist(id).subscribe({
+      next: () => {
+        this.router.navigate(['/home']); 
+        this.snackBarService.success("Playlist deleted successfully");
+      },
+      error: (error) => {
+        console.error('Error deleting playlist:', error);
+        this.snackBarService.error('Error deleting playlist: ' + error);
+      }
+    });
   }
 
 }
