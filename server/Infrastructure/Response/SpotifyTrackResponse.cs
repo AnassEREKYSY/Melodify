@@ -19,6 +19,9 @@ namespace Infrastructure.Response
         [JsonPropertyName("album")]
         public SpotifyAlbum Album { get; set; }
 
+        [JsonPropertyName("popularity")]
+        public int Popularity { get; set; }
+
         [JsonPropertyName("artists")]
         public List<SpotifyArtist> Artists { get; set; }
     }

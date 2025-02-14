@@ -10,40 +10,74 @@ $dark-gray: #121212;
   background: #1e1e1e;
   color: #fff;
   margin-bottom: 8px;
-  border-bottom: 2px solid $user-green;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;  /* Smooth transition for hover effects */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; 
+  box-shadow: none; 
+  cursor: pointer;
 
-  &:hover {
-    width: 99%;
-    transform: scale(1.05);
-    cursor: pointer;
+  &:hover{
+    background-color: #8d8d8d29;
   }
 
-  .play-btn {
-    background-color: $user-green;
-    border: none;
-    color: $dark-gray;
-    cursor: pointer;
-    padding: 8px;
+  .song-left {
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-    margin-left: 10px;
-    border-radius: 50px;
-  }
+    justify-content: flex-start;
+    flex-grow: 1; 
 
-  .song-details {
-    flex-grow: 1;
-    margin-left: 15px;
-
-    .song-title {
-      font-size: 16px;
-      font-weight: bold;
+    .play-btn {
+      background-color: $user-green;
+      border: none;
+      color: $dark-gray;
+      cursor: pointer;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      margin-left: 10px;
+      border-radius: 50%;
     }
 
-    .song-artist {
-      font-size: 14px;
+    .album-image-container {
+      margin-right: 15px;
+    }
+
+    .album-image {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .song-details {
+      display: flex;
+      flex-direction: column;
+      margin-left: 15px;
+
+      .song-title {
+        font-size: 16px;
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .song-artist {
+        font-size: 14px;
+        color: #b3b3b3;
+      }
+    }
+  }
+
+  .popularity {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20%;
+    min-width: 100px; 
+
+    .popularity-text {
+      font-size: 16px;
       color: #b3b3b3;
     }
   }
@@ -62,7 +96,7 @@ $dark-gray: #121212;
     .delete-btn {
       background: none;
       border: none;
-      color: #ff4d4d;
+      color: white;
       font-size: 24px;
       cursor: pointer;
       padding: 8px;
@@ -70,7 +104,7 @@ $dark-gray: #121212;
       align-items: center;
       justify-content: center;
       margin-right: 15px;
-      border-radius: 50px;
+      border-radius: 50%;
     }
   }
 }

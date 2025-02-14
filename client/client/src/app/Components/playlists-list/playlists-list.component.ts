@@ -65,6 +65,7 @@ export class PlaylistsListComponent implements OnInit{
           this.totalPlaylists = response.total;
           this.isLoading = false; 
           this.isLoadingNewData = false; 
+          console.log(this.playlists)
         },
         error: (error) => {
           console.error('Error fetching playlists:', error);

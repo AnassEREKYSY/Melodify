@@ -1,30 +1,29 @@
 <div *ngIf="artistId && artist" class="artist-container">
   <div class="artist-header">
-    <img *ngIf="artist.imageUrl; else noImage"
-         [src]="artist.imageUrl"
-         alt="Artist Image"
-         class="artist-image">
-    <ng-template #noImage>
-      <div class="artist-image no-image"></div>
-    </ng-template>
+    <div class="artist-image-container">
+      <img *ngIf="artist.imageUrl; else noImage"
+           [src]="artist.imageUrl"
+           alt="Artist Image"
+           class="artist-image">
+      <ng-template #noImage>
+        <div class="artist-image no-image"></div>
+      </ng-template>
+    </div>
 
     <div class="artist-info">
       <h2 class="artist-name">
         {{ artist.name || 'Unknown Artist' }}
         <span class="genres" *ngIf="artist.genres.length">
           ({{ artist.genres.slice(0, 3).join(', ') }}{{ artist.genres.length > 3 ? ', ...' : '' }})
-        </span>        
+        </span>
       </h2>
-    </div>
-
-    <div class="artist-stats">
       <div class="followers">{{ formatFollowers(artist.followers?.total || 0) }} Followers</div>
       <div class="popularity">Popularity: {{ artist.popularity }}</div>
-    </div>
 
-    <button class="follow-button" (click)="toggleFollow()">
-      {{ isFollowing ? 'Unfollow' : 'Follow' }}
-    </button>
+      <button class="follow-button" (click)="toggleFollow()">
+        {{ isFollowing ? 'Unfollow' : 'Follow' }}
+      </button>
+    </div>
   </div>
 
   <div *ngIf="songs.length === 0" class="text-gray-400 text-center mt-6">
@@ -35,6 +34,7 @@
     <app-song 
       *ngFor="let song of songs" 
       [song]="song" 
+      [showDeleteButton]="shouldShowDeleteButton"
       (playRequest)="onPlay($event)">
     </app-song>
   </div>

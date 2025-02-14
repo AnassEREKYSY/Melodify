@@ -263,7 +263,11 @@ namespace Infrastructure.Services
                         Id = track.Id,
                         Name = track.Name,
                         DurationMs = track.DurationMs,
-                        Album = new AlbumDto { Name = track.Album?.Name ?? string.Empty },
+                        Album = new AlbumDto { 
+                            Name = track.Album?.Name ?? string.Empty,
+                            ImageUrl = track.Album?.Images[0].Url ?? string.Empty,
+                        },
+                        Popularity = track.Popularity,
                         Artists = track.Artists?.Select(a => new ArtistDto { Name = a.Name }).ToList() ?? new List<ArtistDto>()
                     });
                 }

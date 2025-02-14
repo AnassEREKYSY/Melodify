@@ -1,19 +1,29 @@
-<div *ngIf="song as s">
-  <div class="song-card" (click)="goToDetails(s.id)">
+<div *ngIf="song as s" class="song-card" (click)="goToDetails(s.id)">
+  <div class="song-left">
     <button class="play-btn" (click)="playSong(s.id)">
       <mat-icon>play_arrow</mat-icon>
     </button>
-
+    
+    <div class="album-image-container">
+      <img *ngIf="s.album.imageUrl" [src]="s.album.imageUrl" alt="Album Image" class="album-image">
+    </div>
+    
     <div class="song-details">
       <h4 class="song-title">{{ s.name || 'Unknown Song' }}</h4>
       <p class="song-artist">{{ s.artists[0]?.name || 'Unknown Artist' }}</p>
     </div>
+  </div>
 
-    <div class="song-actions">
-      <span class="song-duration">{{ formatDuration(s.durationMs || s.duration_ms) }}</span>
-      <button (click)="deleteSong(s.id)" class="delete-btn">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </div>
+  <div class="popularity">
+    <span class="popularity-text">Popularity: {{ s.popularity }}</span>
+  </div>
+
+  <div class="song-actions">
+    <span class="song-duration">{{ formatDuration(s.durationMs || s.duration_ms) }}</span>
+
+    <!-- Conditionally display the delete button -->
+    <button *ngIf="showDeleteButton" (click)="deleteSong(s.id)" class="delete-btn">
+      <mat-icon>delete</mat-icon>
+    </button>
   </div>
 </div>

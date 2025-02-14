@@ -16,6 +16,7 @@ import { FollowedArtistService } from '../../core/services/followed-artist.servi
 })
 export class ArtistDetailsComponent implements OnInit {
   artistId!: string;
+  shouldShowDeleteButton: boolean = false; 
   songs: Song[] = [];
   artist!: Artist;
   isFollowing: boolean = false;

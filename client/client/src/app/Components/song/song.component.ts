@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 })
 export class SongComponent implements OnInit{
   @Input() song: Song | undefined;
+  @Input() showDeleteButton: boolean = true; 
   @Output() playRequest = new EventEmitter<string>();
   @Output() deleteRequest = new EventEmitter<string>();
 
@@ -23,7 +24,7 @@ export class SongComponent implements OnInit{
   ){}
 
   ngOnInit(): void {
-    console.log(this.song?.durationMs);
+    console.log(this.song);
   }
   playSong(id: string) {
     this.playRequest.emit(id);

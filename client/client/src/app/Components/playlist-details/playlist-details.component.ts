@@ -6,10 +6,15 @@ import { SongComponent } from "../song/song.component";
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { SnackBarService } from '../../core/services/snack-bar.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-playlist-details',
-  imports: [SongComponent, CommonModule ],
+  imports: [
+    SongComponent,
+     CommonModule,
+     MatIconModule
+    ],
   templateUrl: './playlist-details.component.html',
   styleUrl: './playlist-details.component.scss'
 })
@@ -76,6 +81,10 @@ export class PlaylistDetailsComponent implements OnInit {
           console.error('Error removing song from playlist:', error);
         }
       });
+  }
+
+  onDeletePlaylist(arg0: string) {
+    throw new Error('Method not implemented.');
   }
 
 }

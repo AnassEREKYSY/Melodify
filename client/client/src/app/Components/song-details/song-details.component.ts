@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
 import { Song } from '../../core/models/Song.model';
 import { SongService } from '../../core/services/song.service';
 import { ActivatedRoute } from '@angular/router';
@@ -6,12 +6,12 @@ import { CommonModule } from '@angular/common';
 import { MatSliderModule } from '@angular/material/slider';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { FollowedArtistService } from '../../core/services/followed-artist.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 import { Playlist } from '../../core/models/Playlist.model';
 import { PlaylistService } from '../../core/services/playlist.service';
 import { SpotifyPaginatedPlaylists } from '../../core/models/SpotifyPaginatedPlaylists.model';
-
 
 @Component({
   selector: 'app-song-details',
@@ -20,7 +20,8 @@ import { SpotifyPaginatedPlaylists } from '../../core/models/SpotifyPaginatedPla
     MatSliderModule,
     FormsModule,
     MatIconModule,
-],
+    MatMenuModule,
+  ],
   templateUrl: './song-details.component.html',
   styleUrl: './song-details.component.scss'
 })
@@ -30,14 +31,15 @@ export class SongDetailsComponent implements OnInit {
   isFollowing: boolean = false;
   currentTime: number = 0;
   playlists: Playlist[] = [];
-  isPlaylistsVisible: boolean = false; 
+  isPlaylistsVisible: boolean = false;
 
   constructor(
     private songService: SongService,
     private followedArtistService: FollowedArtistService,
     private playlistService: PlaylistService,
     private snackBarService: SnackBarService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private elementRef: ElementRef
   ) {}
 
   ngOnInit(): void {
@@ -45,7 +47,6 @@ export class SongDetailsComponent implements OnInit {
     this.playlistService.getSpotifyPlaylistsByUserId().subscribe({
       next: (response: SpotifyPaginatedPlaylists) => {
         this.playlists = [...this.playlists, ...response.playlists];
-        console.log(this.playlists)
       },
       error: (error) => {
         console.error('Error fetching playlists:', error);
@@ -111,6 +112,7 @@ export class SongDetailsComponent implements OnInit {
 
   togglePlaylists() {
     this.isPlaylistsVisible = !this.isPlaylistsVisible;
+    console.log(this.isPlaylistsVisible)
   }
 
   addToPlaylist(playlist: Playlist) {
@@ -123,7 +125,7 @@ export class SongDetailsComponent implements OnInit {
         this.snackBarService.success(response);
       },
       error: (error) => {
-        console.error('Error following artist:', error);
+        console.error('Error adding song to playlist:', error);
       }
     });
   }
@@ -135,6 +137,11 @@ export class SongDetailsComponent implements OnInit {
     const seconds = ((ms % 60000) / 1000).toFixed(0);
     return minutes + ":" + (parseInt(seconds) < 10 ? '0' : '') + seconds;
   }
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event) {
+    if (this.isPlaylistsVisible && !this.elementRef.nativeElement.contains(event.target)) {
+      this.isPlaylistsVisible = false;
+    }
+  }
 }
-
-

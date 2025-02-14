@@ -5,26 +5,32 @@
         <h1 class="song-name">{{ song.name }}</h1>
         <h2 class="artist-name">{{ song.artists[0]?.name }}</h2>
       </div>
-      
-      <button class="follow-button" (click)="toggleFollow()">
-        {{ isFollowing ? 'Unfollow' : 'Follow' }}
-      </button>
 
-      <div class="add-playlist-button-container">
-        <button class="add-button" (click)="togglePlaylists()">
-          <mat-icon>add</mat-icon>
+      <div class="options-menu">
+        <button mat-icon-button [matMenuTriggerFor]="optionsMenu">
+          <mat-icon>more_vert</mat-icon>
         </button>
-        <div class="playlist-dropdown" [ngClass]="{'show': isPlaylistsVisible}">
-          <ul>
-            <li *ngFor="let playlist of playlists">
-              <button (click)="addToPlaylist(playlist)">
-                {{ playlist.name }}
-              </button>
-            </li>
-          </ul>
-        </div>        
+        <mat-menu #optionsMenu="matMenu">
+          <button mat-menu-item (click)="toggleFollow()">
+            <mat-icon>{{ isFollowing ? 'person_remove' : 'person_add' }}</mat-icon>
+            {{ isFollowing ? 'Unfollow' : 'Follow' }}
+          </button>
+          <button mat-menu-item (click)="togglePlaylists()">
+            <mat-icon>playlist_add</mat-icon>
+            Add to Playlist
+          </button>
+        </mat-menu>
       </div>
 
+      <div class="playlist-dropdown" [ngClass]="{'show': isPlaylistsVisible}">
+        <ul>
+          <li *ngFor="let playlist of playlists">
+            <button (click)="addToPlaylist(playlist)">
+              {{ playlist.name }}
+            </button>
+          </li>
+        </ul>
+      </div> 
     </div>
   </div>
 

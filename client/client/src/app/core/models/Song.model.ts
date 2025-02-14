@@ -9,4 +9,5 @@ export interface Song {
     durationMs: number;
     duration_ms: number;
     previewUrl:string;
+    popularity:number;
 }

@@ -1,19 +1,28 @@
 <div *ngIf="playlistId && playlist" class="playlist-container">
   <div class="playlist-header">
-    <img *ngIf="playlist.imageUrls?.length; else noImage"
-         [src]="playlist.imageUrls[0]"
-         alt="Playlist cover"
-         class="playlist-image">
-    <ng-template #noImage>
-      <div class="playlist-image no-image"></div>
-    </ng-template>
-    <div class="playlist-info">
-      <h2 class="playlist-title">{{ playlist.name || 'Unnamed Playlist' }}</h2>
-      <p class="playlist-owner">{{ playlist.ownerDisplayName || 'Unknown' }}</p>
+    <div class="album-image-container">
+      <img *ngIf="playlist.imageUrls?.length; else noImage"
+           [src]="playlist.imageUrls[0]"
+           alt="Album cover"
+           class="album-image">
+      <ng-template #noImage>
+        <div class="album-image no-image"></div>
+      </ng-template>
+    </div>
+
+    <div class="album-info">
+      <h2 class="album-title">{{ playlist.name || 'Unnamed Playlist' }}</h2>
+      <p class="album-owner">{{ playlist.ownerDisplayName || 'Unknown' }}</p>
+
+      <button mat-icon-button color="warn" class="delete-button" (click)="onDeletePlaylist(playlistId)">
+        <mat-icon>delete</mat-icon>
+      </button>
     </div>
   </div>
 
-  <div *ngIf="songs.length === 0" class="text-gray-400 text-center mt-6">No song found!</div>
+  <div *ngIf="songs.length === 0" class="text-gray-400 text-center mt-6">
+    No songs found!
+  </div>
 
   <div class="song-list">
     <app-song 

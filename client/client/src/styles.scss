@@ -4,3 +4,17 @@
 @use 'tailwindcss/utilities';
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color: #121212; }
+
+
+.snack-error {
+    background-color: #f44336;
+    color: white;
+    font-weight: bold; 
+  }
+  
+  .snack-success {
+    background-color: #4caf50;
+    color: white; 
+    font-weight: bold; 
+  }
+  

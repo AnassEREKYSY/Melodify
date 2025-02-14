@@ -6,6 +6,7 @@ namespace Core.Dtos
         public string Name { get; set; }
         public List<ArtistDto> Artists { get; set; }
         public AlbumDto Album { get; set; }
+        public int Popularity { get; set; }
         public int DurationMs { get; set; }
     }
 }
