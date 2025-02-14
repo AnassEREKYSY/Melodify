@@ -33,7 +33,6 @@ export class NavBarComponent implements OnInit {
   ngOnInit(): void {
     this.spotifySearchService.getSearchResults().subscribe({
       next: (response) => {
-        console.log('Search Results:', response);
         if (this.selectedFilter === 'all') {
           this.searchResults = [
             ...response.tracks.items,
@@ -70,13 +69,11 @@ export class NavBarComponent implements OnInit {
   }
 
   onSearchInput(): void {
-    console.log('Search Query:', this.searchQuery); 
     if (this.searchQuery.trim().length > 0) {
       this.spotifySearchService.updateSearchQuery(this.searchQuery);
       this.offset = 0;
       this.loadSearchResults(); 
     } else {
-      console.log('Search query is empty, skipping request');
       this.searchResults = [];  
     }
   }
@@ -98,7 +95,6 @@ export class NavBarComponent implements OnInit {
     this.loading = true;
     this.spotifySearchService.search(this.searchQuery, this.selectedFilter, this.offset, this.limit).subscribe({
       next: (response) => {
-        console.log('Lazy Loaded Results:', response);
         if (this.selectedFilter === 'all') {
           this.searchResults = [
             ...this.searchResults,
@@ -125,7 +121,6 @@ export class NavBarComponent implements OnInit {
   }
 
   selectResult(result: any): void {
-    console.log('Selected:', result);
     this.searchResults = []; 
   }
 

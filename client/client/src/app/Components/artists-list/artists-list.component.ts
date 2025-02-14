@@ -39,7 +39,6 @@ export class ArtistsListComponent implements OnInit, AfterViewInit {
 
   prev() {
     if (this.isSlickInitialized) {
-      console.log("Moving left...");
       this.slickModal.slickPrev();
     } else {
       console.warn('❌ Slick instance not ready yet');
@@ -48,7 +47,6 @@ export class ArtistsListComponent implements OnInit, AfterViewInit {
 
   next() {
     if (this.isSlickInitialized) {
-      console.log("Moving right...");
       this.slickModal.slickNext();
     } else {
       console.warn('❌ Slick instance not ready yet');

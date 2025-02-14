@@ -19,7 +19,7 @@ export class ArtistComponent implements OnInit {
   
   constructor(private router:Router){}
 
-  ngOnInit(): void {console.log(this.artist)}
+  ngOnInit(): void {}
 
   unfollowArtist(id:string) {
     this.unfollowRequest.emit(id);

@@ -53,7 +53,6 @@ export class ArtistDetailsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.songs = response;
-          console.log(this.songs)
         },
         error: (error) => {
           console.error('Error fetching songs for artist with id: ' + this.artistId, error);
@@ -66,7 +65,6 @@ export class ArtistDetailsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.isFollowing = true;
-          console.log('Followed artist:', this.artistId);
         },
         error: (error) => {
           console.error('Error following artist:', error);
@@ -79,7 +77,6 @@ export class ArtistDetailsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.isFollowing = false;
-          console.log('Unfollowed artist:', this.artistId);
         },
         error: (error) => {
           console.error('Error unfollowing artist:', error);
@@ -109,7 +106,6 @@ export class ArtistDetailsComponent implements OnInit {
 
 
   onPlay(songId: string) {
-    console.log('Playing song with id:', songId);
   }
 
   formatFollowers(count: number): string {

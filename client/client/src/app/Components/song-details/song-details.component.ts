@@ -112,7 +112,6 @@ export class SongDetailsComponent implements OnInit {
 
   togglePlaylists() {
     this.isPlaylistsVisible = !this.isPlaylistsVisible;
-    console.log(this.isPlaylistsVisible)
   }
 
   addToPlaylist(playlist: Playlist) {
