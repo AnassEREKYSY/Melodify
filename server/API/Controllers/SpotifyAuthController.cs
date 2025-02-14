@@ -9,13 +9,11 @@ namespace API.Controllers
     public class SpotifyAuthController : ControllerBase
     {
         private readonly ISpotifyAuthService _spotifyAuthService;
-        private readonly IUserService _userService;
 
 
-        public SpotifyAuthController(ISpotifyAuthService spotifyAuthService, IUserService userService)
+        public SpotifyAuthController(ISpotifyAuthService spotifyAuthService)
         {
             _spotifyAuthService = spotifyAuthService;
-            _userService = userService;
         }
 
         [HttpGet("login")]
@@ -37,33 +35,27 @@ namespace API.Controllers
         {
             try
             {
-                // Log incoming query parameters
                 Console.WriteLine($"Callback received with code: {code}, state: {state}");
 
                 var tokenData = await _spotifyAuthService.ExchangeCodeForTokenAsync(code);
-                var userProfile = await _userService.GetUserProfileAsync(tokenData.AccessToken);
-                var user = await _spotifyAuthService.AuthenticateUserAsync(userProfile, tokenData);
-
-                // Log the user data
-                Console.WriteLine($"User authenticated: {user.Email}");
+                var userProfile = await _spotifyAuthService.GetSpotifyUserProfileAsync(tokenData.AccessToken);
 
                 return Ok(new
                 {
                     message = "User authenticated successfully.",
-                    user = new
+                    userProfile = new
                     {
-                        user.SpotifyID,
-                        user.Email,
-                        user.DisplayName,
-                        user.ProfileImageUrl,
-                        user.SpotifyAccessToken,
-                        user.UserAccessToken
+                        userProfile.Id,
+                        userProfile.Email,
+                        userProfile.DisplayName,
+                        tokenData.AccessToken,
+                        tokenData.ExpiresIn,
+                        tokenData.RefreshToken
                     }
                 });
             }
             catch (Exception ex)
             {
-                // Log the error and provide more details
                 Console.WriteLine($"Exception in Callback: {ex.Message}\n{ex.StackTrace}");
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }

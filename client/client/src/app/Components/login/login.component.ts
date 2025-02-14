@@ -38,9 +38,9 @@ export class LoginComponent  implements OnInit {
   private handleSpotifyCallback(code: string, state: string): void {
     this.loginService.handleCallback(code, state).subscribe(
       response => {
-        const user = response.user;
+        const user = response.userProfile;
         if (isPlatformBrowser(this.platformId)) {
-          localStorage.setItem('accessToken', user.spotifyAccessToken);
+          localStorage.setItem('accessToken', user.accessToken);
         }
         this.router.navigate(['/home']);
         this.snackBarService.success("You're logged successfully");

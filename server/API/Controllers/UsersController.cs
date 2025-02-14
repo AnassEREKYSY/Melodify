@@ -8,13 +8,6 @@ namespace API.Controllers
     public class UsersController(IUserService _userService, ISpotifyAuthService _spotifyAuthService) : ControllerBase
     {
 
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var users = await _userService.GetAllUsers();
-            return Ok(users);
-        }
-
         [HttpGet("spotify/me")]
         public async Task<IActionResult> GetSpotifyUserProfile()
         {

@@ -1,5 +1,4 @@
 using Core.Dtos;
-using Infrastructure.Data;
 using Infrastructure.IServices;
 using Infrastructure.Response;
 using System.Net.Http.Headers;
@@ -9,7 +8,7 @@ using System.Text.Json;
 
 namespace Infrastructure.Services
 {
-    public class PlaylistService(HttpClient _httpClient, IUserService _userService, StoreContext _context, ISpotifyAuthService _spotifyAuthService) : IPlaylistService
+    public class PlaylistService(HttpClient _httpClient, IUserService _userService, ISpotifyAuthService _spotifyAuthService) : IPlaylistService
     {
         public async Task<SpotifyPaginatedPlaylists> GetSpotifyPlaylistsByUserIdAsync(string userToken, int offset = 0, int limit = 10)
         {

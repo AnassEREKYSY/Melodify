@@ -4,23 +4,17 @@ using Core.Entities;
 using Infrastructure.IServices;
 using Infrastructure.Response;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Services
 {
 
     public class SpotifyAuthService : ISpotifyAuthService
     {
-        private readonly UserManager<AppUser> _userManager;
         private readonly HttpClient _httpClient;
-        private readonly IUserService _userService;
 
-
-        public SpotifyAuthService( UserManager<AppUser> userManager, HttpClient httpClient, IUserService userService)
+        public SpotifyAuthService( HttpClient httpClient)
         {
-            _userManager = userManager;
             _httpClient = httpClient;
-            _userService = userService;
         }
 
         public string GetLoginUrl()
@@ -74,55 +68,6 @@ namespace Infrastructure.Services
                 Console.WriteLine($"Exception: {ex.Message}");
                 throw;
             }
-        }
-
-        public async Task<AppUser> AuthenticateUserAsync(SpotifyUserProfileResponse userProfile, SpotifyTokenResponse tokenData)
-        {
-            var user = await _userManager.FindByEmailAsync(userProfile.Email);
-            Console.WriteLine($"Trying to find user with email: {userProfile.Email}");
-            if (user == null)
-            {
-                user = new AppUser
-                {
-                    SpotifyID = userProfile.Id,
-                    UserName = userProfile.Email,
-                    Email = userProfile.Email,
-                    SpotifyAccessToken = tokenData.AccessToken,
-                    SpotifyRefreshToken = tokenData.RefreshToken,
-                    DisplayName = userProfile.DisplayName ?? "Spotify User",
-                    ProfileImageUrl = userProfile.Images?.FirstOrDefault()?.Url ?? string.Empty
-                };
-
-                // Generate JWT token
-                var jwtToken = _userService.GenerateJwtToken(user);
-                user.UserAccessToken = jwtToken;
-
-                // Attempt to create the user
-                var createResult = await _userManager.CreateAsync(user);
-                if (!createResult.Succeeded)
-                {
-                    var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
-                    throw new Exception($"Failed to create user: {errors}");
-                }
-
-                await _userManager.AddToRoleAsync(user, "User");
-            }
-            else
-            {
-                user.SpotifyAccessToken = tokenData.AccessToken;
-                user.SpotifyRefreshToken = tokenData.RefreshToken;
-                
-                var jwtToken = _userService.GenerateJwtToken(user);
-                user.UserAccessToken = jwtToken;
-
-                var updateResult = await _userManager.UpdateAsync(user);
-                if (!updateResult.Succeeded)
-                {
-                    var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
-                    throw new Exception($"Failed to update user tokens: {errors}");
-                }
-            }
-            return user;
         }
 
         public async Task<SpotifyUserProfile> GetSpotifyUserProfileAsync(string accessToken)

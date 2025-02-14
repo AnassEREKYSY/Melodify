@@ -12,9 +12,6 @@ namespace Core.Entities
         public string Duration { get; set; } = string.Empty;
 
         public ICollection<Playlist> Playlists { get; set; } = new List<Playlist>();
-
-        public ICollection<FavoritesSong> FavoritesSongs { get; set; } = new List<FavoritesSong>();
-
-        public ICollection<SongHistory> SongHistories { get; set; } = new List<SongHistory>();
+        
     }
 }
