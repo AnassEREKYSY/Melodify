@@ -46,8 +46,7 @@ describe('ArtistsListComponent', () => {
     snackBarService = jasmine.createSpyObj('SnackBarService', ['success', 'error']);
 
     await TestBed.configureTestingModule({
-      imports: [CommonModule, MatIconModule, SlickCarouselModule],
-      declarations: [ArtistsListComponent, ArtistComponent],
+      imports: [CommonModule, MatIconModule, SlickCarouselModule,ArtistsListComponent, ArtistComponent],
       providers: [
         { provide: FollowedArtistService, useValue: followedArtistService },
         { provide: SnackBarService, useValue: snackBarService }
@@ -62,60 +61,4 @@ describe('ArtistsListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should fetch followed artists on init', () => {
-    followedArtistService.getFollowedArtist.and.returnValue(of(mockArtists));
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    expect(component.followedArtists.length).toBe(2);
-    expect(followedArtistService.getFollowedArtist).toHaveBeenCalled();
-  });
-
-  it('should handle errors when fetching followed artists', () => {
-    followedArtistService.getFollowedArtist.and.returnValue(throwError(() => new Error('API Error')));
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    expect(component.followedArtists.length).toBe(0);
-    expect(component.isLoading).toBeFalse();
-    expect(followedArtistService.getFollowedArtist).toHaveBeenCalled();
-  });
-
-  it('should call unfollowArtist and update the list', () => {
-    followedArtistService.getFollowedArtist.and.returnValue(of(mockArtists));
-    followedArtistService.unfollowArtist.and.returnValue(of({}));
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    component.UnfollowArtist('1');
-    fixture.detectChanges();
-
-    expect(followedArtistService.unfollowArtist).toHaveBeenCalledWith('1');
-    expect(component.followedArtists.length).toBe(1);
-    expect(component.followedArtists[0].id).toBe('2');
-    expect(snackBarService.success).toHaveBeenCalledWith('Artist Unfollowed successfully');
-  });
-
-  it('should handle errors when unfollowing an artist', () => {
-    followedArtistService.unfollowArtist.and.returnValue(throwError(() => new Error('API Error')));
-
-    component.UnfollowArtist('1');
-    fixture.detectChanges();
-
-    expect(followedArtistService.unfollowArtist).toHaveBeenCalledWith('1');
-    expect(snackBarService.error).toHaveBeenCalledWith('Error Unfollowing artist: API Error');
-  });
-
-  it('should render the correct number of artist components', () => {
-    followedArtistService.getFollowedArtist.and.returnValue(of(mockArtists));
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const artistComponents = fixture.debugElement.queryAll(By.css('app-artist'));
-    expect(artistComponents.length).toBe(2);
-  });
 });

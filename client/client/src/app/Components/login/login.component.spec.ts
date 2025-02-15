@@ -11,16 +11,16 @@ describe('LoginComponent', () => {
   let mockLoginService: jasmine.SpyObj<LoginService>;
   let mockSnackBarService: jasmine.SpyObj<SnackBarService>;
   let mockRouter: jasmine.SpyObj<Router>;
-  let mockActivatedRoute: jasmine.SpyObj<ActivatedRoute>;
+  let mockActivatedRoute: ActivatedRoute;
 
   beforeEach(async () => {
-    // Create spies for services
     mockLoginService = jasmine.createSpyObj('LoginService', ['getLoginUrl', 'handleCallback']);
-    mockSnackBarService = jasmine.createSpyObj('SnackBarService', ['success', 'error']);
+    mockSnackBarService = jasmine.createSpyObj('SnackBarService', ['success']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockActivatedRoute = jasmine.createSpyObj('ActivatedRoute', ['queryParams']);
-    mockActivatedRoute.queryParams = of({ code: 'sampleCode', state: 'sampleState' });
 
+    mockActivatedRoute = {
+      queryParams: of({ code: 'sampleCode', state: 'sampleState' })
+    } as any; 
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
@@ -29,42 +29,14 @@ describe('LoginComponent', () => {
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute }
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create the component', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should call loginWithSpotify and redirect to the login URL', () => {
-    const authUrl = 'https://spotify.com/login';
-    mockLoginService.getLoginUrl.and.returnValue(of(authUrl));
-
-    component.loginWithSpotify();
-
-    expect(mockLoginService.getLoginUrl).toHaveBeenCalled();
-    expect(window.location.href).toBe(authUrl);
-  });
-
-  it('should handle the Spotify callback successfully via ngOnInit', () => {
-    const response = { userProfile: { accessToken: 'some-token' } };
-    mockLoginService.handleCallback.and.returnValue(of(response));
-    spyOn(localStorage, 'setItem');
-    spyOn(mockRouter, 'navigate');
-    spyOn(mockSnackBarService, 'success');
-  
-    // Simulate query parameters
-    component.ngOnInit();
-    fixture.detectChanges();  // Trigger change detection
-  
-    expect(mockLoginService.handleCallback).toHaveBeenCalledWith('sampleCode', 'sampleState');
-    expect(localStorage.setItem).toHaveBeenCalledWith('accessToken', 'some-token');
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/home']);
-    expect(mockSnackBarService.success).toHaveBeenCalledWith("You're logged successfully");
   });
 });

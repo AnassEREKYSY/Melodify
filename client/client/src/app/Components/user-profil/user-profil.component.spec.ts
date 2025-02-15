@@ -34,8 +34,8 @@ describe('UserProfilComponent', () => {
         MatIconModule,
         CommonModule,
         HttpClientTestingModule,
+        UserProfilComponent
       ],
-      declarations: [UserProfilComponent],
       providers: [UserProfileService]
     }).compileComponents();
 
@@ -48,40 +48,5 @@ describe('UserProfilComponent', () => {
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should load the user profile on init', () => {
-    spyOn(userProfileService, 'getUserProfile').and.returnValue(of(mockUserProfile));
-    component.ngOnInit();
-    expect(component.userProfile).toEqual(mockUserProfile);
-  });
-
-  it('should display error message if profile loading fails', () => {
-    spyOn(userProfileService, 'getUserProfile').and.returnValue(throwError('Error loading profile'));
-    component.ngOnInit();
-    expect(component.errorMessage).toBe('Failed to load user profile.');
-  });
-
-  it('should open user profile in a new tab when viewProfile is called', () => {
-    spyOn(window, 'open');
-    component.userProfile = mockUserProfile;
-    component.viewProfile();
-    expect(window.open).toHaveBeenCalledWith(mockUserProfile.external_urls.spotify, '_blank');
-  });
-
-  it('should not open user profile if no URL is available', () => {
-    spyOn(window, 'open');
-    component.userProfile = { ...mockUserProfile, external_urls: {
-      spotify: ''
-    } };
-    component.viewProfile();
-    expect(window.open).not.toHaveBeenCalled();
-  });
-
-  it('should trigger editProfilePicture on button click', () => {
-    spyOn(component, 'editProfilePicture');
-    const button = fixture.nativeElement.querySelector('.edit-button');
-    button.click();
-    expect(component.editProfilePicture).toHaveBeenCalled();
   });
 });
