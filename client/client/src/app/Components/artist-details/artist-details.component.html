@@ -17,7 +17,7 @@
           ({{ artist.genres.slice(0, 3).join(', ') }}{{ artist.genres.length > 3 ? ', ...' : '' }})
         </span>
       </h2>
-      <div class="followers">{{ formatFollowers(artist.followers?.total || 0) }} Followers</div>
+      <div class="followers">{{ formatFollowers(artist.followers.total || 0) }} Followers</div>
       <div class="popularity">Popularity: {{ artist.popularity }}</div>
 
       <button class="follow-button" (click)="toggleFollow()">

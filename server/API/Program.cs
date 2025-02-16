@@ -20,7 +20,6 @@ var logLevelMicrosoftAspNetCore = builder.Configuration["LOG_LEVEL_MICROSOFT_ASP
 var spotifyClientId = builder.Configuration["SPOTIFY_CLIENT_ID"];
 var spotifyClientSecret = builder.Configuration["SPOTIFY_CLIENT_SECRET"];
 var spotifyRedirectUri = builder.Configuration["SPOTIFY_REDIRECT_URI"];
-Console.WriteLine($"Spotify Redirect URI: {spotifyRedirectUri}");
 builder.Logging.AddFilter("Default", Enum.Parse<LogLevel>(logLevelDefault, true));
 builder.Logging.AddFilter("Microsoft.AspNetCore", Enum.Parse<LogLevel>(logLevelMicrosoftAspNetCore, true));
 
@@ -28,10 +27,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policyBuilder => policyBuilder
-            .WithOrigins("http://localhost:4200") 
+            .WithOrigins(
+                "http://localhost:4200", 
+                "http://client",
+                "http://client:80"
+            ) 
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .AllowCredentials()); 
+            .AllowCredentials());
 });
 
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -55,7 +58,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
+//app.Urls.Add("http://*:5000");
 
 app.Use(async (context, next) =>
 {
@@ -63,8 +66,8 @@ app.Use(async (context, next) =>
 
     context.Response.Headers.Add("Content-Security-Policy",
         "default-src 'self'; " +
-        "connect-src 'self' http://localhost:5041 http://localhost:4200; " +  
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " + 
+        "connect-src 'self' http://localhost:5041 http://localhost:4200 http://server:5000; " + 
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
         "style-src 'self' 'unsafe-inline'; " +
         "img-src 'self' data:; " +
         "font-src 'self' data:;");
@@ -72,6 +75,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();

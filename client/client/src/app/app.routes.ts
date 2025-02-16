@@ -1,21 +1,14 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './Components/login/login.component';
-import { HomeComponent } from './Components/home/home.component';
-import { UserProfilComponent } from './Components/user-profil/user-profil.component';
-import { NavBarComponent } from './shared/nav-bar/nav-bar.component';
-import { PlaylistDetailsComponent } from './Components/playlist-details/playlist-details.component';
 import { AuthGuard } from './guards/auth.guard';
-import { ArtistDetailsComponent } from './Components/artist-details/artist-details.component';
-import { SongDetailsComponent } from './Components/song-details/song-details.component';
 
 export const routes: Routes = [
-    { path: 'login', component: LoginComponent },
-    { path: 'home', component: HomeComponent , canActivate: [AuthGuard]},
-    { path: 'profile', component: UserProfilComponent, canActivate: [AuthGuard] },
-    { path: 'nav-bar', component: NavBarComponent , canActivate: [AuthGuard]},
-    { path: 'playlist/:id', component: PlaylistDetailsComponent, canActivate: [AuthGuard] },
-    { path: 'artist/:id', component: ArtistDetailsComponent, canActivate: [AuthGuard] },
-    { path: 'song/:id', component: SongDetailsComponent, canActivate: [AuthGuard] },
-
-
+    { path: '', loadComponent: () => import('./Components/login/login.component').then(m => m.LoginComponent) },
+    { path: '/', loadComponent: () => import('./Components/login/login.component').then(m => m.LoginComponent) },
+    { path: 'login', loadComponent: () => import('./Components/login/login.component').then(m => m.LoginComponent) },
+    { path: 'home', loadComponent: () => import('./Components/home/home.component').then(m => m.HomeComponent), canActivate: [AuthGuard] },
+    { path: 'profile', loadComponent: () => import('./Components/user-profil/user-profil.component').then(m => m.UserProfilComponent), canActivate: [AuthGuard] },
+    { path: 'nav-bar', loadComponent: () => import('./shared/nav-bar/nav-bar.component').then(m => m.NavBarComponent), canActivate: [AuthGuard] },
+    { path: 'playlist/:id', loadComponent: () => import('./Components/playlist-details/playlist-details.component').then(m => m.PlaylistDetailsComponent), canActivate: [AuthGuard] },
+    { path: 'artist/:id', loadComponent: () => import('./Components/artist-details/artist-details.component').then(m => m.ArtistDetailsComponent), canActivate: [AuthGuard] },
+    { path: 'song/:id', loadComponent: () => import('./Components/song-details/song-details.component').then(m => m.SongDetailsComponent), canActivate: [AuthGuard] },
 ];

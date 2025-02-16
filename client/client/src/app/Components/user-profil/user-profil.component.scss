@@ -2,6 +2,7 @@ $user-green: #1db954;
 $dark-gray: #121212;
 $light-gray: #b3b3b3;
 $white: #ffffff;
+@use "sass:color";
 $shadow-dark: rgba(0, 0, 0, 0.8);
 
 .user-profile {
@@ -156,7 +157,7 @@ $shadow-dark: rgba(0, 0, 0, 0.8);
       }
   
       &:hover {
-        background-color: lighten(#1db954, 10%);
+        background-color: color.scale(#1db954, $lightness: 10%);
       }
     }
   }

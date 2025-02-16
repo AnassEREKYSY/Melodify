@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { NavBarComponent } from "./shared/nav-bar/nav-bar.component";
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -13,8 +14,10 @@ export class AppComponent {
   showNavBar = true;
 
   constructor(private router: Router) {
-    this.router.events.subscribe(() => {
-      this.showNavBar = this.router.url !== '/login';
-    });
+    this.router.events
+    .pipe(filter(event => event instanceof NavigationEnd))
+    .subscribe(() => {
+      this.showNavBar = this.router.url !== '/login' && this.router.url !== '/' && this.router.url !== '';
+    })
   }
 }
