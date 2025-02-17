@@ -1,8 +1,8 @@
-$artist-card-bg: #222; 
+$artist-card-bg: #222;
 $artist-name-color: #fff;
 $unfollow-btn-bg: #fff;
-$unfollow-btn-icon-color: #000; 
-$black-line: #000; 
+$unfollow-btn-icon-color: #000;
+$black-line: #000;
 
 .artist-card {
   margin-top: 30px;
@@ -10,14 +10,14 @@ $black-line: #000;
   border-radius: 10px;
   overflow: hidden;
   position: relative;
-  height: 200px; 
+  height: 200px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   transition: transform 0.2s ease-in-out;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 10px;
-  width: 350px;
+  width: 350px; /* Default size for larger screens */
   cursor: pointer;
 
   &:hover {
@@ -34,7 +34,7 @@ $black-line: #000;
   top: 0;
   left: 0;
   z-index: 1;
-  border-bottom: 4px solid $black-line; 
+  border-bottom: 4px solid $black-line;
 }
 
 .artist-overlay {
@@ -43,7 +43,7 @@ $black-line: #000;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4); 
+  background: rgba(0, 0, 0, 0.4);
   z-index: 2;
 }
 
@@ -54,7 +54,7 @@ $black-line: #000;
   color: $artist-name-color;
   font-weight: bold;
   font-size: 1.3rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); 
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
 }
 
 .artist-info-bottom-line {
@@ -71,7 +71,7 @@ $black-line: #000;
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color:  rgba(133, 132, 132, 0.521);
+  background-color: rgba(133, 132, 132, 0.521);
   border: none;
   border-radius: 50%;
   padding: 0;
@@ -81,18 +81,18 @@ $black-line: #000;
   z-index: 3;
   width: 30px;
   height: 30px;
-  
+
   display: flex;
   justify-content: center;
   align-items: center;
 
-  opacity: 0; 
-  visibility: hidden; 
-  transition: opacity 0.3s ease, visibility 0s 0.3s; 
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s 0.3s;
   .artist-card:hover & {
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.3s ease, visibility 0s 0s; 
+    transition: opacity 0.3s ease, visibility 0s 0s;
   }
 
   &:hover {
@@ -102,5 +102,38 @@ $black-line: #000;
   mat-icon {
     font-size: 19px;
     font-weight: bolder;
+  }
+}
+
+@media (max-width: 768px) {
+  .artist-card {
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 20px; 
+    height: auto; /* Make height dynamic for smaller screens */
+  }
+
+  .artist-name {
+    font-size: 1.1rem;
+  }
+
+  .unfollow-btn {
+    width: 25px; 
+    height: 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .artist-name {
+    font-size: 1rem; 
+  }
+
+  .unfollow-btn {
+    width: 20px; 
+    height: 20px;
+  }
+
+  .artist-card {
+    max-width: 280px; 
   }
 }

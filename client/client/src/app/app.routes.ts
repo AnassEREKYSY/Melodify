@@ -2,8 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-    { path: '', loadComponent: () => import('./Components/login/login.component').then(m => m.LoginComponent) },
-    { path: '/', loadComponent: () => import('./Components/login/login.component').then(m => m.LoginComponent) },
+    { path: '', redirectTo: '/login', pathMatch: 'full' },
     { path: 'login', loadComponent: () => import('./Components/login/login.component').then(m => m.LoginComponent) },
     { path: 'home', loadComponent: () => import('./Components/home/home.component').then(m => m.HomeComponent), canActivate: [AuthGuard] },
     { path: 'profile', loadComponent: () => import('./Components/user-profil/user-profil.component').then(m => m.UserProfilComponent), canActivate: [AuthGuard] },

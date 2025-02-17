@@ -30,7 +30,8 @@ export class SongComponent implements OnInit{
     this.playRequest.emit(id);
   }
 
-  deleteSong(id: string) {
+  deleteSong(id: string,event: MouseEvent) {
+    event.stopPropagation();
     this.deleteRequest.emit(id);
   }
 

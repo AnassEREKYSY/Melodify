@@ -4,34 +4,30 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Core.Entities;
 using DotNetEnv;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
 var builder = WebApplication.CreateBuilder(args);
 
-DotNetEnv.Env.Load();
+// Configure Kestrel to listen on all IPs
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5001); // Listen on all available interfaces on port 5001
+});
 
+DotNetEnv.Env.Load();
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 
-var logLevelDefault = builder.Configuration["LOG_LEVEL_DEFAULT"] ?? "Information";
-var logLevelMicrosoftAspNetCore = builder.Configuration["LOG_LEVEL_MICROSOFT_ASPNETCORE"] ?? "Warning";
-
-var spotifyClientId = builder.Configuration["SPOTIFY_CLIENT_ID"];
-var spotifyClientSecret = builder.Configuration["SPOTIFY_CLIENT_SECRET"];
-var spotifyRedirectUri = builder.Configuration["SPOTIFY_REDIRECT_URI"];
-builder.Logging.AddFilter("Default", Enum.Parse<LogLevel>(logLevelDefault, true));
-builder.Logging.AddFilter("Microsoft.AspNetCore", Enum.Parse<LogLevel>(logLevelMicrosoftAspNetCore, true));
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policyBuilder => policyBuilder
-            .WithOrigins(
-                "http://localhost:4200", 
-                "http://client",
-                "http://client:80"
-            ) 
+            .SetIsOriginAllowed(origin => new Uri(origin).Host == "127.0.0.1" || new Uri(origin).Host == "localhost") // ✅ Allow same-origin requests
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -44,7 +40,6 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 });
 
-
 builder.Services.AddScoped<ISpotifyAuthService, SpotifyAuthService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -53,33 +48,23 @@ builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<ISongService, SongService>();
 
 builder.Services.AddHttpClient();
-
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
-//app.Urls.Add("http://*:5000");
-
-app.Use(async (context, next) =>
-{
-    context.Response.Headers.Remove("Content-Security-Policy");
-
-    context.Response.Headers.Add("Content-Security-Policy",
-        "default-src 'self'; " +
-        "connect-src 'self' http://localhost:5041 http://localhost:4200 http://server:5000; " + 
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-        "style-src 'self' 'unsafe-inline'; " +
-        "img-src 'self' data:; " +
-        "font-src 'self' data:;");
-
-    await next();
-});
+// ✅ Apply CORS before anything else
+app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
-app.UseCors("AllowFrontend");
+app.UseStaticFiles(); // ✅ Serves Angular from wwwroot
+
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
+app.MapControllers(); // ✅ Ensure API controllers are mapped first
+
+// ✅ Serve Angular's index.html for any unknown routes (EXCEPT API)
+app.MapFallbackToFile("index.html");
 
 app.Run();

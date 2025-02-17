@@ -18,6 +18,7 @@ export class AppComponent {
     .pipe(filter(event => event instanceof NavigationEnd))
     .subscribe(() => {
       this.showNavBar = this.router.url !== '/login' && this.router.url !== '/' && this.router.url !== '';
+      console.log(this.router.url, this.showNavBar)
     })
   }
 }

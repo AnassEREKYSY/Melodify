@@ -5,20 +5,9 @@ services:
       context: ./server
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "5001:5001"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-    restart: always
-    networks:
-      - melodify-network
-
-  client:
-    build:
-      context: ./client
-    ports:
-      - "80:80"
-    depends_on:
-      - server
+      - ASPNETCORE_ENVIRONMENT=Development
     restart: always
     networks:
       - melodify-network

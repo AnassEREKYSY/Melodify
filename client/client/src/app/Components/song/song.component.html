@@ -21,7 +21,7 @@
   <div class="song-actions">
     <span class="song-duration">{{ formatDuration(s.durationMs || s.duration_ms) }}</span>
 
-    <button *ngIf="showDeleteButton" (click)="deleteSong(s.id)" class="delete-btn">
+    <button *ngIf="showDeleteButton" (click)="deleteSong(s.id, $event)" class="delete-btn">
       <mat-icon>delete</mat-icon>
     </button>
   </div>

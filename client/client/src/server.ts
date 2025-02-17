@@ -21,46 +21,46 @@ app.use(
   }),
 );
 
-/**
- * Middleware to handle dynamic routes with parameters
- */
-app.use((req: Request, res: Response, next: () => void) => { // Explicitly define req and res types
-  const dynamicRoutes = ['/playlist/', '/song/'];
+// /**
+//  * Middleware to handle dynamic routes with parameters
+//  */
+// app.use((req: Request, res: Response, next: () => void) => { // Explicitly define req and res types
+//   const dynamicRoutes = ['/playlist/', '/song/'];
 
-  if (dynamicRoutes.some(route => req.url.startsWith(route))) {
-    res.sendFile(resolve(browserDistFolder, 'index.html'));
-    return;
-  }
+//   if (dynamicRoutes.some(route => req.url.startsWith(route))) {
+//     res.sendFile(resolve(browserDistFolder, 'index.html'));
+//     return;
+//   }
 
-  next();
-});
+//   next();
+// });
 
-/**
- * Define prerender routes for dynamic content
- */
-const prerenderRoutes = [
-  { path: '/playlist/:id', params: async (req: Request) => ({ id: req.params['id'] }) },
-  { path: '/song/:id', params: async (req: Request) => ({ id: req.params['id'] }) },
-];
+// /**
+//  * Define prerender routes for dynamic content
+//  */
+// const prerenderRoutes = [
+//   { path: '/playlist/:id', params: async (req: Request) => ({ id: req.params['id'] }) },
+//   { path: '/song/:id', params: async (req: Request) => ({ id: req.params['id'] }) },
+// ];
 
-prerenderRoutes.forEach((route) => {
-  app.get(route.path, (req: Request, res: Response) => { // Explicitly define req and res types
-    const params = route.params(req);
-    angularApp.handle(req, params).then((response) => {
-      if (response) {
-        writeResponseToNodeResponse(response, res);
-      }
-    }).catch((err) => {
-      res.status(500).send('Error rendering the page');
-    });
-  });
-});
+// prerenderRoutes.forEach((route) => {
+//   app.get(route.path, (req: Request, res: Response) => { // Explicitly define req and res types
+//     const params = route.params(req);
+//     angularApp.handle(req, params).then((response) => {
+//       if (response) {
+//         writeResponseToNodeResponse(response, res);
+//       }
+//     }).catch((err) => {
+//       res.status(500).send('Error rendering the page');
+//     });
+//   });
+// });
 
 /**
  * Handle all other requests by rendering the Angular application.
  */
-app.use('/**', (req: Request, res: Response, next: () => void) => {
-  angularApp
+app.use('/**', (req, res, next) => {
+angularApp
     .handle(req)
     .then((response) =>
       response ? writeResponseToNodeResponse(response, res) : next(),
