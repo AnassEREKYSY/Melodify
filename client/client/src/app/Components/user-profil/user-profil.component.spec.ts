@@ -49,4 +49,63 @@ describe('UserProfilComponent', () => {
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should load user profile on init', () => {
+    spyOn(userProfileService, 'getUserProfile').and.returnValue(of(mockUserProfile));
+    
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(component.userProfile).toEqual(mockUserProfile);
+  });
+
+  it('should display error message if loading the profile fails', () => {
+    spyOn(userProfileService, 'getUserProfile').and.returnValue(throwError('Error'));
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(component.errorMessage).toBe('Failed to load user profile.');
+  });
+
+  it('should open Spotify profile when "View Profile" button is clicked', (done) => {
+    spyOn(window, 'open');
+    component.userProfile = mockUserProfile;
+  
+    fixture.detectChanges();  // Trigger change detection
+  
+    fixture.whenStable().then(() => {
+      console.log('Stable state reached, continuing test...');
+      const button = fixture.debugElement.nativeElement.querySelector('.view-profile');
+      
+      expect(button).toBeTruthy();
+  
+      button.click();
+      expect(window.open).toHaveBeenCalledWith(mockUserProfile.external_urls.spotify, '_blank');
+      done();
+    }).catch((error) => {
+      console.error('Error in whenStable:', error);
+      done.fail(error);  // Fail the test if there is an error
+    });
+  }, 10000);  // Custom timeout for this test  
+
+  it('should call editProfilePicture when "Edit" button is clicked', (done) => {
+    spyOn(component, 'editProfilePicture');
+    
+    component.userProfile = mockUserProfile;
+    fixture.detectChanges(); 
+  
+    fixture.whenStable().then(() => {
+      const button = fixture.debugElement.nativeElement.querySelector('.edit-button');
+      
+      expect(button).toBeTruthy();
+      
+      button.click();
+      expect(component.editProfilePicture).toHaveBeenCalled();
+
+      done();
+    });
+  }, 10000);  
+
+   
 });

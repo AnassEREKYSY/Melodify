@@ -5,7 +5,7 @@
 // import { PlaylistService } from '../../core/services/playlist.service';
 // import { SnackBarService } from '../../core/services/snack-bar.service';
 // import { ActivatedRoute } from '@angular/router';
-// import { of, BehaviorSubject } from 'rxjs';
+// import { of } from 'rxjs';
 // import { MatSnackBarModule } from '@angular/material/snack-bar';
 // import { MatMenuModule } from '@angular/material/menu';
 // import { MatSliderModule } from '@angular/material/slider';
@@ -24,18 +24,12 @@
 //   let fixture: ComponentFixture<SongDetailsComponent>;
 
 //   beforeEach(() => {
-//     // Create a BehaviorSubject to mock the paramMap
-//     const mockActivatedRoute = {
-//       paramMap: new BehaviorSubject({ get: () => 'mockedSongId' })
-//     };
-
 //     TestBed.configureTestingModule({
 //       imports: [
 //         MatSliderModule,
 //         FormsModule,
 //         MatMenuModule,
 //         MatSnackBarModule,
-//         SongDetailsComponent,  // Standalone component should be in imports
 //         ReactiveFormsModule,
 //         HttpClientModule
 //       ],
@@ -46,7 +40,11 @@
 //         { provide: SnackBarService, useClass: MockSnackBarService },
 //         {
 //           provide: ActivatedRoute,
-//           useValue: mockActivatedRoute // Provide the mocked ActivatedRoute
+//           useValue: {
+//             snapshot: {
+//               params: { id: 1 }  // Mocking the `id` param in the route
+//             }
+//           }
 //         }
 //       ],
 //       schemas: [NO_ERRORS_SCHEMA],
