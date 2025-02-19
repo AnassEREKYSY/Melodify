@@ -23,6 +23,20 @@ describe('PlaylistComponent', () => {
     songs: []
   };
 
+  const mockPlaylistWithoutImage: Playlist = {
+    id: '124',
+    name: 'Test Playlist Without Image',
+    description: 'No image available for this playlist.',
+    userId: 'user124',
+    isPublic: false,
+    externalUrl: 'https://example.com/playlist2',
+    imageUrls: [],
+    ownerDisplayName: 'Test User 2',
+    ownerUri: 'https://example.com/user2',
+    snapshotId: 'snapshot_124',
+    songs: []
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RouterTestingModule, MatIconModule, PlaylistComponent],
@@ -46,9 +60,17 @@ describe('PlaylistComponent', () => {
     expect(artist.textContent).toContain(`by ${mockPlaylist.ownerDisplayName}`);
   });
 
-  it('should display the playlist cover image', () => {
+  it('should display the playlist cover image when imageUrls is provided', () => {
     const image = fixture.debugElement.query(By.css('.playlist-image')).nativeElement;
     expect(image.src).toBe(mockPlaylist.imageUrls[0]);
+  });
+
+  it('should display the no-image placeholder when no image is provided', () => {
+    component.playlist = mockPlaylistWithoutImage;
+    fixture.detectChanges();
+    
+    const placeholder = fixture.debugElement.query(By.css('.playlist-image.no-image'));
+    expect(placeholder).toBeTruthy();
   });
 
   it('should call goToDetails when the playlist card is clicked', () => {
@@ -72,11 +94,22 @@ describe('PlaylistComponent', () => {
     expect(event.stopPropagation).toHaveBeenCalled();
   });
 
-  it('should display a placeholder if no image is available', () => {
-    component.playlist = { ...mockPlaylist, imageUrls: [] }; // Ensure playlist is assigned before modifying
+  it('should display "Unnamed Playlist" when no name is provided', () => {
+    component.playlist = { ...mockPlaylist, name: '' };
     fixture.detectChanges();
+    
+    const title = fixture.debugElement.query(By.css('.playlist-title')).nativeElement;
+    expect(title.textContent).toContain('Unnamed Playlist');
+  });
 
-    const placeholder = fixture.debugElement.query(By.css('.playlist-image.no-image'));
-    expect(placeholder).toBeTruthy();
+  it('should display the playlist details correctly when imageUrls is empty', () => {
+    component.playlist = mockPlaylistWithoutImage;
+    fixture.detectChanges();
+    
+    const title = fixture.debugElement.query(By.css('.playlist-title')).nativeElement;
+    const artist = fixture.debugElement.query(By.css('.playlist-artist')).nativeElement;
+    
+    expect(title.textContent).toContain(mockPlaylistWithoutImage.name);
+    expect(artist.textContent).toContain(`by ${mockPlaylistWithoutImage.ownerDisplayName}`);
   });
 });

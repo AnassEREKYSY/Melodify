@@ -16,12 +16,13 @@ export class LoginComponent  implements OnInit {
     private router: Router, 
     private loginService: LoginService,
     private snackBarService: SnackBarService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    @Inject('Location') private location: Location
   ) {}
 
   loginWithSpotify(): void {
     this.loginService.getLoginUrl().subscribe((authUrl) => {
-      window.location.href = authUrl;
+      this.location.assign(authUrl);
     });
   }
 

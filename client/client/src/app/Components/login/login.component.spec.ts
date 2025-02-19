@@ -12,22 +12,25 @@ describe('LoginComponent', () => {
   let mockSnackBarService: jasmine.SpyObj<SnackBarService>;
   let mockRouter: jasmine.SpyObj<Router>;
   let mockActivatedRoute: ActivatedRoute;
+  let mockLocation: Location;
 
   beforeEach(async () => {
     mockLoginService = jasmine.createSpyObj('LoginService', ['getLoginUrl', 'handleCallback']);
     mockSnackBarService = jasmine.createSpyObj('SnackBarService', ['success']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-
+    mockLocation = { assign: jasmine.createSpy('assign') } as any;
     mockActivatedRoute = {
       queryParams: of({ code: 'sampleCode', state: 'sampleState' })
-    } as any; 
+    } as any;
+
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
         { provide: LoginService, useValue: mockLoginService },
         { provide: SnackBarService, useValue: mockSnackBarService },
         { provide: Router, useValue: mockRouter },
-        { provide: ActivatedRoute, useValue: mockActivatedRoute }
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: 'Location', useValue: mockLocation }
       ]
     }).compileComponents();
 
@@ -39,4 +42,15 @@ describe('LoginComponent', () => {
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should redirect to Spotify login URL when loginWithSpotify is called', () => {
+    const authUrl = 'https://accounts.spotify.com/login';
+    mockLoginService.getLoginUrl.and.returnValue(of(authUrl));
+
+    component.loginWithSpotify();
+
+    expect(mockLoginService.getLoginUrl).toHaveBeenCalled();
+    expect(mockLocation.assign).toHaveBeenCalledWith(authUrl);
+  });
+  
 });
