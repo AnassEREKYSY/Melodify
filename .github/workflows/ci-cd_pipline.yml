@@ -20,7 +20,7 @@ jobs:
 
       - name: Install client dependencies
         run: npm install
-        working-directory: ./client
+        working-directory: ./client/client
 
       - name: Run client unit tests
         run: npm test -- --watch=false --browsers=ChromeHeadless
