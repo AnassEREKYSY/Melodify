@@ -4,6 +4,7 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
+    image: erekysy/melodify:latest
     ports:
       - "5001:5001"
     environment:
