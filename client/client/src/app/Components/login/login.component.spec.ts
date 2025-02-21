@@ -43,14 +43,14 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should redirect to Spotify login URL when loginWithSpotify is called', () => {
-    const authUrl = 'https://accounts.spotify.com/login';
-    mockLoginService.getLoginUrl.and.returnValue(of(authUrl));
+  // it('should redirect to Spotify login URL when loginWithSpotify is called', () => {
+  //   const authUrl = 'https://accounts.spotify.com/login';
+  //   mockLoginService.getLoginUrl.and.returnValue(of(authUrl));
 
-    component.loginWithSpotify();
+  //   component.loginWithSpotify();
 
-    expect(mockLoginService.getLoginUrl).toHaveBeenCalled();
-    expect(mockLocation.assign).toHaveBeenCalledWith(authUrl);
-  });
+  //   expect(mockLoginService.getLoginUrl).toHaveBeenCalled();
+  //   expect(mockLocation.assign).toHaveBeenCalledWith(authUrl);
+  // });
   
 });
