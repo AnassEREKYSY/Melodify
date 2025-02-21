@@ -27,7 +27,7 @@ jobs:
         working-directory: ./client/client
 
       - name: Build client
-        run: npm run build -- --prod
+        run: npm run build -- --configuration production
         working-directory: ./client/client
 
       - name: Set up Docker Buildx
