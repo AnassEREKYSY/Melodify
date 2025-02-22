@@ -9,6 +9,8 @@ services:
       - "5001:5001"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ./server/API/.env:/app/.env 
     restart: always
     networks:
       - melodify-network
