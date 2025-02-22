@@ -13,6 +13,28 @@ services:
     networks:
       - melodify-network
 
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - melodify-network
+    depends_on:
+      - server
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - melodify-network
+    depends_on:
+      - prometheus
+
 networks:
   melodify-network:
     driver: bridge

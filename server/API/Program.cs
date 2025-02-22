@@ -7,13 +7,13 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Kestrel to listen on all IPs
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(5001); // Listen on all available interfaces on port 5001
+    options.ListenAnyIP(5001);
 });
 
 DotNetEnv.Env.Load();
@@ -52,19 +52,19 @@ builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
-// ✅ Apply CORS before anything else
 app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // ✅ Serves Angular from wwwroot
+app.UseStaticFiles(); 
 
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers(); // ✅ Ensure API controllers are mapped first
+app.MapControllers(); 
 
-// ✅ Serve Angular's index.html for any unknown routes (EXCEPT API)
+app.UseHttpMetrics();
+app.MapMetrics();
 app.MapFallbackToFile("index.html");
 
 app.Run();

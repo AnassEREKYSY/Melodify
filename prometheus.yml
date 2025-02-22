@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 5s 
+
+scrape_configs:
+  - job_name: "dotnet_app"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["melodify-server-1:5001"] 
