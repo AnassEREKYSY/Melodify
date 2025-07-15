@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/melodify:latest
+  IMAGE_NAME: ghcr.io/anasserekysy/melodify:latest
 
 jobs:
   build-client:
