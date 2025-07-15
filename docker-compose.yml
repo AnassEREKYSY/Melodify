@@ -4,7 +4,7 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-    image: erekysy/melodify:latest
+    image: ghcr.io/${{ github.repository_owner }}/melodify:latest
     ports:
       - "5001:5001"
     environment:
