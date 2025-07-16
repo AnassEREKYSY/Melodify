@@ -78,8 +78,7 @@ jobs:
             docker pull $IMAGE_NAME
             docker run -d \
               --name melodify \
-              -p 5204:5204 \
-              -e ASPNETCORE_URLS=http://+:5204 \
+              -p 5204:5001 \
               --restart unless-stopped \
               $IMAGE_NAME
 
