@@ -9,7 +9,7 @@ env:
   IMAGE_NAME: ghcr.io/anasserekysy/melodify:latest
 
 jobs:
-  build-client:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,7 +33,7 @@ jobs:
         run: npm run build -- --configuration production
         working-directory: ./client/client
 
-  dockerize-and-push:
+  push-to-ghcr:
     runs-on: ubuntu-latest
     needs: build-client
 
