@@ -69,17 +69,19 @@ jobs:
           username: ${{ secrets.OVH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: IMAGE_NAME
-          script: |
-            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }}
-            docker image prune -a -f
-            docker container prune -f
-            docker stop melodify || true
-            docker rm melodify || true
-            docker pull $IMAGE_NAME
-            docker run -d \
-              --name melodify \
-              -p 5204:5204 \
-              --restart unless-stopped \
-              $IMAGE_NAME
+        script: |
+          docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }}
+          docker image prune -a -f
+          docker container prune -f
+          docker stop melodify || true
+          docker rm melodify || true
+          docker pull $IMAGE_NAME
+          docker run -d \
+            --name melodify \
+            -p 5204:5204 \
+            -e ASPNETCORE_URLS=http://+:5204 \
+            --restart unless-stopped \
+            $IMAGE_NAME
+
 
 
