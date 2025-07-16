@@ -2,7 +2,7 @@
   <h2 class="text-2xl font-bold text-white">Followed Artists</h2>
 
   <ngx-slick-carousel class="carousel" [config]="slideConfig">
-    <div *ngFor="let artist of followedArtists" ngxSlickItem class="artist-card">
+    <div *ngFor="let artist of followedArtists" ngxSlickItem class="artist-slide">
       <app-artist 
         [artist]="artist"
         (unfollowRequest)="UnfollowArtist($event)"
