@@ -25,12 +25,13 @@ builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policyBuilder => policyBuilder
-            .SetIsOriginAllowed(origin => new Uri(origin).Host == "127.0.0.1" || new Uri(origin).Host == "localhost") // ✅ Allow same-origin requests
+    options.AddPolicy("AllowFrontend", policyBuilder =>
+    {
+        policyBuilder
+            .WithOrigins("http://146.59.225.42:4200")
             .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
+            .AllowAnyHeader();
+    });
 });
 
 builder.Services.AddControllers().AddJsonOptions(options =>
