@@ -81,7 +81,7 @@ jobs:
               -p 5204:5001 \
               --restart unless-stopped \
               -e ASPNETCORE_ENVIRONMENT=Development \
-              -e Spotify__ClientId=${{ secrets.SPOTIFY_CLIENT_ID }} \
-              -e Spotify__ClientSecret=${{ secrets.SPOTIFY_CLIENT_SECRET }} \
-              -e Spotify__RedirectUri=${{ secrets.SPOTIFY_REDIRECT_URI }} \
+              -e SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }} \
+              -e SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }} \
+              -e SPOTIFY_REDIRECT_URI=${{ secrets.SPOTIFY_REDIRECT_URI }} \
               $IMAGE_NAME

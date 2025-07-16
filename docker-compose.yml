@@ -1,6 +1,8 @@
 version: "3.8"
 services:
   server:
+    env_file:
+      - ./server/API/.env
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -9,8 +11,6 @@ services:
       - "5001:5001"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-    volumes:
-      - ./server/API/.env:/src/.env 
     restart: always
     networks:
       - melodify-network
