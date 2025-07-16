@@ -10,7 +10,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     volumes:
-      - ./server/API/.env:/app/.env 
+      - ./server/API/.env:/src/.env 
     restart: always
     networks:
       - melodify-network
