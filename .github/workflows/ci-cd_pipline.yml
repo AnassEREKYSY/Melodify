@@ -73,9 +73,13 @@ jobs:
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }}
             docker image prune -a -f
             docker container prune -f
-            APP_DIR="/home/${{ secrets.OVH_USER }}/melodify"
-            mkdir -p "$APP_DIR"
-            cd "$APP_DIR"
-            IMAGE_NAME=${IMAGE_NAME} docker-compose -f ./docker-compose.yml pull
-            IMAGE_NAME=${IMAGE_NAME} docker-compose -f ./docker-compose.yml up -d
+            docker stop melodify || true
+            docker rm melodify || true
+            docker pull $IMAGE_NAME
+            docker run -d \
+              --name melodify \
+              -p 5204:5204 \
+              --restart unless-stopped \
+              $IMAGE_NAME
+
 
