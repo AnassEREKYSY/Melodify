@@ -3,6 +3,9 @@
   --spotify-black: #121212;
   --spotify-white: #FFFFFF;
   --spotify-dark-gray: #282828;
+  --navbar-height: 60px;
+  --navbar-padding: 10px 40px;
+  --logo-height: 40px;
 }
 
 .spotify-navbar {
@@ -11,15 +14,15 @@
   justify-content: space-between;
   align-items: center;
   background-color: var(--spotify-black);
-  padding: 20px 60px;
-  height: 80px;
-  margin-bottom: 25px;
+  padding: var(--navbar-padding);
+  height: var(--navbar-height);
+  margin-bottom: 20px;
   font-family: 'Helvetica Neue', Arial, sans-serif;
-  background-color: var(--spotify-black);
   flex-wrap: wrap;
 }
 
-.navbar-left, .navbar-right {
+.navbar-left,
+.navbar-right {
   display: flex;
   align-items: center;
   gap: 40px;
@@ -29,14 +32,16 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0px;
+  gap: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .search-bar {
   position: relative;
   margin-top: 10px;
   width: 100%;
-  max-width: 700px; 
+  max-width: none;
 }
 
 .search-bar input {
@@ -44,15 +49,15 @@
   border: none;
   border-radius: 20px;
   padding: 5px 10px;
-  font-size: 20px;
+  font-size: 18px;
   color: var(--spotify-white);
-  width: 100%; 
-  height: 47px;
+  width: 100%;
+  height: 40px;
   transition: width 0.3s ease;
 }
 
 .logo img {
-  height: 50px;
+  height: var(--logo-height);
 }
 
 .nav-button {
@@ -85,22 +90,15 @@
   gap: 5px;
 }
 
-.nav-button.profile {
-  background-color: var(--spotify-dark-gray);
-  border-radius: 50%;
-  padding: 10px;
-}
-
-.nav-button.home {
+.nav-button.profile,
+.nav-button.home,
+.nav-button.logout {
   background-color: var(--spotify-dark-gray);
   border-radius: 50%;
   padding: 10px;
 }
 
 .nav-button.logout {
-  background-color: var(--spotify-dark-gray);
-  border-radius: 50%;
-  padding: 10px;
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
@@ -114,7 +112,7 @@
   left: 0;
   background: var(--spotify-dark-gray);
   width: 100%;
-  max-width: 700px; 
+  max-width: 700px;
   border-radius: 10px;
   overflow-y: auto;
   max-height: 400px;
@@ -191,10 +189,11 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 10px 20px;
-    height: auto; 
+    height: auto;
   }
 
-  .navbar-left, .navbar-right {
+  .navbar-left,
+  .navbar-right {
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
@@ -208,13 +207,13 @@
   }
 
   .search-bar input {
-    width: 100%;  
-    max-width: 100%;  
+    width: 100%;
+    max-width: 100%;
   }
 
   .search-results {
     width: 100%;
-    max-width: 700px; 
+    max-width: 700px;
     left: 0;
     padding: 10px 0;
   }

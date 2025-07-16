@@ -8,16 +8,45 @@ $dark-gray: #121212;
 }
 
 .carousel {
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  flex-wrap: wrap;
-  justify-content: center;
+  margin: 0 auto;
+  padding: 20px 0;
 }
 
-.ngx-slick-carousel {
+.carousel .slick-list {
+  overflow: hidden;
+}
+
+.carousel .slick-track {
+  display: flex !important;
+  align-items: stretch;
+}
+
+.carousel .slick-slide {
+  display: inline-block;
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
+.artist-card {
+  margin-top: 30px;
+  background: #222;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  height: 200px;
+  width: 250px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease-in-out;
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.artist-card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
 }
 
 @media (max-width: 768px) {
@@ -26,11 +55,17 @@ $dark-gray: #121212;
   }
 
   .carousel {
-    justify-content: center;
+    padding: 10px 0;
   }
 
-  .ngx-slick-carousel {
-    flex-direction: column;
-    gap: 15px;
+  .carousel .slick-slide {
+    padding: 0 10px;
+  }
+
+  .artist-card {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    margin-bottom: 20px;
   }
 }
