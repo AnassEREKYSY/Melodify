@@ -52,23 +52,27 @@ jobs:
           password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build and push Docker images
-        env:
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
         run: |
           IMAGE_NAME=${IMAGE_NAME} docker compose -f ./docker-compose.yml build
           IMAGE_NAME=${IMAGE_NAME} docker compose -f ./docker-compose.yml push
 
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: dockerize-and-push
+  deploy:
+    name: Deploy to OVH
+    runs-on: ubuntu-latest
+    needs: dockerize-and-push
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-
-  #     - name: Deploy and Start Monitoring Containers
-  #       env:
-  #         IMAGE_NAME: ${{ env.IMAGE_NAME }}
-  #       run: |
-  #         IMAGE_NAME=${IMAGE_NAME} docker compose -f ./docker-compose.yml pull
-  #         IMAGE_NAME=${IMAGE_NAME} docker compose -f ./docker-compose.yml up -d
+    steps:
+      - name: Deploy to OVH via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.OVH_HOST }}
+          username: ${{ secrets.OVH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: IMAGE_NAME
+          script: |
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }}
+            docker image prune -a -f
+            docker container prune -f
+            cd /home/ubuntu/melodify || mkdir -p /home/ubuntu/melodify && cd /home/ubuntu/melodify
+            IMAGE_NAME=${IMAGE_NAME} docker compose -f ./docker-compose.yml pull
+            IMAGE_NAME=${IMAGE_NAME} docker compose -f ./docker-compose.yml up -d
