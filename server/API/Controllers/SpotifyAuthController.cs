@@ -22,17 +22,20 @@ namespace API.Controllers
         }
 
         [HttpGet("callback")]
-        public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
+        public async Task<IActionResult> Callback([FromQuery] string code)
         {
             var tokenData = await _spotifyAuthService.ExchangeCodeForTokenAsync(code);
             var userProfile = await _spotifyAuthService.GetSpotifyUserProfileAsync(tokenData.AccessToken);
 
-            var redirectUrl =
-                $"https://melodify.anasserekysy.com/home" +
-                $"?accessToken={tokenData.AccessToken}" +
-                $"&displayName={Uri.EscapeDataString(userProfile.DisplayName)}";
+            Response.Cookies.Append("access_token", tokenData.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddSeconds(tokenData.ExpiresIn)
+            });
 
-            return Redirect(redirectUrl);
+            return Redirect("https://melodify.anasserekysy.com/home");
         }
     }
 }
