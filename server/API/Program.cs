@@ -49,6 +49,7 @@ var app = builder.Build();
 app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
+app.UseDefaultFiles();
 app.UseStaticFiles(); 
 
 app.UseRouting();
