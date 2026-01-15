@@ -1,4 +1,4 @@
 export const environment = {
     production:true,
-    apiUrl: 'https://api.melodify.anasserekysy.com/api/',
+    apiUrl: 'https://melodify.anasserekysy.com/api/',
 };

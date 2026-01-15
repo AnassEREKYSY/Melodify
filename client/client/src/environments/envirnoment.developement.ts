@@ -1,5 +1,5 @@
 export const environment = {
     production:false,
-    apiUrl: 'http://146.59.225.42:5204/api/',
+    apiUrl: 'https://melodify.anasserekysy.com/api/',
     // apiUrl: 'http://localhost:5001/api/',
 };
