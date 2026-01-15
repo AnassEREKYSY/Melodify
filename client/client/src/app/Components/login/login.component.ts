@@ -19,7 +19,7 @@ export class LoginComponent implements OnInit {
   ) {}
 
   loginWithSpotify(): void {
-    this.loginService.getLoginUrl().subscribe(response => {
+    this.loginService.getLoginUrl().subscribe(response => {   
       window.location.href = response.url;
     });
   }
