@@ -1,15 +1,47 @@
-import { Component } from '@angular/core';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { LoginService } from '../../core/services/login.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+import { SnackBarService } from '../../core/services/snack-bar.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
-  constructor(private loginService: LoginService) {}
+export class LoginComponent implements OnInit {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private loginService: LoginService,
+    private snackBarService: SnackBarService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   loginWithSpotify(): void {
-    this.loginService.login();
+    this.loginService.getLoginUrl().subscribe(response => {
+      window.location.href = response.url;
+    });
+  }
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      const code = params['code'];
+      const state = params['state'];
+
+      if (code && state) {
+        this.handleSpotifyCallback(code, state);
+      }
+    });
+  }
+
+  private handleSpotifyCallback(code: string, state: string): void {
+    this.loginService.handleCallback(code, state).subscribe(() => {
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.setItem('spotify_logged', 'true');
+      }
+      this.router.navigate(['/home']);
+      this.snackBarService.success("You're logged successfully");
+    });
   }
 }

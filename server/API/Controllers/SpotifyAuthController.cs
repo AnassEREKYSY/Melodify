@@ -21,21 +21,20 @@ namespace API.Controllers
             return Redirect(authUrl);
         }
 
+        [HttpGet("get-url-login")]
+        public IActionResult GetUrlLogin()
+        {
+            var authUrl = _spotifyAuthService.GetLoginUrl();
+            return Ok(new { url = authUrl });
+        }
+
         [HttpGet("callback")]
-        public async Task<IActionResult> Callback([FromQuery] string code)
+        public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
         {
             var tokenData = await _spotifyAuthService.ExchangeCodeForTokenAsync(code);
             var userProfile = await _spotifyAuthService.GetSpotifyUserProfileAsync(tokenData.AccessToken);
 
-            Response.Cookies.Append("access_token", tokenData.AccessToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddSeconds(tokenData.ExpiresIn)
-            });
-
-            return Redirect("https://melodify.anasserekysy.com/home");
+            return Redirect("https://melodify.anasserekysy.com/login?code=success");
         }
     }
 }
