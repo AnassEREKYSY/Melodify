@@ -29,12 +29,29 @@ namespace API.Controllers
         }
 
         [HttpGet("callback")]
-        public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
+        public IActionResult Callback([FromQuery] string code, [FromQuery] string state)
+        {
+            return Redirect($"https://melodify.anasserekysy.com/login?code={code}&state={state}");
+        }
+
+        [HttpGet("exchange")]
+        public async Task<IActionResult> Exchange([FromQuery] string code)
         {
             var tokenData = await _spotifyAuthService.ExchangeCodeForTokenAsync(code);
             var userProfile = await _spotifyAuthService.GetSpotifyUserProfileAsync(tokenData.AccessToken);
 
-            return Redirect("https://melodify.anasserekysy.com/login?code=success");
+            return Ok(new
+            {
+                userProfile = new
+                {
+                    userProfile.Id,
+                    userProfile.Email,
+                    userProfile.DisplayName,
+                    tokenData.AccessToken,
+                    tokenData.ExpiresIn,
+                    tokenData.RefreshToken
+                }
+            });
         }
     }
 }

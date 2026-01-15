@@ -17,9 +17,9 @@ export class LoginService {
     );
   }
 
-  handleCallback(code: string, state: string): Observable<any> {
+  exchangeCode(code: string): Observable<any> {
     return this.http.get(
-      `${this.apiUrl}spotify-auth/callback?code=${code}&state=${state}`
+      `${this.apiUrl}spotify-auth/exchange?code=${code}`
     );
   }
 }

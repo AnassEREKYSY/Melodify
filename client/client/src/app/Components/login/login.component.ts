@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { LoginService } from '../../core/services/login.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { LoginService } from '../../core/services/login.service';
 import { SnackBarService } from '../../core/services/snack-bar.service';
 
 @Component({
@@ -10,6 +10,7 @@ import { SnackBarService } from '../../core/services/snack-bar.service';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -19,7 +20,7 @@ export class LoginComponent implements OnInit {
   ) {}
 
   loginWithSpotify(): void {
-    this.loginService.getLoginUrl().subscribe(response => {   
+    this.loginService.getLoginUrl().subscribe(response => {
       window.location.href = response.url;
     });
   }
@@ -27,21 +28,21 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const code = params['code'];
-      const state = params['state'];
 
-      if (code && state) {
-        this.handleSpotifyCallback(code, state);
+      if (code) {
+        this.loginService.exchangeCode(code).subscribe({
+          next: (response) => {
+            if (isPlatformBrowser(this.platformId)) {
+              localStorage.setItem('accessToken', response.userProfile.accessToken);
+            }
+            this.router.navigate(['/home']);
+            this.snackBarService.success("You're logged successfully");
+          },
+          error: () => {
+            this.snackBarService.error("Authentication failed");
+          }
+        });
       }
-    });
-  }
-
-  private handleSpotifyCallback(code: string, state: string): void {
-    this.loginService.handleCallback(code, state).subscribe(() => {
-      if (isPlatformBrowser(this.platformId)) {
-        localStorage.setItem('spotify_logged', 'true');
-      }
-      this.router.navigate(['/home']);
-      this.snackBarService.success("You're logged successfully");
     });
   }
 }
