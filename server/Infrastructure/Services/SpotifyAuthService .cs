@@ -3,16 +3,14 @@ using System.Text.Json;
 using Core.Entities;
 using Infrastructure.IServices;
 using Infrastructure.Response;
-using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Services
 {
-
     public class SpotifyAuthService : ISpotifyAuthService
     {
         private readonly HttpClient _httpClient;
 
-        public SpotifyAuthService( HttpClient httpClient)
+        public SpotifyAuthService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
@@ -39,8 +37,7 @@ namespace Infrastructure.Services
                 { "code", code },
                 { "redirect_uri", redirectUri },
                 { "client_id", clientId },
-                { "client_secret", clientSecret },
-                { "scope", "user-read-private user-read-email playlist-read-private user-library-read" }
+                { "client_secret", clientSecret }
             });
 
             var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token")
@@ -48,26 +45,11 @@ namespace Infrastructure.Services
                 Content = tokenRequestContent
             };
 
-            try
-            {
-                var tokenResponse = await _httpClient.SendAsync(tokenRequest);
-                tokenResponse.EnsureSuccessStatusCode();
+            var tokenResponse = await _httpClient.SendAsync(tokenRequest);
+            tokenResponse.EnsureSuccessStatusCode();
 
-                var tokenResponseBody = await tokenResponse.Content.ReadAsStringAsync();
-                Console.WriteLine($"Token Response Body: {tokenResponseBody}");
-
-                return JsonSerializer.Deserialize<SpotifyTokenResponse>(tokenResponseBody);
-            }
-            catch (HttpRequestException httpEx)
-            {
-                Console.WriteLine($"HttpRequestException: {httpEx.Message}");
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Exception: {ex.Message}");
-                throw;
-            }
+            var tokenResponseBody = await tokenResponse.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<SpotifyTokenResponse>(tokenResponseBody);
         }
 
         public async Task<SpotifyUserProfile> GetSpotifyUserProfileAsync(string accessToken)
@@ -75,22 +57,13 @@ namespace Infrastructure.Services
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             var response = await _httpClient.GetAsync("https://api.spotify.com/v1/me");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Failed to retrieve Spotify user profile. Status code: {response.StatusCode}. Error: {errorContent}");
-            }
+            response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"URRRRRRRRA: {content}");
-            var userProfile = JsonSerializer.Deserialize<SpotifyUserProfile>(content, new JsonSerializerOptions
+            return JsonSerializer.Deserialize<SpotifyUserProfile>(content, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
-
-            return userProfile;
         }
-
     }
 }
