@@ -19,12 +19,11 @@ builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policyBuilder =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policyBuilder
-            .WithOrigins("http://146.59.225.42:4200")
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        policy.WithOrigins("https://melodify.anasserekysy.com")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
