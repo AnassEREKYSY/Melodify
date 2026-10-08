@@ -1,0 +1,26 @@
+# Melodify on the VM. deploy.sh writes .env next to this file.
+name: melodify
+
+services:
+  melodify:
+    image: ghcr.io/anasserekysy/melodify:${IMAGE_TAG:-latest}
+    # Same name and port as before, so the reverse proxy keeps working without changes.
+    container_name: melodify
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID:?SPOTIFY_CLIENT_ID is missing}
+      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET:?SPOTIFY_CLIENT_SECRET is missing}
+      SPOTIFY_REDIRECT_URI: ${SPOTIFY_REDIRECT_URI:?SPOTIFY_REDIRECT_URI is missing}
+      FRONTEND_URL: ${FRONTEND_URL:-https://melodify.anasserekysy.com}
+      CORS_ORIGINS: ${FRONTEND_URL:-https://melodify.anasserekysy.com}
+    ports:
+      - "${MELODIFY_BIND:-5204}:5001"
+    networks: [web]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+networks:
+  web:
+    external: true
