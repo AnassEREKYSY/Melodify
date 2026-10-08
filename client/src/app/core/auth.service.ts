@@ -16,7 +16,8 @@ export class AuthService {
   private refreshing$: Observable<string | null> | null = null;
   readonly user = signal<User | null>(null);
   readonly signedIn = computed(() => !!this.user());
-  readonly premium = computed(() => this.user()?.product === 'premium');
+  // Spotify stopped sharing the plan ("product") in 2026: unknown counts as Premium, the player reports otherwise.
+  readonly premium = computed(() => this.user()?.product !== 'free');
 
   get token() { return this.session?.accessToken ?? null; }
   get expiresSoon() { return !!this.session && this.session.expiresAt - Date.now() < 60_000; }

@@ -10,7 +10,7 @@ export interface Playlist {
   id: string; uri: string; name: string; description: string | null; image: string | null; owner: { id: string; name: string | null };
   trackCount: number; public: boolean; collaborative: boolean; snapshotId: string | null; isOwn: boolean;
 }
-export interface PlaylistDetail { playlist: Playlist; tracks: Track[]; skippedLocal: number; }
+export interface PlaylistDetail { playlist: Playlist; tracks: Track[]; skippedLocal: number; tracksHidden?: boolean; }
 export interface User { id: string; displayName: string | null; email: string | null; image: string | null; country: string | null; product: string | null; followers: number | null; }
 export interface Device { id: string | null; name: string; type: string; isActive: boolean; isRestricted: boolean; volumePercent: number | null; }
 export interface PlayerState { isPlaying: boolean; progressMs: number; device: Device | null; track: Track | null; shuffle: boolean; repeat: 'off' | 'context' | 'track'; contextUri: string | null; }

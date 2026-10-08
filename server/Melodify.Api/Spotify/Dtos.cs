@@ -13,7 +13,8 @@ public sealed record OwnerDto(string Id, string? Name);
 public sealed record PlaylistDto(
     string Id, string Uri, string Name, string? Description, string? Image, OwnerDto Owner, int TrackCount,
     bool Public, bool Collaborative, string? SnapshotId, bool IsOwn);
-public sealed record PlaylistDetailDto(PlaylistDto Playlist, TrackDto[] Tracks, int SkippedLocal);
+/// <summary><paramref name="TracksHidden"/>: Spotify only lists the items of playlists you own or collaborate on.</summary>
+public sealed record PlaylistDetailDto(PlaylistDto Playlist, TrackDto[] Tracks, int SkippedLocal, bool TracksHidden = false);
 public sealed record UserDto(string Id, string? DisplayName, string? Email, string? Image, string? Country, string? Product, int? Followers);
 public sealed record DeviceDto(string? Id, string Name, string Type, bool IsActive, bool IsRestricted, int? VolumePercent);
 public sealed record PlayerStateDto(bool IsPlaying, int ProgressMs, DeviceDto? Device, TrackDto? Track, bool Shuffle, string Repeat, string? ContextUri);

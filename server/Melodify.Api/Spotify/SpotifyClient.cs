@@ -98,7 +98,11 @@ public sealed class SpotifyClient(HttpClient http, SpotifyOptions options)
             if (doc.RootElement.TryGetProperty("error", out var e))
                 message = e.ValueKind == JsonValueKind.Object && e.TryGetProperty("message", out var m) ? m.GetString() : e.GetString();
         }
-        catch (JsonException) { }
+        catch (JsonException)
+        {
+            // Some refusals (e.g. a user not added to a development-mode app) come back as plain text.
+            if (!string.IsNullOrWhiteSpace(body) && body.Length < 300 && !body.TrimStart().StartsWith('<')) message = body.Trim();
+        }
         var friendly = status switch
         {
             401 => "Your Spotify session expired. Please sign in again.",

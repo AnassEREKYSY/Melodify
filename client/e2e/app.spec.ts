@@ -39,7 +39,7 @@ test.describe('signed in', () => {
     const calls = await mockApi(page);
     await page.goto('/stats');
     await expect(page.getByTestId('tiles')).toContainText('Jazz Rap');
-    await expect(page.getByTestId('tiles')).toContainText('61');
+    await expect(page.getByTestId('tiles')).toContainText('2 h 40 min');
     await expect(page.getByTestId('hours')).toContainText('Busiest around 9');
     await page.getByTestId('range-medium').click();
     await expect(page.getByTestId('tiles')).toContainText('Neo Soul');
@@ -72,11 +72,12 @@ test.describe('signed in', () => {
     expect(calls.find(c => c.path === '/playlists/pl1/sort')!.body).toEqual({ by: 'release', descending: true });
   });
 
-  test('playlists owned by someone else have no rewrite tools', async ({ page }) => {
+  test('playlists owned by someone else explain that Spotify hides their songs', async ({ page }) => {
     await mockApi(page);
     await page.goto('/playlist/pl3');
     await expect(page.getByRole('heading', { name: 'Shared with Aya' })).toBeVisible();
-    await expect(page.getByTestId('pl-stats')).toBeVisible();
+    await expect(page.getByText('Spotify does not share the songs of this playlist')).toBeVisible();
+    await expect(page.getByTestId('pl-stats')).toHaveCount(0);
     await expect(page.getByTestId('pl-dedupe')).toHaveCount(0);
     await expect(page.getByTestId('pl-sort')).toHaveCount(0);
   });

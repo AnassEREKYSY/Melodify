@@ -64,9 +64,9 @@ type Tool = 'new' | 'top' | 'merge' | null;
             }
             @case ('merge') {
               <h2 class="h2">Merge playlists</h2>
-              <p class="mt-1 text-[13px] text-ink-muted">Pick at least two. The originals stay as they are.</p>
+              <p class="mt-1 text-[13px] text-ink-muted">Pick at least two of your playlists. The originals stay as they are.</p>
               <div class="mt-4 grid max-h-64 gap-1 overflow-y-auto rounded-lg border border-line/[0.08] p-1.5 sm:grid-cols-2">
-                @for (p of lib.playlists(); track p.id) {
+                @for (p of mine(); track p.id) {
                   <label class="flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 hover:bg-raised">
                     <input type="checkbox" class="h-4 w-4 accent-[#FF6B5A]" [checked]="picked().has(p.id)" (change)="togglePick(p.id)" />
                     <app-cover class="w-8 shrink-0" [src]="p.image" [small]="true" />
@@ -133,7 +133,8 @@ export class LibraryPage {
   picked = signal(new Set<string>());
   name = ''; desc = ''; range: Range = 'short'; count = 30; removeDupes = true;
 
-  mineCount = computed(() => this.lib.playlists().filter(p => p.isOwn).length);
+  mine = computed(() => this.lib.playlists().filter(p => p.isOwn));
+  mineCount = computed(() => this.mine().length);
   shown = computed(() => {
     const f = this.filter(), all = this.lib.playlists();
     return f === 'mine' ? all.filter(p => p.isOwn) : f === 'followed' ? all.filter(p => !p.isOwn) : all;

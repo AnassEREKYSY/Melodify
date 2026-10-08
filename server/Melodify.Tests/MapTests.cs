@@ -20,6 +20,16 @@ public class MapTests
     }
 
     [Fact]
+    public void Playlist_items_use_the_2026_item_field()
+    {
+        var t = Map.Item(J("""{"added_at":"2026-03-01T00:00:00Z","is_local":false,"item":{"id":"t2","uri":"spotify:track:t2","name":"New","type":"track","duration_ms":1000,"artists":[],"album":null}}"""))!;
+        Assert.Equal("New", t.Name);
+        Assert.Null(t.Popularity);
+        var p = Map.Playlist(J("""{"id":"p","name":"P","owner":{"id":"me"},"items":{"total":7}}"""), "me");
+        Assert.Equal(7, p.TrackCount);
+    }
+
+    [Fact]
     public void Episodes_and_removed_tracks_are_skipped()
     {
         Assert.Null(Map.Item(J("""{"track":{"type":"episode","id":"e"}}""")));

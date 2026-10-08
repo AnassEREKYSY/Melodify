@@ -26,8 +26,8 @@ public static class PlaylistEndpoints
         {
             ValidateId(id);
             var t = ctx.Token();
-            var (playlist, tracks, skipped) = await Load(s, t, id, ct);
-            return new PlaylistDetailDto(playlist, tracks.ToArray(), skipped);
+            var (playlist, tracks, skipped, hidden) = await LoadDetail(s, t, id, ct);
+            return new PlaylistDetailDto(playlist, tracks.ToArray(), skipped, hidden);
         });
 
         g.MapGet("/{id}/stats", async (string id, HttpContext ctx, SpotifyClient s, CancellationToken ct) =>
@@ -56,7 +56,7 @@ public static class PlaylistEndpoints
         g.MapDelete("/{id}", async (string id, HttpContext ctx, SpotifyClient s, CancellationToken ct) =>
         {
             ValidateId(id);
-            await s.SendAsync(HttpMethod.Delete, ctx.Token(), $"playlists/{id}/followers", null, ct);
+            await s.SendAsync(HttpMethod.Delete, ctx.Token(), $"me/library?uris={Uris("playlist", [id])}", null, ct);
             return Results.NoContent();
         });
 
@@ -65,7 +65,7 @@ public static class PlaylistEndpoints
             ValidateId(id);
             var uris = CheckUris(b.Uris);
             foreach (var chunk in uris.Chunk(100))
-                await s.SendAsync(HttpMethod.Post, ctx.Token(), $"playlists/{id}/tracks", new { uris = chunk }, ct);
+                await s.SendAsync(HttpMethod.Post, ctx.Token(), $"playlists/{id}/items", new { uris = chunk }, ct);
             return Results.NoContent();
         });
 
@@ -74,7 +74,7 @@ public static class PlaylistEndpoints
             ValidateId(id);
             var uris = CheckUris(b.Uris);
             foreach (var chunk in uris.Chunk(100))
-                await s.SendAsync(HttpMethod.Delete, ctx.Token(), $"playlists/{id}/tracks", new { tracks = chunk.Select(u => new { uri = u }) }, ct);
+                await s.SendAsync(HttpMethod.Delete, ctx.Token(), $"playlists/{id}/items", new { items = chunk.Select(u => new { uri = u }) }, ct);
             return Results.NoContent();
         });
 
@@ -107,6 +107,7 @@ public static class PlaylistEndpoints
             foreach (var id in ids) ValidateId(id);
             var t = ctx.Token();
             var loaded = await Task.WhenAll(ids.Select(id => Load(s, t, id, ct)));
+            if (loaded.Any(l => !l.Playlist.IsOwn)) throw new AppException(403, "Spotify only shares the songs of playlists you own or collaborate on, so only those can be merged.");
             var merged = PlaylistTools.Merge(loaded.Select(l => l.Tracks), b.RemoveDuplicates ?? true);
             if (merged.Count == 0) throw new AppException(400, "These playlists have no tracks to merge.");
             var name = string.IsNullOrWhiteSpace(b.Name) ? string.Join(" + ", loaded.Select(l => l.Playlist.Name)).Truncate(90) : b.Name!;
@@ -141,13 +142,24 @@ public static class PlaylistEndpoints
 
     internal static async Task<(PlaylistDto Playlist, List<TrackDto> Tracks, int Skipped)> Load(SpotifyClient s, string t, string id, CancellationToken ct)
     {
+        var (p, tracks, skipped, _) = await LoadDetail(s, t, id, ct);
+        return (p, tracks, skipped);
+    }
+
+    /// <summary>Since 2026 Spotify only returns the items of playlists you own or collaborate on (403 otherwise).</summary>
+    static async Task<(PlaylistDto Playlist, List<TrackDto> Tracks, int Skipped, bool Hidden)> LoadDetail(SpotifyClient s, string t, string id, CancellationToken ct)
+    {
         var meTask = MeId(s, t, ct);
-        var pTask = s.GetAsync(t, $"playlists/{id}?fields=id,uri,name,description,images,owner(id,display_name),public,collaborative,snapshot_id,tracks(total)", ct);
-        var itemsTask = s.GetAllAsync(t, $"playlists/{id}/tracks?limit=100", MaxTracks, ct);
-        await Task.WhenAll(meTask, pTask, itemsTask);
-        var all = itemsTask.Result.Select(Map.Item).ToList();
+        var pTask = s.GetAsync(t, $"playlists/{id}", ct);
+        await Task.WhenAll(meTask, pTask);
+        var playlist = Map.Playlist(pTask.Result!.Value, meTask.Result);
+        if (!playlist.IsOwn) return (playlist, [], 0, true);
+        List<System.Text.Json.JsonElement> items;
+        try { items = await s.GetAllAsync(t, $"playlists/{id}/items?limit=50", MaxTracks, ct); }
+        catch (SpotifyException e) when (e.Status == 403) { return (playlist, [], 0, true); }
+        var all = items.Select(Map.Item).ToList();
         var tracks = all.OfType<TrackDto>().ToList();
-        return (Map.Playlist(pTask.Result!.Value, meTask.Result), tracks, all.Count - tracks.Count + tracks.Count(x => x.IsLocal));
+        return (playlist with { TrackCount = Math.Max(playlist.TrackCount, all.Count) }, tracks, all.Count - tracks.Count + tracks.Count(x => x.IsLocal), false);
     }
 
     /// <summary>Rewriting a playlist is only allowed on your own playlists without local files (Spotify cannot re-add them).</summary>
@@ -164,15 +176,15 @@ public static class PlaylistEndpoints
     static async Task Replace(SpotifyClient s, string t, string playlistId, IEnumerable<string> uris, CancellationToken ct)
     {
         var list = uris.ToList();
-        await s.SendAsync(HttpMethod.Put, t, $"playlists/{playlistId}/tracks", new { uris = list.Take(100).ToArray() }, ct);
+        await s.SendAsync(HttpMethod.Put, t, $"playlists/{playlistId}/items", new { uris = list.Take(100).ToArray() }, ct);
         foreach (var chunk in list.Skip(100).Chunk(100))
-            await s.SendAsync(HttpMethod.Post, t, $"playlists/{playlistId}/tracks", new { uris = chunk }, ct);
+            await s.SendAsync(HttpMethod.Post, t, $"playlists/{playlistId}/items", new { uris = chunk }, ct);
     }
 
     static async Task<PlaylistDto> Create(SpotifyClient s, string t, string name, string? description, bool isPublic, CancellationToken ct)
     {
         var meId = await MeId(s, t, ct);
-        var p = await s.SendAsync(HttpMethod.Post, t, $"users/{Uri.EscapeDataString(meId)}/playlists",
+        var p = await s.SendAsync(HttpMethod.Post, t, "me/playlists",
             new { name = CheckName(name), description = description?.Trim() ?? "", @public = isPublic }, ct);
         return Map.Playlist(p!.Value, meId);
     }

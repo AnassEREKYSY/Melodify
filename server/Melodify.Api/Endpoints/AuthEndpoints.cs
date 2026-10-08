@@ -30,7 +30,13 @@ public static class AuthEndpoints
         {
             if (string.IsNullOrWhiteSpace(code)) throw new AppException(400, "Missing code.");
             var token = await TokenRequest(f, o, new() { ["grant_type"] = "authorization_code", ["code"] = code, ["redirect_uri"] = o.RedirectUri }, ct);
-            var me = await spotify.GetAsync(token.AccessToken, "me", ct);
+            System.Text.Json.JsonElement? me;
+            try { me = await spotify.GetAsync(token.AccessToken, "me", ct); }
+            catch (SpotifyException e) when (e.Status == 403)
+            {
+                // Development-mode apps: the owner needs Premium and every user must be added in the dashboard.
+                throw new AppException(403, "Spotify blocked this account for Melodify. The account must be added under \"Users and access\" in the Spotify developer dashboard, and the app owner needs Spotify Premium.");
+            }
             return Results.Ok(new { user = me is { } m ? Map.User(m) : null, token.AccessToken, token.ExpiresIn, token.RefreshToken });
         });
 
