@@ -26,8 +26,9 @@ public static class AuthEndpoints
                 ? $"{o.FrontendUrl}/login?error={Uri.EscapeDataString(error)}"
                 : $"{o.FrontendUrl}/login?code={Uri.EscapeDataString(code ?? "")}&state={Uri.EscapeDataString(state ?? "")}"));
 
-        g.MapGet("/exchange", async (string code, SpotifyOptions o, IHttpClientFactory f, SpotifyClient spotify, CancellationToken ct) =>
+        g.MapGet("/exchange", async (string code, SpotifyOptions o, IHttpClientFactory f, SpotifyClient spotify, ILoggerFactory lf, CancellationToken ct) =>
         {
+            var logger = lf.CreateLogger("Auth");
             if (string.IsNullOrWhiteSpace(code)) throw new AppException(400, "Missing code.");
             var token = await TokenRequest(f, o, new() { ["grant_type"] = "authorization_code", ["code"] = code, ["redirect_uri"] = o.RedirectUri }, ct);
             System.Text.Json.JsonElement? me;
@@ -35,7 +36,8 @@ public static class AuthEndpoints
             catch (SpotifyException e) when (e.Status == 403)
             {
                 // Development-mode apps: the owner needs Premium and every user must be added in the dashboard.
-                throw new AppException(403, "Spotify blocked this account for Melodify. The account must be added under \"Users and access\" in the Spotify developer dashboard, and the app owner needs Spotify Premium.");
+                logger.LogWarning("Spotify refused /me after sign-in: {Reason}", e.Message);
+                throw new AppException(403, $"Spotify blocked this account for Melodify (Spotify says: {e.Message}). The account must be added under \"Users and access\" in the Spotify developer dashboard, and the app owner needs Spotify Premium.");
             }
             return Results.Ok(new { user = me is { } m ? Map.User(m) : null, token.AccessToken, token.ExpiresIn, token.RefreshToken });
         });
