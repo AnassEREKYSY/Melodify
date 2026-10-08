@@ -53,7 +53,9 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         if: github.event_name != 'pull_request'
-        with: { registry: ghcr.io, username: '${{ github.actor }}', password: '${{ secrets.GITHUB_TOKEN }}' }
+        # The melodify package was first pushed by the old pipeline with the GHCR_TOKEN PAT, so it is
+        # not linked to this repo and GITHUB_TOKEN cannot write to it. The PAT can.
+        with: { registry: ghcr.io, username: '${{ github.actor }}', password: '${{ secrets.GHCR_TOKEN || secrets.GITHUB_TOKEN }}' }
       # On pull requests the image is only built (proves the Dockerfile works), not pushed.
       - uses: docker/build-push-action@v6
         with:
