@@ -32,4 +32,7 @@ public static class Http
         if (string.IsNullOrWhiteSpace(id) || id.Length > 64 || !id.All(c => char.IsLetterOrDigit(c)))
             throw new AppException(400, $"Invalid {what}.");
     }
+
+    /// <summary>Comma-separated, URL-encoded Spotify URIs for the /me/library endpoints.</summary>
+    public static string Uris(string type, IEnumerable<string> ids) => Uri.EscapeDataString(string.Join(',', ids.Select(id => $"spotify:{type}:{id}")));
 }

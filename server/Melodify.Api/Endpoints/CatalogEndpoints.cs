@@ -21,14 +21,14 @@ public static class CatalogEndpoints
         {
             ValidateId(id);
             var t = ctx.Token();
-            var artist = s.GetAsync(t, $"artists/{id}", ct);
-            var top = s.GetAsync(t, $"artists/{id}/top-tracks?market=from_token", ct);
-            var albums = s.GetAsync(t, $"artists/{id}/albums?include_groups=album,single&limit=24", ct);
-            var following = s.GetAsync(t, $"me/following/contains?type=artist&ids={id}", ct);
-            await Task.WhenAll(artist, top, albums, following);
+            var artist = Map.Artist((await s.GetAsync(t, $"artists/{id}", ct))!.Value);
+            var top = TopTracks(s, t, artist, ct);
+            var albums = s.GetAsync(t, $"artists/{id}/albums?include_groups=album,single&limit=10", ct);
+            var following = s.GetAsync(t, $"me/library/contains?uris={Uris("artist", [id])}", ct);
+            await Task.WhenAll(top, albums, following);
             return new ArtistPage(
-                Map.Artist(artist.Result!.Value),
-                top.Result!.Value.GetProperty("tracks").EnumerateArray().Select(x => Map.Track(x)).OfType<TrackDto>().ToArray(),
+                artist,
+                top.Result,
                 albums.Result!.Value.GetProperty("items").EnumerateArray().Select(a => Map.Album(a))
                     .GroupBy(a => a.Name.ToLowerInvariant()).Select(g => g.First()) // same album in several markets
                     .OrderByDescending(a => a.ReleaseDate).ToArray(),
@@ -38,14 +38,14 @@ public static class CatalogEndpoints
         api.MapPut("/artists/{id}/follow", async (string id, HttpContext ctx, SpotifyClient s, CancellationToken ct) =>
         {
             ValidateId(id);
-            await s.SendAsync(HttpMethod.Put, ctx.Token(), $"me/following?type=artist&ids={id}", null, ct);
+            await s.SendAsync(HttpMethod.Put, ctx.Token(), $"me/library?uris={Uris("artist", [id])}", null, ct);
             return Results.NoContent();
         });
 
         api.MapDelete("/artists/{id}/follow", async (string id, HttpContext ctx, SpotifyClient s, CancellationToken ct) =>
         {
             ValidateId(id);
-            await s.SendAsync(HttpMethod.Delete, ctx.Token(), $"me/following?type=artist&ids={id}", null, ct);
+            await s.SendAsync(HttpMethod.Delete, ctx.Token(), $"me/library?uris={Uris("artist", [id])}", null, ct);
             return Results.NoContent();
         });
 
@@ -64,7 +64,7 @@ public static class CatalogEndpoints
             q = q?.Trim() ?? "";
             if (q.Length is 0 or > 200) throw new AppException(400, "Type something to search.");
             var types = (type ?? "track,artist,album,playlist").Split(',').Where(x => x is "track" or "artist" or "album" or "playlist").DefaultIfEmpty("track");
-            var l = Clamp(limit, 1, 50, 12);
+            var l = Clamp(limit, 1, 10, 10); // Spotify caps search at 10 per type since 2026
             var r = (await s.GetAsync(ctx.Token(), $"search?q={Uri.EscapeDataString(q)}&type={string.Join(',', types)}&limit={l}", ct))!.Value;
             IEnumerable<System.Text.Json.JsonElement> Items(string k) =>
                 r.TryGetProperty(k, out var x) && x.TryGetProperty("items", out var i) ? i.EnumerateArray().Where(e => e.ValueKind == System.Text.Json.JsonValueKind.Object) : [];
@@ -105,6 +105,20 @@ public static class CatalogEndpoints
             cache.Set(key, releases, TimeSpan.FromMinutes(30));
             return releases;
         });
+    }
+
+    /// <summary>Spotify removed "artist top tracks" (2026): use the best search matches by this artist instead.</summary>
+    static async Task<TrackDto[]> TopTracks(SpotifyClient s, string t, ArtistDto artist, CancellationToken ct)
+    {
+        try
+        {
+            var q = Uri.EscapeDataString($"artist:\"{artist.Name}\"");
+            var r = await s.GetAsync(t, $"search?q={q}&type=track&limit=10", ct);
+            if (r is not { } x || !x.TryGetProperty("tracks", out var tr)) return [];
+            return tr.GetProperty("items").EnumerateArray().Where(e => e.ValueKind == System.Text.Json.JsonValueKind.Object)
+                .Select(e => Map.Track(e)).OfType<TrackDto>().Where(e => e.Artists.Any(a => a.Id == artist.Id)).ToArray();
+        }
+        catch (SpotifyException) { return []; }
     }
 
     static async Task<List<ArtistDto>> Followed(SpotifyClient s, string t, CancellationToken ct)

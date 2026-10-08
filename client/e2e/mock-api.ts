@@ -19,7 +19,7 @@ export const user = { id: 'me', displayName: 'Anass Test', email: 'a@example.com
 const stats = (range: string) => ({
   range, artistCount: 20, trackCount: 50, topGenres: [{ name: range === 'medium' ? 'Neo Soul' : 'Jazz Rap', count: 6 }, { name: 'Indie Pop', count: 4 }],
   decades: [{ name: '2010s', count: 20 }, { name: '2020s', count: 30 }], playsByHour: Array.from({ length: 24 }, (_, h) => (h === 21 ? 9 : h % 3)),
-  recentPlays: 50, recentMinutes: 160, averagePopularity: 61.4, explicitPercent: 12, averageTrackSeconds: 212, firstPlayedAt: null,
+  recentPlays: 50, recentMinutes: 160, averagePopularity: null, explicitPercent: 12, averageTrackSeconds: 212, firstPlayedAt: null,
 });
 
 export interface Calls { method: string; path: string; search: URLSearchParams; body: any; }
@@ -57,7 +57,7 @@ export async function mockApi(page: Page, overrides: Record<string, (r: Route, c
     }
     if (c.method === 'GET' && /^\/playlists\/[a-z0-9]+$/.test(path)) {
       const p = playlists.find(x => path.endsWith('/' + x.id)) ?? { ...playlists[0], id: path.split('/').pop()!, name: 'Your top tracks' };
-      return json(r, { playlist: p, tracks: [1, 2, 3, 4].map(i => track(i)), skippedLocal: 0 });
+      return json(r, p.isOwn ? { playlist: p, tracks: [1, 2, 3, 4].map(i => track(i)), skippedLocal: 0, tracksHidden: false } : { playlist: p, tracks: [], skippedLocal: 0, tracksHidden: true });
     }
     if (c.method === 'GET' && /^\/artists\/[a-z0-9]+$/.test(path)) return json(r, { artist: artist(1), topTracks: [1, 2].map(i => track(i)), albums: [album(1), album(2, 'single')], following: false });
     if (c.method === 'GET' && /^\/albums\//.test(path)) return json(r, { ...album(1), tracks: [1, 2].map(i => ({ ...track(i), album: null })) });

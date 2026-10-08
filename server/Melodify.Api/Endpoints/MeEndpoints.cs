@@ -45,21 +45,26 @@ public static class MeEndpoints
             var list = ids.Split(',', StringSplitOptions.RemoveEmptyEntries).Take(50).ToArray();
             foreach (var id in list) ValidateId(id);
             if (list.Length == 0) return Array.Empty<bool>();
-            var r = (await s.GetAsync(ctx.Token(), $"me/tracks/contains?ids={string.Join(',', list)}", ct))!.Value;
-            return r.EnumerateArray().Select(x => x.GetBoolean()).ToArray();
+            var result = new List<bool>(list.Length);
+            foreach (var chunk in list.Chunk(40)) // /me/library/contains takes 40 URIs at most
+            {
+                var r = (await s.GetAsync(ctx.Token(), $"me/library/contains?uris={Uris("track", chunk)}", ct))!.Value;
+                result.AddRange(r.EnumerateArray().Select(x => x.GetBoolean()));
+            }
+            return result.ToArray();
         });
 
         api.MapPut("/me/tracks/{id}", async (string id, HttpContext ctx, SpotifyClient s, CancellationToken ct) =>
         {
             ValidateId(id);
-            await s.SendAsync(HttpMethod.Put, ctx.Token(), $"me/tracks?ids={id}", null, ct);
+            await s.SendAsync(HttpMethod.Put, ctx.Token(), $"me/library?uris={Uris("track", [id])}", null, ct);
             return Results.NoContent();
         });
 
         api.MapDelete("/me/tracks/{id}", async (string id, HttpContext ctx, SpotifyClient s, CancellationToken ct) =>
         {
             ValidateId(id);
-            await s.SendAsync(HttpMethod.Delete, ctx.Token(), $"me/tracks?ids={id}", null, ct);
+            await s.SendAsync(HttpMethod.Delete, ctx.Token(), $"me/library?uris={Uris("track", [id])}", null, ct);
             return Results.NoContent();
         });
     }

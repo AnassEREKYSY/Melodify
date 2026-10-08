@@ -31,7 +31,7 @@ type Kind = 'all' | 'album' | 'single' | 'compilation';
           <div class="min-w-0">
             <p class="eyebrow !text-ink-muted">Artist</p>
             <h1 class="mt-1 break-words text-[36px] font-bold leading-none tracking-[-0.03em] sm:text-[60px]">{{ a.name }}</h1>
-            <p class="mt-3 text-sm text-ink-muted">{{ a.followers | compact }} followers</p>
+            @if (a.followers != null) { <p class="mt-3 text-sm text-ink-muted">{{ a.followers | compact }} followers</p> }
             @if (a.genres.length) { <div class="mt-3 flex flex-wrap gap-1.5">@for (g of a.genres.slice(0, 4); track g) { <span class="tag capitalize">{{ g }}</span> }</div> }
           </div>
         </div>
@@ -45,11 +45,11 @@ type Kind = 'all' | 'album' | 'single' | 'compilation';
         </div>
 
         <section aria-labelledby="pop-h">
-          <h2 id="pop-h" class="h2">Popular</h2>
+          <h2 id="pop-h" class="h2">Songs</h2>
           @if (data()!.topTracks.length) {
             <app-track-list class="mt-2" [tracks]="showAll() ? data()!.topTracks : data()!.topTracks.slice(0, 5)" (play)="player.playUris(uris(), $event)" />
             @if (data()!.topTracks.length > 5) { <button type="button" class="btn-ghost btn-sm mt-1" (click)="showAll.set(!showAll())">{{ showAll() ? 'Show less' : 'See more' }}</button> }
-          } @else { <p class="mt-2 text-sm text-ink-faint">No popular tracks yet.</p> }
+          } @else { <p class="mt-2 text-sm text-ink-faint">No songs found for this artist.</p> }
         </section>
 
         <section class="mt-10" aria-labelledby="disc-h">

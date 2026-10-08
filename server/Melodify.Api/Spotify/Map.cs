@@ -31,8 +31,9 @@ public static class Map
     }
 
     /// <summary>Playlist/saved-track/recently-played items wrap the track.</summary>
+    /// <remarks>Playlist items now use "item" (2026 API); saved tracks and recent plays still use "track".</remarks>
     public static TrackDto? Item(JsonElement it) =>
-        it.Obj("track") is { } t ? Track(t, it.Str("added_at"), it.Str("played_at")) : null;
+        (it.Obj("item") ?? it.Obj("track")) is { } t ? Track(t, it.Str("added_at"), it.Str("played_at")) : null;
 
     public static ArtistDto Artist(JsonElement a) => new(
         a.Str("id") ?? "", a.Str("uri") ?? "", a.Str("name") ?? "", Image(a),
@@ -47,7 +48,7 @@ public static class Map
     {
         var owner = p.Obj("owner");
         var ownerId = owner?.Str("id") ?? "";
-        var total = p.Obj("tracks")?.Int("total") ?? p.Obj("items")?.Int("total") ?? 0;
+        var total = p.Obj("items")?.Int("total") ?? p.Obj("tracks")?.Int("total") ?? 0;
         return new PlaylistDto(
             p.Str("id") ?? "", p.Str("uri") ?? "", p.Str("name") ?? "", NullIfEmpty(p.Str("description")), Image(p),
             new OwnerDto(ownerId, owner?.Str("display_name")), total, p.Bool("public"), p.Bool("collaborative"),

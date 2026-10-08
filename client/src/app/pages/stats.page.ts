@@ -44,7 +44,7 @@ interface Data { stats: Stats; artists: Artist[]; tracks: Track[]; }
         <dl class="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4" data-testid="tiles">
           <div class="card p-4"><dt class="text-[13px] text-ink-faint">Top genre</dt><dd class="mt-1.5 truncate text-xl font-semibold capitalize">{{ s.topGenres.length ? s.topGenres[0].name : '–' }}</dd></div>
           <div class="card p-4"><dt class="text-[13px] text-ink-faint">Artists in your top</dt><dd class="mt-1.5 text-xl font-semibold tabular-nums">{{ s.artistCount }}</dd></div>
-          <div class="card p-4"><dt class="text-[13px] text-ink-faint">Mainstream score</dt><dd class="mt-1.5 text-xl font-semibold tabular-nums">{{ s.averagePopularity != null ? Math.round(s.averagePopularity) : '–' }}<span class="text-sm font-normal text-ink-faint"> / 100</span></dd></div>
+          <div class="card p-4"><dt class="text-[13px] text-ink-faint">Last {{ s.recentPlays }} plays</dt><dd class="mt-1.5 text-xl font-semibold tabular-nums">{{ hm(s.recentMinutes) }}</dd></div>
           <div class="card p-4"><dt class="text-[13px] text-ink-faint">Average song</dt><dd class="mt-1.5 text-xl font-semibold tabular-nums">{{ mmss(s.averageTrackSeconds * 1000) }}</dd></div>
         </dl>
 
@@ -58,7 +58,7 @@ interface Data { stats: Stats; artists: Artist[]; tracks: Track[]; }
                   <span class="w-5 text-right text-sm tabular-nums text-ink-faint">{{ i + 1 }}</span>
                   <app-cover class="w-10 shrink-0" [src]="a.image" [round]="true" icon="user" [small]="true" />
                   <span class="min-w-0 flex-1"><span class="block truncate text-[15px]">{{ a.name }}</span><span class="block truncate text-[13px] capitalize text-ink-faint">{{ a.genres.slice(0, 2).join(', ') || 'Artist' }}</span></span>
-                  <span class="text-[13px] tabular-nums text-ink-faint">{{ a.followers | compact }}</span>
+                  @if (a.followers != null) { <span class="text-[13px] tabular-nums text-ink-faint">{{ a.followers | compact }}</span> }
                 </a></li>
               }
             </ol>

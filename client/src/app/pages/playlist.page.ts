@@ -34,7 +34,7 @@ type Panel = 'stats' | 'sort' | 'edit' | 'delete' | null;
             <p class="eyebrow !text-ink-muted">{{ p.isOwn ? 'Your playlist' : 'Playlist' }}</p>
             <h1 class="mt-1 break-words text-[32px] font-bold leading-[1.05] tracking-[-0.03em] sm:text-[48px]">{{ p.name }}</h1>
             @if (p.description) { <p class="mt-2 line-clamp-2 text-sm text-ink-muted" [innerHTML]="p.description"></p> }
-            <p class="mt-3 text-sm text-ink-muted"><span class="font-medium text-ink">{{ p.isOwn ? 'You' : (p.owner.name ?? 'Spotify') }}</span> · {{ tracks().length }} songs · {{ duration() }}</p>
+            <p class="mt-3 text-sm text-ink-muted"><span class="font-medium text-ink">{{ p.isOwn ? 'You' : (p.owner.name ?? 'Spotify') }}</span> · {{ data()!.tracksHidden ? p.trackCount : tracks().length }} songs @if (!data()!.tracksHidden) { · {{ duration() }} }</p>
           </div>
         </div>
       </header>
@@ -42,7 +42,7 @@ type Panel = 'stats' | 'sort' | 'edit' | 'delete' | null;
       <div class="page">
         <div class="flex flex-wrap items-center gap-2 py-4">
           <button type="button" class="play-btn mr-2 h-14 w-14" (click)="player.playContext(p.uri)" [disabled]="!tracks().length" aria-label="Play"><app-icon name="play" [size]="22" [fill]="true" /></button>
-          <button type="button" class="btn-secondary btn-sm" [class.!border-accent]="panel() === 'stats'" (click)="toggle('stats')" data-testid="pl-stats"><app-icon name="chart" [size]="15" /> Stats</button>
+          @if (!data()!.tracksHidden) { <button type="button" class="btn-secondary btn-sm" [class.!border-accent]="panel() === 'stats'" (click)="toggle('stats')" data-testid="pl-stats"><app-icon name="chart" [size]="15" /> Stats</button> }
           @if (p.isOwn) {
             <button type="button" class="btn-secondary btn-sm" (click)="dedupe()" [disabled]="busy()" data-testid="pl-dedupe"><app-icon name="wand" [size]="15" /> Remove duplicates</button>
             <button type="button" class="btn-secondary btn-sm" [class.!border-accent]="panel() === 'sort'" (click)="toggle('sort')" data-testid="pl-sort"><app-icon name="arrow-up-down" [size]="15" /> Sort</button>
@@ -57,7 +57,7 @@ type Panel = 'stats' | 'sort' | 'edit' | 'delete' | null;
               @if (stats(); as s) {
                 <dl class="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   <div><dt class="text-[13px] text-ink-faint">Length</dt><dd class="mt-1 text-xl font-semibold tabular-nums">{{ hm(s.totalMinutes) }}</dd></div>
-                  <div><dt class="text-[13px] text-ink-faint">Popularity</dt><dd class="mt-1 text-xl font-semibold tabular-nums">{{ s.averagePopularity != null ? round(s.averagePopularity) : '–' }}<span class="text-sm font-normal text-ink-faint"> / 100</span></dd></div>
+                  <div><dt class="text-[13px] text-ink-faint">Songs</dt><dd class="mt-1 text-xl font-semibold tabular-nums">{{ s.trackCount }}</dd></div>
                   <div><dt class="text-[13px] text-ink-faint">Explicit</dt><dd class="mt-1 text-xl font-semibold tabular-nums">{{ s.explicitPercent }}%</dd></div>
                   <div><dt class="text-[13px] text-ink-faint">Duplicates</dt><dd class="mt-1 text-xl font-semibold tabular-nums" [class.text-accent]="s.duplicates > 0">{{ s.duplicates }}</dd></div>
                 </dl>
@@ -98,7 +98,11 @@ type Panel = 'stats' | 'sort' | 'edit' | 'delete' | null;
         }
 
         @if (data()!.skippedLocal) { <p class="mb-3 text-[13px] text-ink-faint">{{ data()!.skippedLocal }} local files are hidden. Tools that rewrite the playlist are turned off for it.</p> }
-        @if (tracks().length) {
+        @if (data()!.tracksHidden) {
+          <app-empty icon="ban" title="Spotify does not share the songs of this playlist" text="Apps can only list the songs of playlists you own or collaborate on. You can still play it.">
+            <button type="button" class="btn-primary btn-sm" (click)="player.playContext(p.uri)">Play playlist</button>
+          </app-empty>
+        } @else if (tracks().length) {
           <app-track-list [tracks]="tracks()" [showHeader]="true" [canRemove]="p.isOwn" (play)="player.playContext(p.uri, $event)" (remove)="removeTrack($event)" />
         } @else { <app-empty icon="music" title="This playlist is empty" text="Search for songs and add them from the menu next to each one." /> }
       </div>

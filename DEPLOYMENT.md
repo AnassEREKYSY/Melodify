@@ -40,7 +40,8 @@ Optional variables:
 
 - The redirect URI must be `https://melodify.anasserekysy.com/api/spotify-auth/callback`.
 - Melodify now asks for more scopes (playback control, top items, recently played, follow, library). Users who signed in before must sign in again; the old session in the browser is ignored.
-- While the Spotify app is in **development mode**, only the accounts listed under "Users and access" (up to 25) can sign in.
+- Since February 2026, a Spotify app in **development mode** only works if the **app owner has Spotify Premium**, and only for accounts listed under "Users and access" (5 users for new apps). Otherwise Spotify refuses the sign-in and Melodify says so on the login page.
+- Development mode also hides some data: the songs of playlists you don't own or collaborate on, artist top tracks, popularity and follower counts, and your plan (free or Premium). Melodify adapts: other people's playlists can be played but not listed or merged, and artist pages show search results for that artist.
 - "Play in this browser" and playback control need Spotify Premium. Stats, playlist tools and releases work with a free account.
 
 ## Reverse proxy
