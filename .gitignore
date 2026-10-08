@@ -1,0 +1,22 @@
+# .NET
+bin/
+obj/
+*.user
+TestResults/
+# The Angular build is copied into wwwroot by the Dockerfile; never commit it.
+server/Melodify.Api/wwwroot/
+
+# Node / Angular
+node_modules/
+client/dist/
+client/.angular/
+client/test-results/
+client/playwright-report/
+
+# Local settings and secrets
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Melodify.Api", "Melodify.Api\Melodify.Api.csproj", "{894D6A4B-46BB-4B56-954E-45C1547A88AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Melodify.Tests", "Melodify.Tests\Melodify.Tests.csproj", "{A7AA95E8-B806-449C-B0ED-E32F19274ADE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{894D6A4B-46BB-4B56-954E-45C1547A88AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{894D6A4B-46BB-4B56-954E-45C1547A88AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{894D6A4B-46BB-4B56-954E-45C1547A88AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{894D6A4B-46BB-4B56-954E-45C1547A88AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7AA95E8-B806-449C-B0ED-E32F19274ADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7AA95E8-B806-449C-B0ED-E32F19274ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7AA95E8-B806-449C-B0ED-E32F19274ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7AA95E8-B806-449C-B0ED-E32F19274ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

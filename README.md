@@ -1,128 +1,83 @@
 # Melodify
 
-Melodify is a web application that interacts with Spotify's API, allowing users to access and manage their Spotify data through an intuitive interface
+Melodify is a companion app for your Spotify account. It shows what you really listen to, cleans up your playlists, collects new releases from the artists you follow and lets you control playback on any of your devices.
 
-### Features
+Live: https://melodify.anasserekysy.com
 
-1. Spotify Login: 
-    ![Spotify Login](images/SpotifyLogin1.png)
-    ![Spotify Login](images/SpotifyLogin2.png)
-    Users log in with their Spotify accounts via OAuth 2.0.
+![Home](docs/screenshots/home.png)
 
-2. Home Dashboard: 
-    ![Spotify Dahsboard](images/Dashboard1.png)
-    ![Spotify Dahsboard](images/Dashboard2.png)
-    ![Spotify Dahsboard](images/CreatePlaylist.png)
-    Displays user data from Spotify, including playlists and favorite artists.
+## Features
 
-3. Playlist Management: Create, delete, add or remove a song to/from a playlists.
+**Listening stats.** Top artists and tracks for the last 4 weeks, 6 months or all time, top genres, release decades, a "mainstream score" and a 24-hour chart of when you listen (from your last 50 plays, in your local time). Every chart has a table view. One click saves your top tracks as a playlist.
 
-4. Artist Management: Follow and unfollow artists.
+![Stats](docs/screenshots/stats.png)
 
-5. Search & Play Music: 
-    ![Spotify Search](images/Search.png)
-    Search for songs and listen to them (juste a little part).
+**Player and devices.** A player bar on every page (play, pause, skip, seek, volume, shuffle, repeat) that drives Spotify Connect. Pick any device from the device menu, or "Play in this browser" with the Spotify Web Playback SDK. Playing needs Spotify Premium.
 
-6. User Profile: 
-    ![Spotify Profile](images/Profile.png)
-    View user profile details.
+**Playlist tools.** Remove duplicates (same song id, or same title and main artist), sort a playlist by artist, title, release date, popularity, length or date added, merge several playlists into a new one, and build a playlist from your top tracks. Each playlist also has a stats panel (length, popularity, explicit share, top artists, decades, duplicates).
 
-7. Playlist Details: 
-    ![Spotify PLaylists](images/PlaylistDetails.png)
-    See playlist contents (songs, etc.).
+![Playlist tools](docs/screenshots/playlist-tools.png)
 
-8. Artist Details: 
-    ![Spotify Artists](images/ArtistDetails.png)
-    View artist information (followers, popularity, top 10 songs).
+**New releases for you.** Albums and singles released in the last 30 days, 3 months or 6 months by the artists you follow, newest first.
 
-9. Play songs: 
-    ![Spotify Songs](images/Song.png)
-    Play songs
-## Technology Stack
+![New releases](docs/screenshots/releases.png)
 
-1. Frontend: Angular 19
+Plus: search, liked songs, artist pages (follow, popular tracks, discography), album pages, add to queue, add to playlist, and a mobile layout with bottom tabs.
 
-2. Backend: .NET 8 Web API
+<img src="docs/screenshots/mobile.png" alt="Mobile" width="280" />
 
-3. Database: SQL Server (Dockerized)
+## Stack
 
-4. Authentication: OAuth 2.0 via Spotify
+| Part | Tech |
+| --- | --- |
+| Client | Angular 19 (standalone components, signals), Tailwind CSS 3, Inter. Design notes in [client/DESIGN.md](client/DESIGN.md) |
+| API | .NET 8 minimal APIs, no NuGet packages: typed Spotify Web API client, token refresh, in-memory cache for releases |
+| Tests | xUnit (domain logic + API rules), Playwright end-to-end tests with a mocked API |
+| Delivery | One Docker image (the API serves the Angular build), GitHub Actions to GHCR, deployed to an OVH VM behind Nginx. See [DEPLOYMENT.md](DEPLOYMENT.md) |
 
-## Getting Started
-Follow these steps to set up and run the application locally.
-
-
-Prerequisites  
-Ensure you have the following installed on your system:
-
-1. Node.js (LTS recommended)
-
-2. Angular CLI
-
-3. .NET 8 SDK
-
-5. Spotify Developer Account (to set up API credentials)
-
-6. Clone the project to your local machine:
-
-```bash
-git clone https://github.com/AnassEREKYSY/Melodify.git
-cd Melodify
+```
+client/                 Angular app (src/app/pages, shared, core)
+client/e2e/             Playwright tests (API mocked in e2e/mock-api.ts)
+server/Melodify.Api/    Spotify client, endpoints, domain logic (stats, playlist tools)
+server/Melodify.Tests/  xUnit tests
+deploy/                 docker-compose.prod.yml, deploy.sh, nginx site
+Dockerfile              client build + API publish + runtime image
 ```
 
-Backend Setup
+## Run locally
 
-Navigate to the API directory:
+1. Create an app in the [Spotify developer dashboard](https://developer.spotify.com/dashboard) and add the redirect URI `http://127.0.0.1:5001/api/spotify-auth/callback` (Spotify only accepts loopback IPs, not `localhost`).
+2. Start the API:
+   ```bash
+   cd server
+   export SPOTIFY_CLIENT_ID=... SPOTIFY_CLIENT_SECRET=... \
+     SPOTIFY_REDIRECT_URI=http://127.0.0.1:5001/api/spotify-auth/callback \
+     FRONTEND_URL=http://localhost:4200
+   dotnet run --project Melodify.Api
+   ```
+3. Start the client:
+   ```bash
+   cd client && npm install && npm start
+   ```
+4. Open http://localhost:4200 and continue with Spotify.
+
+Tests:
+
 ```bash
-cd server/API
+cd server && dotnet test
+cd client && npx playwright install chromium && npm run e2e
 ```
 
-Restore dependencies::
-```bash
-dotnet restore
-```
+## API
 
-Run the API:
-```bash
-dotnet run
-```
+All routes are under `/api`. Everything except `/api/health` and `/api/spotify-auth/*` needs `Authorization: Bearer <spotify access token>`. Errors are `{ "error": "message" }`.
 
+| Area | Routes |
+| --- | --- |
+| Auth | `GET spotify-auth/get-url-login`, `GET spotify-auth/callback`, `GET spotify-auth/exchange?code=`, `POST spotify-auth/refresh` |
+| Me | `GET me`, `GET me/top/artists\|tracks?range=short\|medium\|long`, `GET me/recent`, `GET me/stats?range=&tz=`, `GET me/tracks`, `GET me/tracks/contains?ids=`, `PUT\|DELETE me/tracks/{id}` |
+| Playlists | `GET playlists`, `GET playlists/{id}`, `GET playlists/{id}/stats`, `POST playlists`, `PUT\|DELETE playlists/{id}`, `POST\|DELETE playlists/{id}/tracks`, `POST playlists/{id}/dedupe`, `POST playlists/{id}/sort`, `POST playlists/merge`, `POST playlists/from-top` |
+| Catalog | `GET artists/followed`, `GET artists/{id}`, `PUT\|DELETE artists/{id}/follow`, `GET albums/{id}`, `GET search?q=`, `GET releases?days=` |
+| Player | `GET player`, `GET player/devices`, `PUT player/play\|pause\|device\|volume\|seek\|shuffle\|repeat`, `POST player/next\|previous\|queue` |
 
-Frontend Setup
-
-Navigate to the client directory:
-```bash
-cd client/client
-```
-
-Install dependencies:
-```bash
-npm install
-```
-
-Run the Angular development server:
-```bash
-npm start 
-or 
-ng serve
-```
-
-Open your browser and go to:
-```bash
-http://localhost:4200/login
-```
-
-
-Environment Variables :
-Create a .env file in the backend with the following variables:
-```bash
-SPOTIFY_CLIENT_ID=your_client_id
-SPOTIFY_CLIENT_SECRET=your_client_secret
-SPOTIFY_REDIRECT_URI=http://localhost:4200/callback
-DATABASE_CONNECTION_STRING=your_sql_connection_string
-```
-
-
-Feel free to copy and paste this into your GitHub repository!
-
-# Melodify
+Playlist rewrite tools (dedupe, sort) only run on your own playlists, without local files and under 5,000 tracks.
